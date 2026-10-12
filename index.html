@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101713">
+  <title>LoadGuard – Verladekontrolle</title>
+
+  <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/zxing-browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #101713;
+      --panel: #19231d;
+      --panel2: #202c24;
+      --green: #a3f36b;
+      --text: #f4f7f4;
+      --muted: #a1afa5;
+      --red: #ff5555;
+      --border: #344238;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .logo span { color: var(--green); }
+
+    .status {
+      font-size: 12px;
+      color: var(--green);
+      background: #263b29;
+      padding: 8px 10px;
+      border-radius: 20px;
+    }
+
+    main {
+      max-width: 850px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    h1 { font-size: 25px; margin: 4px 0 8px; }
+    h2 { font-size: 18px; margin: 0 0 14px; }
+    p { color: var(--muted); line-height: 1.5; }
+
+    label {
+      display: block;
+      margin: 14px 0 7px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, select, button {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 10px;
+      padding: 12px;
+      font: inherit;
+    }
+
+    input, select {
+      background: #0f1711;
+      color: white;
+      border: 1px solid var(--border);
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 750;
+      border: 0;
+      background: var(--green);
+      color: #10200e;
+      margin-top: 10px;
+    }
+
+    button.secondary {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.danger {
+      background: var(--red);
+      color: #210808;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 14px;
+      background: var(--panel2);
+      border-radius: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 27px;
+      margin-top: 7px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .hidden { display: none !important; }
+
+    #result {
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--panel2);
+      margin-top: 14px;
+      font-weight: 750;
+      white-space: pre-wrap;
+    }
+
+    #result.success {
+      background: #173c25;
+      color: #b8ffbd;
+    }
+
+    #result.error {
+      background: #481d20;
+      color: #ffd1d1;
+    }
+
+    #video {
+      width: 100%;
+      border-radius: 12px;
+      background: #050805;
+      margin-top: 12px;
+      max-height: 300px;
+      object-fit: cover;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .row button { width: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--border);
+      overflow-wrap: anywhere;
+    }
+
+    th { color: var(--green); }
+
+    .table-wrap { overflow-x: auto; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: var(--panel2);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 20px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 500px) {
+      header { padding: 15px; }
+      main { padding: 12px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .card { padding: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="logo">LOAD<span>GUARD</span></div>
+  <div class="status">● VERLADEKONTROLLE</div>
+</header>
+
+<main>
+  <section class="card">
+    <h1>Verladung prüfen</h1>
+    <p>Erst das Paket scannen, danach den Barcode der vorgesehenen Verladestelle.</p>
+
+    <label for="employee">Mitarbeiter-ID</label>
+    <input id="employee" placeholder="z. B. MA1001" autocomplete="off">
+
+    <label for="role">Ansicht</label>
+    <select id="role">
+      <option value="worker">Mitarbeiter</option>
+      <option value="admin">Admin-Demo</option>
+    </select>
+    <p class="small">Die Admin-Auswahl ist hier nur eine Demo und noch nicht durch ein Passwort geschützt.</p>
+  </section>
+
+  <section class="card">
+    <h2>01 · Paket scannen</h2>
+
+    <label for="parcel">Barcode / Sendungsnummer</label>
+    <input id="parcel" placeholder="Barcode scannen oder Nummer eingeben"
+           autocomplete="off" autocapitalize="off">
+
+    <button id="cameraButton" class="secondary" onclick="startCamera()">
+      Kamera starten
+    </button>
+
+    <video id="video" class="hidden" playsinline></video>
+    <button id="stopCamera" class="secondary hidden" onclick="stopCamera()">
+      Kamera stoppen
+    </button>
+
+    <button onclick="checkParcel()">Paket übernehmen</button>
+    <div id="parcelInfo" class="small"></div>
+  </section>
+
+  <section class="card">
+    <h2>02 · Verladestelle scannen</h2>
+
+    <label for="dock">Barcode der Verladestelle</label>
+    <input id="dock" placeholder="z. B. WALL-DHL-01"
+           autocomplete="off" autocapitalize="off">
+
+    <button onclick="checkDock()">Verladung prüfen</button>
+
+    <div id="result" aria-live="assertive">
+      Bereit. Bitte eine Mitarbeiter-ID eingeben und ein Paket scannen.
+    </div>
+  </section>
+
+  <section id="adminPanel" class="hidden">
+    <div class="card">
+      <h2>Admin-Dashboard</h2>
+      <div class="grid">
+        <div class="metric">
+          <span>Erfasste Pakete</span>
+          <strong id="totalScans">0</strong>
+        </div>
+        <div class="metric">
+          <span>Erfolgreich verladen</span>
+          <strong id="successScans">0</strong>
+        </div>
+        <div class="metric">
+          <span>Fehlversuche</span>
+          <strong id="failedScans">0</strong>
+        </div>
+        <div class="metric">
+          <span>Mitarbeiter erfasst</span>
+          <strong id="employeeCount">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Verladestellen verwalten</h2>
+      <p class="small">Jeder Wandbarcode muss eindeutig einer Spedition zugeordnet werden.</p>
+
+      <label for="dockCode">Barcode / Code</label>
+      <input id="dockCode" placeholder="WALL-DHL-01">
+
+      <label for="dockCarrier">Spedition</label>
+      <select id="dockCarrier">
+        <option>DHL</option>
+        <option>DPD</option>
+        <option>GLS</option>
+        <option>UPS</option>
+      </select>
+
+      <button onclick="addDock()">Verladestelle hinzufügen</button>
+      <div id="dockList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Mitarbeiter anlegen</h2>
+      <label for="newEmployee">Neue Mitarbeiter-ID</label>
+      <input id="newEmployee" placeholder="z. B. MA1002">
+      <button onclick="addEmployee()">Mitarbeiter hinzufügen</button>
+      <div id="employeeList"></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2>Scanprotokoll</h2>
+        <button class="secondary" onclick="exportLogs()">CSV exportieren</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Zeit</th>
+              <th>Mitarbeiter</th>
+              <th>Paket</th>
+              <th>Spedition</th>
+              <th>Verladestelle</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="logs"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>LoadGuard · Verladekontrolle · Prototyp</footer>
+
+<script>
+  const STORAGE_KEY = "loadguard_demo_v1";
+
+  const initialData = {
+    docks: {
+      "WALL-DHL-01": "DHL",
+      "WALL-DPD-01": "DPD",
+      "WALL-GLS-01": "GLS",
+      "WALL-UPS-01": "UPS"
+    },
+    employees: [],
+    logs: []
+  };
+
+  let data = loadData();
+  let pendingParcel = null;
+  let cameraReader = null;
+  let cameraControls = null;
+
+  function loadData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return structuredClone(initialData);
+
+      const parsed = JSON.parse(saved);
+      return {
+        docks: parsed.docks || structuredClone(initialData.docks),
+        employees: parsed.employees || [],
+        logs: parsed.logs || []
+      };
+    } catch {
+      return structuredClone(initialData);
+    }
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    renderAdmin();
+  }
+
+  function getEmployee() {
+    return document.getElementById("employee").value.trim();
+  }
+
+  function getCarrier(raw) {
+    const value = raw.trim().toUpperCase().replace(/\s+/g, "");
+
+    // Vorläufige Heuristik – keine zuverlässige Spediteuridentifikation.
+    if (/^1Z[A-Z0-9]{16}$/.test(value)) return "UPS";
+    if (/^JJD\d+/.test(value) || /^0034\d+/.test(value)) return "DHL";
+    if (/^Z\d{8,}/.test(value)) return "GLS";
+    if (/^0\d{13,14}$/.test(value)) return "DPD";
+
+    return "UNBEKANNT";
+  }
+
+  function showResult(message, type = "") {
+    const box = document.getElementById("result");
+    box.textContent = message;
+    box.className = type;
+  }
+
+  function beep() {
+    try {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const ctx = new AudioContextClass();
+      [0, 0.25, 0.5].forEach((delay) => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.type = "square";
+        oscillator.frequency.value = 880;
+        gain.gain.value = 0.18;
+        oscillator.start(ctx.currentTime + delay);
+        oscillator.stop(ctx.currentTime + delay + 0.13);
+      });
+      setTimeout(() => ctx.close(), 1200);
+    } catch (e) {
+      console.warn("Akustische Warnung nicht verfügbar", e);
+    }
+  }
+
+  function logScan(parcel, carrier, dock, status, message) {
+    data.logs.unshift({
+      time: new Date().toISOString(),
+      employee: getEmployee() || "NICHT ANGEGEBEN",
+      parcel,
+      carrier,
+      dock,
+      status,
+      message
+    });
+    saveData();
+  }
+
+  function checkParcel() {
+    const employee = getEmployee();
+    const parcel = document.getElementById("parcel").value.trim();
+
+    if (!employee) {
+      showResult("STOPP: Bitte zuerst eine Mitarbeiter-ID eingeben.", "error");
+      beep();
+      return;
+    }
+
+    if (!parcel) {
+      showResult("Bitte zuerst einen Paketbarcode scannen.", "error");
+      beep();
+      return;
+    }
+
+    if (
+      data.employees.length > 0 &&
+      !data.employees.includes(employee)
+    ) {
+      showResult("STOPP: Diese Mitarbeiter-ID ist nicht angelegt.", "error");
+      beep();
+      logScan(parcel, "UNBEKANNT", "", "ABGELEHNT", "Unbekannte Mitarbeiter-ID");
+      return;
+    }
+
+    const carrier = getCarrier(parcel);
+    pendingParcel = { parcel, carrier };
+
+    document.getElementById("parcelInfo").textContent =
+      "Paket erfasst · erkannte Spedition: " + carrier;
+
+    document.getElementById("dock").value = "";
+    document.getElementById("dock").focus();
+
+    showResult(
+      carrier === "UNBEKANNT"
+        ? "ACHTUNG: Spedition nicht zuverlässig erkannt. Nicht verladen, bis die Zuordnung geprüft wurde."
+        : "Paket erfasst. Jetzt den Barcode der Verladestelle scannen.",
+      carrier === "UNBEKANNT" ? "error" : ""
+    );
+
+    if (carrier === "UNBEKANNT") beep();
+  }
+
+  function checkDock() {
+    const employee = getEmployee();
+    const dockCode = document.getElementById("dock").value.trim().toUpperCase();
+
+    if (!employee) {
+      showResult("STOPP: Mitarbeiter-ID fehlt.", "error");
+      beep();
+      return;
+    }
+
+    if (!pendingParcel) {
+      showResult("STOPP: Zuerst muss ein Paket gescannt werden.", "error");
+      beep();
+      return;
+    }
+
+    const carrier = pendingParcel.carrier;
+    const assignedCarrier = data.docks[dockCode];
+
+    if (!assignedCarrier) {
+      showResult(
+        "VERLADUNG BLOCKIERT\nUnbekannter Wandbarcode: " + dockCode,
+        "error"
+      );
+      logScan(pendingParcel.parcel, carrier, dockCode, "FEHLER", "Unbekannte Verladestelle");
+      beep();
+      return;
+    }
+
+    if (carrier === "UNBEKANNT") {
+      showResult(
+        "VERLADUNG BLOCKIERT\nDie Spedition des Pakets ist nicht sicher erkannt.",
+        "error"
+      );
+      logScan(pendingParcel.parcel, carrier, dockCode, "BLOCKIERT", "Spedition unbekannt");
+      beep();
+      return;
+    }
+
+    if (carrier !== assignedCarrier) {
+      showResult(
+        "⛔ FALSCHE VERLADESTELLE!\n\n" +
+        "Paket: " + carrier + "\n" +
+        "Verladestelle: " + assignedCarrier + "\n\n" +
+        "Paket NICHT verladen. Bitte die richtige Verladestelle anfahren.",
+        "error"
+      );
+
+      logScan(
+        pendingParcel.parcel, carrier, dockCode,
+        "FEHLVERLADUNG BLOCKIERT",
+        "Paket " + carrier + " an Verladestelle " + assignedCarrier
+      );
+
+      beep();
+      return;
+    }
+
+    showResult(
+      "✓ VERLADUNG FREIGEGEBEN\n\n" +
+      "Spedition: " + carrier + "\n" +
+      "Mitarbeiter: " + employee + "\n" +
+      "Verladestelle: " + dockCode,
+      "success"
+    );
+
+    logScan(pendingParcel.parcel, carrier, dockCode, "ERFOLGREICH", "Verladung freigegeben");
+
+    pendingParcel = null;
+    document.getElementById("parcel").value = "";
+    document.getElementById("dock").value = "";
+    document.getElementById("parcelInfo").textContent = "";
+    document.getElementById("parcel").focus();
+  }
+
+  async function startCamera() {
+    const video = document.getElementById("video");
+
+    if (!window.ZXingBrowser) {
+      showResult("Kamerascanner konnte nicht geladen werden. Bitte Scanner oder Tastatureingabe verwenden.", "error");
+      return;
+    }
+
+    try {
+      cameraReader = new ZXingBrowser.BrowserMultiFormatReader();
+      video.classList.remove("hidden");
+      document.getElementById("stopCamera").classList.remove("hidden");
+
+      cameraControls = await cameraReader.decodeFromVideoDevice(
+        undefined,
+        video,
+        (result, error) => {
+          if (result) {
+            document.getElementById("parcel").value = result.getText();
+            stopCamera();
+            checkParcel();
+          }
+        }
+      );
+    } catch (error) {
+      showResult(
+        "Kamera nicht verfügbar. Bitte Kamerazugriff erlauben und die Seite über HTTPS öffnen.",
+        "error"
+      );
+      stopCamera();
+    }
+  }
+
+  function stopCamera() {
+    if (cameraControls) {
+      cameraControls.stop();
+      cameraControls = null;
+    }
+
+    if (cameraReader && cameraReader.reset) {
+      try { cameraReader.reset(); } catch {}
+    }
+
+    const video = document.getElementById("video");
+    if (video.srcObject) {
+      video.srcObject.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
+    }
+
+    video.classList.add("hidden");
+    document.getElementById("stopCamera").classList.add("hidden");
+  }
+
+  function addDock() {
+    const code = document.getElementById("dockCode").value.trim().toUpperCase();
+    const carrier = document.getElementById("dockCarrier").value;
+
+    if (!code) {
+      alert("Bitte einen Wandbarcode eingeben.");
+      return;
+    }
+
+    data.docks[code] = carrier;
+    saveData();
+
+    document.getElementById("dockCode").value = "";
+    alert("Verladestelle gespeichert.");
+  }
+
+  function addEmployee() {
+    const id = document.getElementById("newEmployee").value.trim();
+
+    if (!id) {
+      alert("Bitte eine Mitarbeiter-ID eingeben.");
+      return;
+    }
+
+    if (data.employees.includes(id)) {
+      alert("Diese Mitarbeiter-ID existiert bereits.");
+      return;
+    }
+
+    data.employees.push(id);
+    saveData();
+    document.getElementById("newEmployee").value = "";
+    alert("Mitarbeiter-ID hinzugefügt.");
+  }
+
+  function renderAdmin() {
+    const logs = data.logs;
+
+    document.getElementById("totalScans").textContent = logs.length;
+    document.getElementById("successScans").textContent =
+      logs.filter(log => log.status === "ERFOLGREICH").length;
+    document.getElementById("failedScans").textContent =
+      logs.filter(log => log.status !== "ERFOLGREICH").length;
+    document.getElementById("employeeCount").textContent = data.employees.length;
+
+    document.getElementById("dockList").innerHTML =
+      "<p><strong>Gespeicherte Verladestellen</strong></p>" +
+      Object.entries(data.docks).map(([code, carrier]) =>
+        `<div class="row"><span>${escapeHtml(code)} · ${escapeHtml(carrier)}</span>
+        <button class="secondary" onclick="removeDock('${escapeJs(code)}')">Entfernen</button></div>`
+      ).join("");
+
+    document.getElementById("employeeList").innerHTML =
+      "<p><strong>Gespeicherte Mitarbeiter</strong></p>" +
+      (data.employees.length
+        ? data.employees.map(id =>
+            `<div class="row"><span>${escapeHtml(id)}</span>
+            <button class="secondary" onclick="removeEmployee('${escapeJs(id)}')">Entfernen</button></div>`
+          ).join("")
+        : "<p>Noch keine Mitarbeiter angelegt.</p>");
+
+    document.getElementById("logs").innerHTML =
+      logs.slice(0, 200).map(log => `
+        <tr>
+          <td>${escapeHtml(new Date(log.time).toLocaleString("de-DE"))}</td>
+          <td>${escapeHtml(log.employee)}</td>
+          <td>${escapeHtml(log.parcel)}</td>
+          <td>${escapeHtml(log.carrier)}</td>
+          <td>${escapeHtml(log.dock)}</td>
+          <td><span class="badge">${escapeHtml(log.status)}</span></td>
+        </tr>
+      `).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char]));
+  }
+
+  function escapeJs(value) {
+    return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  }
+
+  function removeDock(code) {
+    if (!confirm("Verladestelle " + code + " entfernen?")) return;
+    delete data.docks[code];
+    saveData();
+  }
+
+  function removeEmployee(id) {
+    if (!confirm("Mitarbeiter " + id + " entfernen?")) return;
+    data.employees = data.employees.filter(item => item !== id);
+    saveData();
+  }
+
+  function exportLogs() {
+    const columns = [
+      "time", "employee", "parcel", "carrier", "dock", "status", "message"
+    ];
+
+    const quote = value =>
+      '"' + String(value ?? "").replace(/"/g, '""') + '"';
+
+    const csv = [
+      columns.join(";"),
+      ...data.logs.map(log =>
+        columns.map(column => quote(log[column])).join(";")
+      )
+    ].join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "loadguard-scanprotokoll.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById("role").addEventListener("change", event => {
+    const isAdmin = event.target.value === "admin";
+    document.getElementById("adminPanel").classList.toggle("hidden", !isAdmin);
+    if (isAdmin) renderAdmin();
+  });
+
+  // USB- und MDE-Scanner, die Tastatureingaben simulieren,
+  // können direkt in das jeweils fokussierte Eingabefeld scannen.
+  document.getElementById("parcel").addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkParcel();
+    }
+  });
+
+  document.getElementById("dock").addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      checkDock();
+    }
+  });
+
+  renderAdmin();
+</script>
+</body>
+</html>
