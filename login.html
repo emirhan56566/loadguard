@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>LoadGuard – Anmeldung</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: white;
+      padding: 25px;
+    }
+    .box {
+      max-width: 400px;
+      margin: 70px auto;
+      padding: 25px;
+      background: #1e293b;
+      border-radius: 16px;
+    }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background: #22c55e;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>LoadGuard</h2>
+    <p>Mit deinem Mitarbeiterkonto anmelden</p>
+
+    <form id="loginForm">
+      <input id="email" type="email"
+             placeholder="E-Mail-Adresse"
+             autocomplete="username" required>
+
+      <input id="password" type="password"
+             placeholder="Passwort"
+             autocomplete="current-password" required>
+
+      <button type="submit">Anmelden</button>
+    </form>
+
+    <p id="message" role="status"></p>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      message.textContent = 'Anmeldung läuft ...';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        message.textContent = 'Anmeldung fehlgeschlagen: ' + error.message;
+        return;
+      }
+
+      const { data, error: profileError } = await supabase
+        .from('employees')
+        .select('id, role, active')
+        .eq('auth_user_id', (await supabase.auth.getUser()).data.user.id)
+        .single();
+
+      if (profileError || !data?.active) {
+        await supabase.auth.signOut();
+        message.textContent = 'Kein aktives Mitarbeiterkonto gefunden.';
+        return;
+      }
+
+      window.location.href = './index.html';
+    });
+  </script>
+</body>
+</html>
