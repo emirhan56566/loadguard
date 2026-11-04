@@ -217,9 +217,9 @@ th{color:var(--green)}
 
 <script type="module">
 document.getElementById('loginMessage').textContent = 'JavaScript gestartet';
-import { supabase } from './supabase.js';
-import { BrowserMultiFormatReader } from 'https://esm.sh/@zxing/browser@0.1.5';
 
+const { supabase } = await import('./supabase.js');
+const { BrowserMultiFormatReader } = await import('@zxing/browser');
 const $ = id => document.getElementById(id);
 let profile = null, pending = null, reader = null, controls = null, busy = false;
 let docks = [], staff = [], logs = [];
