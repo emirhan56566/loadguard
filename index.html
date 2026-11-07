@@ -8,12 +8,12 @@
 <title>LoadGuard</title>
 <style>
 :root{
-  --bg:#101713;--card:#1b271e;--line:#35473a;
-  --green:#a3f36b;--red:#ff5252;--text:#f4f7f4;
+--bg:#101713;--card:#1b271e;--line:#35473a;
+--green:#a3f36b;--red:#ff5252;--text:#f4f7f4
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial}
-header{padding:18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+header{padding:17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
 header strong{font-size:23px}
 header strong span{color:var(--green)}
 main{max-width:950px;margin:auto;padding:15px}
@@ -31,14 +31,13 @@ button:disabled{opacity:.5}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .row button{width:auto}
-.notice{padding:14px;border-radius:10px;background:#2a392d;white-space:pre-wrap;margin-top:12px;font-weight:700}
+.notice{padding:14px;border-radius:10px;background:#2a392d;white-space:pre-wrap;margin-top:12px;font-weight:700;overflow-wrap:anywhere}
 .ok{background:#18522a!important}
 .bad{background:#762027!important;border:2px solid var(--red)}
 .scanner{position:relative;border:4px solid var(--line);border-radius:12px;overflow:hidden;background:black}
 .scanner video{width:100%;height:280px;object-fit:cover;display:block}
-.scanner.ok{border-color:var(--green)}
+.scanner.ok,.scanner.ready{border-color:var(--green)}
 .scanner.bad{border-color:var(--red)}
-.scanner.ready{border-color:var(--green)}
 .overlay{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
 .overlay span{background:#101713d9;padding:10px;border-radius:8px;font-weight:800}
 .metric{background:#29372c;padding:12px;border-radius:10px}
@@ -48,979 +47,1188 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;overflow-wrap:anywhere}
 th{color:var(--green)}
 .hint{border-left:3px solid orange;padding:12px;background:#392d1b}
+.mini{font-size:12px}
 @media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 
 <header>
-  <strong>LOAD<span>GUARD</span></strong>
-  <div class="row">
-    <small id="who"></small>
-    <button id="logout" class="secondary hidden">Abmelden</button>
-  </div>
+<strong>LOAD<span>GUARD</span></strong>
+<div class="row">
+<small id="who"></small>
+<button id="logout" class="secondary hidden" type="button">Abmelden</button>
+</div>
 </header>
 
 <main>
 
 <section id="loginView" class="card">
-  <h1>Anmelden</h1>
-  <form id="loginForm">
-    <label>E-Mail</label>
-    <input id="email" type="email" required>
-    <label>Passwort</label>
-    <input id="password" type="password" required>
-    <button id="loginButton" disabled>Anwendung lädt …</button>
-  </form>
-  <div id="loginMessage" class="notice">LoadGuard startet …</div>
+<h1>Anmelden</h1>
+<form id="loginForm">
+<label>E-Mail</label>
+<input id="email" type="email" autocomplete="username" required>
+<label>Passwort</label>
+<input id="password" type="password" autocomplete="current-password" required>
+<button id="loginButton" disabled>Anwendung lädt …</button>
+</form>
+<div id="loginMessage" class="notice">LoadGuard startet …</div>
 </section>
 
 <section id="appView" class="hidden">
 
-  <div class="card">
-    <h1>Verladung prüfen</h1>
-    <p id="workerName"></p>
-    <p class="hint">
-      Testbetrieb: Bisher werden nur bestimmte DHL-
-      und UPS-Barcodes erkannt. DPD, GLS und
-      unbekannte Formate bleiben gesperrt.
-    </p>
-  </div>
+<div class="card">
+<h1>Verladung prüfen</h1>
+<p id="workerName"></p>
+<p class="hint">
+Testbetrieb: Nur bestimmte DHL- und UPS-Barcodeformate
+werden erkannt. DPD, GLS und unbekannte Formate bleiben
+gesperrt. Die Prüfung ist eine digitale Warnung,
+keine physische Verladeverriegelung.
+</p>
+</div>
 
-  <section id="truckSetup" class="card">
-    <h2>01 · LKW scannen</h2>
-    <p>Barcode an der LKW-Tür: DHL, DPD, GLS oder UPS.</p>
-    <input id="truckCode" placeholder="LKW-Barcode">
-    <div class="grid">
-      <button id="truckCamera" class="secondary">LKW mit Kamera scannen</button>
-      <button id="truckAccept">LKW übernehmen</button>
-    </div>
-    <div id="truckMessage" class="notice">Noch kein LKW aktiv.</div>
-  </section>
+<section id="truckSetup" class="card">
+<h2>01 · LKW scannen</h2>
+<p>LKW-Tür-Barcode: DHL, DPD, GLS oder UPS.</p>
+<input id="truckCode" placeholder="LKW-Barcode">
+<div class="grid">
+<button id="truckCamera" class="secondary" type="button">📷 LKW scannen</button>
+<button id="truckAccept" type="button">LKW übernehmen</button>
+</div>
+<div id="truckMessage" class="notice">Noch kein LKW aktiv.</div>
+</section>
 
-  <section id="loadingView" class="hidden">
-    <div class="card">
-      <h2>Aktiver LKW: <span id="activeTruck">–</span></h2>
-      <small id="sessionStart"></small>
-      <div class="grid">
-        <div class="metric">
-          <small>Freigegeben</small>
-          <strong id="sessionOk">0</strong>
-        </div>
-        <div class="metric">
-          <small>Blockiert</small>
-          <strong id="sessionBlocked">0</strong>
-        </div>
-      </div>
-      <button id="endSession" class="secondary">Verladung beenden / LKW wechseln</button>
-    </div>
+<section id="loadingView" class="hidden">
 
-    <div class="card">
-      <h2>02 · Pakete scannen</h2>
-      <p>Kamera bleibt geöffnet. Bei Fehler STOPP bestätigen.</p>
-      <input id="parcel" placeholder="Paketbarcode">
-      <div class="grid">
-        <button id="parcelAccept">Paket prüfen</button>
-        <button id="parcelCamera" class="secondary">Kamera starten</button>
-        <button id="parcelGallery" class="secondary">🖼️ Paketbild aus Galerie scannen</button>
-      </div>
-      <input id="parcelFile" class="hidden" type="file" accept="image/*">
-      <div id="result" class="notice">Bereit.</div>
-      <button id="ack" class="danger hidden">STOPP verstanden – weiterscannen</button>
-    </div>
-  </section>
+<div class="card">
+<h2>Aktiver LKW: <span id="activeTruck">–</span></h2>
+<small id="sessionStart"></small>
+<div class="grid">
+<div class="metric">
+<small>Freigegeben</small>
+<strong id="sessionOk">0</strong>
+</div>
+<div class="metric">
+<small>Blockiert</small>
+<strong id="sessionBlocked">0</strong>
+</div>
+</div>
+<button id="endSession" class="secondary" type="button">
+Verladung beenden / LKW wechseln
+</button>
+</div>
 
-  <div class="card">
-    <h2>Kamera / Scanner</h2>
-    <div id="scannerFrame" class="scanner">
-      <video id="video" playsinline muted></video>
-      <div class="overlay"><span id="scannerLabel">Kamera aus</span></div>
-    </div>
-    <button id="stopCamera" class="secondary hidden">Kamera pausieren</button>
-  </div>
+<div class="card">
+<h2>02 · Pakete scannen</h2>
+<p>Die Kamera scannt fortlaufend. Bei STOPP muss die Warnung bestätigt werden.</p>
 
-  <section id="adminView" class="hidden">
+<label>Paketbarcode</label>
+<input id="parcel" placeholder="Paketbarcode">
 
-    <div id="trainingCard" class="card">
-      <h2>🖼️ Barcode-Beispiele erfassen</h2>
-      <p>
-        Echte Paketetiketten per Kamera oder Galerie erfassen.
-        Beispiele sind Trainingsdaten, keine Freigaberegeln.
-      </p>
+<div class="grid">
+<button id="parcelAccept" type="button">Paket prüfen</button>
+<button id="parcelCamera" class="secondary" type="button">📷 Kamera starten</button>
+<button id="parcelGallery" class="secondary" type="button">🖼️ Paketfoto scannen</button>
+</div>
 
-      <label>Paketdienst</label>
-      <select id="sampleCarrier">
-        <option>DHL</option>
-        <option>DPD</option>
-        <option>GLS</option>
-        <option>UPS</option>
-      </select>
+<input id="parcelFile" class="hidden" type="file" accept="image/*">
 
-      <label>Paketbarcode</label>
-      <input id="sampleCode" placeholder="Barcode">
+<div id="result" class="notice">Bereit.</div>
 
-      <div class="grid">
-        <button id="sampleCamera" class="secondary">📷 Kamera scannen</button>
-        <button id="sampleGallery" class="secondary">🖼️ Bild aus Galerie scannen</button>
-        <button id="sampleSave">Beispiel speichern</button>
-      </div>
+<button id="ack" class="danger hidden" type="button">
+⛔ STOPP verstanden – weiterscannen
+</button>
+</div>
 
-      <input id="sampleFile" class="hidden" type="file" accept="image/*">
-      <div id="sampleMessage" class="notice">Noch kein Beispiel erfasst.</div>
+</section>
 
-      <div class="row">
-        <h3>Gespeicherte Beispiele</h3>
-        <button id="sampleRefresh" class="secondary">Aktualisieren</button>
-      </div>
+<div class="card">
+<h2>Kamera / Scanner</h2>
+<div id="scannerFrame" class="scanner">
+<video id="video" playsinline muted></video>
+<div class="overlay">
+<span id="scannerLabel">Kamera aus</span>
+</div>
+</div>
+<button id="stopCamera" class="secondary hidden" type="button">
+Kamera pausieren
+</button>
+<p class="mini">
+Für die Kamera sind HTTPS und Kameraberechtigung erforderlich.
+</p>
+</div>
 
-      <div class="scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Dienst</th>
-              <th>Barcode</th>
-              <th>Datum</th>
-              <th>Aktion</th>
-            </tr>
-          </thead>
-          <tbody id="sampleList"></tbody>
-        </table>
-      </div>
-    </div>
+<section id="adminView" class="hidden">
 
-    <div class="card">
-      <div class="row">
-        <h2>Admin-Dashboard</h2>
-        <button id="refresh" class="secondary">Aktualisieren</button>
-      </div>
-      <div class="grid">
-        <div class="metric"><small>Scans</small><strong id="total">0</strong></div>
-        <div class="metric"><small>Erfolgreich</small><strong id="successful">0</strong></div>
-        <div class="metric"><small>Blockiert</small><strong id="blocked">0</strong></div>
-        <div class="metric"><small>Mitarbeiter</small><strong id="staffCount">0</strong></div>
-      </div>
-    </div>
+<div id="trainingCard" class="card">
+<h2>🖼️ Barcode-Beispiele erfassen</h2>
+<p>
+Paketetiketten mit Kamera oder aus der Galerie auslesen.
+Gespeicherte Beispiele sind noch keine Freigaberegeln.
+</p>
 
-    <div class="card">
-      <h2>Scans je Mitarbeiter</h2>
-      <div class="scroll">
-        <table>
-          <thead><tr><th>Mitarbeiter</th><th>Erfolgreich</th><th>Fehler</th></tr></thead>
-          <tbody id="performance"></tbody>
-        </table>
-      </div>
-    </div>
+<label>Paketdienst</label>
+<select id="sampleCarrier">
+<option>DHL</option>
+<option>DPD</option>
+<option>GLS</option>
+<option>UPS</option>
+</select>
 
-    <div class="card">
-      <h2>LKW-Barcodes verwalten</h2>
-      <input id="newDock" placeholder="Barcode">
-      <select id="newCarrier">
-        <option>DHL</option><option>DPD</option>
-        <option>GLS</option><option>UPS</option>
-      </select>
-      <button id="saveDock">Barcode speichern</button>
-      <div id="dockList"></div>
-    </div>
+<label>Erkannter Barcode</label>
+<input id="sampleCode" placeholder="Barcode">
 
-    <div class="card">
-      <h2>Mitarbeiter verwalten</h2>
-      <input id="staffCode" placeholder="Mitarbeiter-ID">
-      <input id="staffName" placeholder="Name">
-      <input id="staffUid" placeholder="Supabase Auth User UID">
-      <button id="saveStaff">Mitarbeiter hinzufügen</button>
-      <div id="staffList"></div>
-    </div>
+<div class="grid">
+<button id="sampleCamera" class="secondary" type="button">📷 Kamera</button>
+<button id="sampleGallery" class="secondary" type="button">🖼️ Galerie</button>
+<button id="sampleSave" type="button">Beispiel speichern</button>
+</div>
 
-    <div class="card">
-      <h2>Warntöne</h2>
-      <label>
-        <input id="sound" type="checkbox" checked style="width:auto;min-height:auto">
-        Töne aktivieren
-      </label>
-      <label>
-        <input id="blink" type="checkbox" checked style="width:auto;min-height:auto">
-        Rotes Blinken
-      </label>
-    </div>
+<input id="sampleFile" class="hidden" type="file" accept="image/*">
 
-    <div class="card">
-      <div class="row">
-        <h2>Scanprotokoll</h2>
-        <button id="csv" class="secondary">CSV exportieren</button>
-      </div>
-      <div class="scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Zeit</th><th>Mitarbeiter</th><th>Paket</th>
-              <th>Carrier</th><th>LKW</th><th>Ergebnis</th>
-            </tr>
-          </thead>
-          <tbody id="logs"></tbody>
-        </table>
-      </div>
-    </div>
+<div id="sampleMessage" class="notice">Noch kein Beispiel erfasst.</div>
 
-  </section>
+<div class="row">
+<h3>Gespeicherte Beispiele</h3>
+<button id="sampleRefresh" class="secondary" type="button">Aktualisieren</button>
+</div>
+
+<div class="scroll">
+<table>
+<thead>
+<tr><th>Dienst</th><th>Barcode</th><th>Datum</th><th>Aktion</th></tr>
+</thead>
+<tbody id="sampleList"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<div class="row">
+<h2>Admin-Dashboard</h2>
+<button id="refresh" class="secondary" type="button">Aktualisieren</button>
+</div>
+<div class="grid">
+<div class="metric"><small>Scans</small><strong id="total">0</strong></div>
+<div class="metric"><small>Erfolgreich</small><strong id="successful">0</strong></div>
+<div class="metric"><small>Blockiert</small><strong id="blocked">0</strong></div>
+<div class="metric"><small>Mitarbeiter</small><strong id="staffCount">0</strong></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Scans je Mitarbeiter</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>Mitarbeiter</th><th>Erfolgreich</th><th>Fehler</th></tr></thead>
+<tbody id="performance"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>LKW-Barcodes verwalten</h2>
+<input id="newDock" placeholder="Barcode">
+<select id="newCarrier">
+<option>DHL</option><option>DPD</option>
+<option>GLS</option><option>UPS</option>
+</select>
+<button id="saveDock" type="button">Barcode speichern</button>
+<div id="dockList"></div>
+</div>
+
+<div class="card">
+<h2>Mitarbeiter verwalten</h2>
+<p class="mini">Benutzer zuerst unter Supabase Authentication anlegen.</p>
+<input id="staffCode" placeholder="Mitarbeiter-ID">
+<input id="staffName" placeholder="Name">
+<input id="staffUid" placeholder="Supabase Auth User UID">
+<button id="saveStaff" type="button">Mitarbeiter hinzufügen</button>
+<div id="staffList"></div>
+</div>
+
+<div class="card">
+<h2>Warntöne</h2>
+<label>
+<input id="sound" type="checkbox" checked style="width:auto;min-height:auto">
+Töne aktivieren
+</label>
+<label>
+<input id="blink" type="checkbox" checked style="width:auto;min-height:auto">
+Rotes Blinken
+</label>
+</div>
+
+<div class="card">
+<div class="row">
+<h2>Scanprotokoll</h2>
+<button id="csv" class="secondary" type="button">CSV exportieren</button>
+</div>
+<div class="scroll">
+<table>
+<thead>
+<tr>
+<th>Zeit</th><th>Mitarbeiter</th><th>Paket</th>
+<th>Carrier</th><th>LKW</th><th>Ergebnis</th>
+</tr>
+</thead>
+<tbody id="logs"></tbody>
+</table>
+</div>
+</div>
+
+</section>
 </section>
 </main>
 
 <script type="module">
+
 const $ = id => document.getElementById(id);
 const carriers = new Set(['DHL','DPD','GLS','UPS']);
 
-const esc = x => String(x ?? '').replace(/[&<>"']/g, c => ({
-  '&':'&amp;','<':'&lt;','>':'&gt;',
-  '"':'&quot;',"'":'&#39;'
+const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({
+'&':'&amp;','<':'&lt;','>':'&gt;',
+'"':'&quot;',"'":'&#39;'
 }[c]));
 
+const normalize = value =>
+String(value ?? '').toUpperCase().replace(/\s+/g,'');
+
 let supabase, Reader, profile;
-let staff = [], docks = [], logs = [], samples = [];
-let truck = null, session = null;
-let controls = null, reader = null, cameraMode = null;
-let cameraToken = 0, busy = false, blocked = false;
-let seen = new Set(), lastCode = '';
-let audioCtx = null, frameTimer = null;
+let staff=[],docks=[],logs=[],samples=[];
+let truck=null,session=null;
+let controls=null,reader=null,cameraMode=null;
+let cameraToken=0,busy=false,blocked=false;
+let seen=new Set(),lastCode='';
+let audioCtx=null,frameTimer=null;
 
-function notice(id, text, type = '') {
-  $(id).textContent = text;
-  $(id).className = 'notice ' + type;
+function notice(id,text,type=''){
+$(id).textContent=text;
+$(id).className='notice '+type;
 }
 
-function frame(type, text) {
-  $('scannerFrame').className = 'scanner ' + type;
-  $('scannerLabel').textContent = text;
+function frame(type,text){
+$('scannerFrame').className='scanner '+type;
+$('scannerLabel').textContent=text;
 }
 
-function tone(type) {
-  if (!$('sound').checked) return;
-  try {
-    const Audio = window.AudioContext || window.webkitAudioContext;
-    if (!Audio) return;
-    if (!audioCtx) audioCtx = new Audio();
-    audioCtx.resume().catch(() => {});
-    const notes = type === 'bad'
-      ? [[300,0,.3],[240,.35,.3],[300,.7,.3]]
-      : type === 'ok'
-      ? [[800,0,.1],[1100,.14,.12]]
-      : [[700,0,.1]];
-    for (const [hz,delay,duration] of notes) {
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type === 'bad' ? 'square' : 'sine';
-      o.frequency.value = hz;
-      g.gain.value = type === 'bad' ? .15 : .08;
-      o.connect(g);
-      g.connect(audioCtx.destination);
-      const t = audioCtx.currentTime + delay;
-      o.start(t);
-      o.stop(t + duration);
-    }
-  } catch (e) { console.warn(e); }
+function tone(type){
+if(!$('sound').checked)return;
+try{
+const Audio=window.AudioContext||window.webkitAudioContext;
+if(!Audio)return;
+if(!audioCtx)audioCtx=new Audio();
+audioCtx.resume().catch(()=>{});
+const notes=type==='bad'
+?[[300,0,.3],[240,.35,.3],[300,.7,.3]]
+:type==='ok'
+?[[800,0,.1],[1100,.14,.12]]
+:[[700,0,.1]];
+for(const [hz,delay,duration] of notes){
+const o=audioCtx.createOscillator();
+const g=audioCtx.createGain();
+o.type=type==='bad'?'square':'sine';
+o.frequency.value=hz;
+g.gain.value=type==='bad'?.15:.08;
+o.connect(g);
+g.connect(audioCtx.destination);
+const t=audioCtx.currentTime+delay;
+o.start(t);
+o.stop(t+duration);
+}
+}catch(e){console.warn(e);}
 }
 
-function detectCarrier(raw) {
-  const code = raw.toUpperCase().replace(/\s+/g,'');
-  if (/^1Z[A-Z0-9]{16}$/.test(code)) return 'UPS';
-  if (/^0034\d{16}$/.test(code)) return 'DHL';
-  return null;
+function detectCarrier(raw){
+const code=normalize(raw);
+if(/^1Z[A-Z0-9]{16}$/.test(code))return 'UPS';
+if(/^0034\d{16}$/.test(code))return 'DHL';
+return null;
 }
 
-function stopCamera() {
-  cameraToken++;
-  try { controls?.stop(); } catch {}
-  controls = null;
-  reader = null;
-  cameraMode = null;
-
-  const video = $('video');
-  if (video.srcObject) {
-    video.srcObject.getTracks().forEach(t => t.stop());
-    video.srcObject = null;
-  }
-  $('stopCamera').classList.add('hidden');
-  frame('', 'Kamera aus');
+function stopCamera(){
+cameraToken++;
+try{controls?.stop();}catch{}
+controls=null;
+reader=null;
+cameraMode=null;
+const video=$('video');
+if(video.srcObject){
+video.srcObject.getTracks().forEach(t=>t.stop());
+video.srcObject=null;
+}
+$('stopCamera').classList.add('hidden');
+frame('','Kamera aus');
 }
 
-function resetSession() {
-  stopCamera();
-  clearTimeout(frameTimer);
-  truck = null;
-  session = null;
-  seen = new Set();
-  busy = false;
-  blocked = false;
-  lastCode = '';
-  $('truckSetup').classList.remove('hidden');
-  $('loadingView').classList.add('hidden');
-  $('ack').classList.add('hidden');
-  $('truckCode').value = '';
-  $('parcel').value = '';
-  $('sessionOk').textContent = '0';
-  $('sessionBlocked').textContent = '0';
-  notice('truckMessage','Noch kein LKW aktiv.');
+function resetSession(){
+stopCamera();
+clearTimeout(frameTimer);
+truck=null;
+session=null;
+seen=new Set();
+busy=false;
+blocked=false;
+lastCode='';
+$('truckSetup').classList.remove('hidden');
+$('loadingView').classList.add('hidden');
+$('ack').classList.add('hidden');
+$('truckCode').value='';
+$('parcel').value='';
+$('sessionOk').textContent='0';
+$('sessionBlocked').textContent='0';
+notice('truckMessage','Noch kein LKW aktiv.');
 }
 
-function loginState(loggedIn) {
-  $('loginView').classList.toggle('hidden',loggedIn);
-  $('appView').classList.toggle('hidden',!loggedIn);
-  $('logout').classList.toggle('hidden',!loggedIn);
-  $('adminView').classList.toggle(
-    'hidden',!loggedIn || profile?.role !== 'admin'
-  );
-  $('who').textContent = loggedIn
-    ? profile.display_name : '';
-  $('workerName').textContent = loggedIn
-    ? profile.display_name + ' · ' + profile.employee_code : '';
+function loginState(loggedIn){
+$('loginView').classList.toggle('hidden',loggedIn);
+$('appView').classList.toggle('hidden',!loggedIn);
+$('logout').classList.toggle('hidden',!loggedIn);
+$('adminView').classList.toggle(
+'hidden',!loggedIn||profile?.role!=='admin'
+);
+$('who').textContent=loggedIn?profile.display_name:'';
+$('workerName').textContent=loggedIn
+?profile.display_name+' · '+profile.employee_code:'';
 }
 
-async function init() {
-  const {data:{user}} = await supabase.auth.getUser();
+async function init(){
+const {data:{user},error:userError}=await supabase.auth.getUser();
+if(userError)console.warn(userError);
 
-  if (!user) {
-    profile = null;
-    resetSession();
-    loginState(false);
-    return;
-  }
-
-  const r = await supabase.from('employees')
-    .select('id,employee_code,display_name,role,active')
-    .eq('auth_user_id',user.id)
-    .eq('active',true)
-    .single();
-
-  if (r.error || !r.data) {
-    await supabase.auth.signOut();
-    profile = null;
-    resetSession();
-    loginState(false);
-    notice('loginMessage','Kein aktiver Mitarbeiter vorhanden.','bad');
-    return;
-  }
-
-  profile = r.data;
-  resetSession();
-  loginState(true);
-
-  if (profile.role === 'admin') await refreshAdmin();
+if(!user){
+profile=null;
+resetSession();
+loginState(false);
+return;
 }
 
-$('loginForm').onsubmit = async e => {
-  e.preventDefault();
-  $('loginButton').disabled = true;
-  try {
-    const r = await supabase.auth.signInWithPassword({
-      email:$('email').value.trim(),
-      password:$('password').value
-    });
-    if (r.error) throw r.error;
-    await init();
-    $('password').value = '';
-  } catch (e) {
-    notice('loginMessage',e.message,'bad');
-  } finally {
-    $('loginButton').disabled = false;
-  }
+const r=await supabase.from('employees')
+.select('id,employee_code,display_name,role,active')
+.eq('auth_user_id',user.id)
+.eq('active',true)
+.single();
+
+if(r.error||!r.data){
+await supabase.auth.signOut();
+profile=null;
+resetSession();
+loginState(false);
+notice('loginMessage','Kein aktiver Mitarbeiter vorhanden.','bad');
+return;
+}
+
+profile=r.data;
+resetSession();
+loginState(true);
+
+if(profile.role==='admin')await refreshAdmin();
+}
+
+$('loginForm').onsubmit=async e=>{
+e.preventDefault();
+$('loginButton').disabled=true;
+try{
+const r=await supabase.auth.signInWithPassword({
+email:$('email').value.trim(),
+password:$('password').value
+});
+if(r.error)throw r.error;
+await init();
+$('password').value='';
+}catch(e){
+notice('loginMessage',e.message,'bad');
+}finally{
+$('loginButton').disabled=false;
+}
 };
 
-$('logout').onclick = async () => {
-  if (session && !confirm('Verladung beenden und abmelden?')) return;
-  resetSession();
-  await supabase.auth.signOut();
-  profile = null;
-  loginState(false);
+$('logout').onclick=async()=>{
+if(session&&!confirm('Verladung beenden und abmelden?'))return;
+resetSession();
+await supabase.auth.signOut();
+profile=null;
+loginState(false);
 };
 
-async function acceptTruck(value) {
-  if (!profile || truck || busy) return;
-  const code = String(value ?? $('truckCode').value)
-    .trim().toUpperCase();
+async function acceptTruck(value){
+if(!profile||truck||busy)return;
+const code=normalize(value??$('truckCode').value);
 
-  if (!carriers.has(code)) {
-    notice('truckMessage','Unbekannter LKW-Barcode.','bad');
-    tone('bad');
-    return;
-  }
-
-  busy = true;
-  try {
-    const r = await supabase.from('docks')
-      .select('barcode,carrier,active')
-      .eq('barcode',code)
-      .eq('active',true)
-      .maybeSingle();
-
-    if (r.error) throw r.error;
-    if (!r.data || r.data.carrier !== code) {
-      throw new Error('LKW-Barcode nicht aktiv oder falsch zugeordnet.');
-    }
-
-    truck = {barcode:code,carrier:code};
-    session = {startedAt:new Date(),ok:0,blocked:0};
-    seen = new Set();
-
-    $('activeTruck').textContent = code;
-    $('sessionStart').textContent =
-      'Beginn: ' + session.startedAt.toLocaleString('de-DE');
-    $('sessionOk').textContent = '0';
-    $('sessionBlocked').textContent = '0';
-
-    $('truckSetup').classList.add('hidden');
-    $('loadingView').classList.remove('hidden');
-
-    notice('result','LKW aktiv. Kamera wird gestartet.');
-    await startCamera('parcel');
-  } catch (e) {
-    notice('truckMessage',e.message,'bad');
-    tone('bad');
-  } finally {
-    busy = false;
-  }
+if(!carriers.has(code)){
+notice('truckMessage','Unbekannter LKW-Barcode.','bad');
+tone('bad');
+return;
 }
 
-$('truckAccept').onclick = () => acceptTruck();
+busy=true;
+try{
+const r=await supabase.from('docks')
+.select('barcode,carrier,active')
+.eq('barcode',code)
+.eq('active',true)
+.maybeSingle();
 
-$('truckCode').onkeydown = e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    acceptTruck();
-  }
-};
-
-async function saveLog(status,code,carrier,message) {
-  const r = await supabase.from('scan_logs').insert({
-    employee_id:profile.id,
-    parcel_barcode:code,
-    detected_carrier:carrier,
-    dock_barcode:truck.barcode,
-    dock_carrier:truck.carrier,
-    status,
-    message:'LKW-Verladung ab ' +
-      session.startedAt.toISOString() + ' | ' + message
-  });
-  if (r.error) throw r.error;
+if(r.error)throw r.error;
+if(!r.data||r.data.carrier!==code){
+throw new Error('LKW-Barcode nicht aktiv oder falsch zugeordnet.');
 }
 
-async function processParcel(value) {
-  if (!truck || !session || blocked || busy) return;
+truck={barcode:code,carrier:code};
+session={startedAt:new Date(),ok:0,blocked:0};
+seen=new Set();
 
-  const code = String(value ?? $('parcel').value)
-    .trim().replace(/\s+/g,'').toUpperCase();
+$('activeTruck').textContent=code;
+$('sessionStart').textContent=
+'Beginn: '+session.startedAt.toLocaleString('de-DE');
+$('sessionOk').textContent='0';
+$('sessionBlocked').textContent='0';
 
-  if (!code) return;
-  busy = true;
-
-  try {
-    const carrier = detectCarrier(code);
-    const duplicate = seen.has(code);
-
-    const status = duplicate ? 'rejected'
-      : !carrier ? 'unknown_carrier'
-      : carrier !== truck.carrier ? 'wrong_dock'
-      : 'success';
-
-    const reason = duplicate ? 'Doppelter Scan'
-      : !carrier ? 'Paketdienst unbekannt'
-      : carrier !== truck.carrier ? 'Falscher Paketdienst'
-      : 'Passender Paketdienst';
-
-    await saveLog(status,code,carrier,reason);
-
-    if (status === 'success') {
-      seen.add(code);
-      session.ok++;
-      $('sessionOk').textContent = session.ok;
-
-      notice('result',
-        '✓ FREIGEGEBEN\n' +
-        carrier + ' → ' + truck.carrier +
-        '\nPaket: ' + code,'ok'
-      );
-      frame('ok','✓ RICHTIG');
-      tone('ok');
-      $('parcel').value = '';
-
-      clearTimeout(frameTimer);
-      frameTimer = setTimeout(() => {
-        if (!blocked && cameraMode === 'parcel') {
-          frame('ready','Nächstes Paket');
-        }
-      },700);
-    } else {
-      blocked = true;
-      session.blocked++;
-      $('sessionBlocked').textContent = session.blocked;
-
-      notice('result',
-        '⛔ STOPP – NICHT VERLADEN\n' +
-        reason + '\nPaket: ' + code,'bad'
-      );
-      frame('bad','⛔ STOPP');
-      $('ack').classList.remove('hidden');
-      tone('bad');
-    }
-  } catch (e) {
-    blocked = true;
-    notice('result','⛔ KEINE FREIGABE\n'+e.message,'bad');
-    frame('bad','⛔ STOPP');
-    $('ack').classList.remove('hidden');
-    tone('bad');
-  } finally {
-    busy = false;
-  }
+$('truckSetup').classList.add('hidden');
+$('loadingView').classList.remove('hidden');
+notice('result','LKW aktiv. Kamera wird gestartet.');
+await startCamera('parcel');
+}catch(e){
+notice('truckMessage',e.message,'bad');
+tone('bad');
+}finally{
+busy=false;
+}
 }
 
-$('parcelAccept').onclick = () => processParcel();
+$('truckAccept').onclick=()=>acceptTruck();
 
-$('parcel').onkeydown = e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    processParcel();
-  }
+$('truckCode').onkeydown=e=>{
+if(e.key==='Enter'){
+e.preventDefault();
+acceptTruck();
+}
 };
 
-$('ack').onclick = () => {
-  blocked = false;
-  lastCode = '';
-  $('parcel').value = '';
-  $('ack').classList.add('hidden');
-  notice('result','Warnung bestätigt. Nächstes Paket scannen.');
-  frame(cameraMode ? 'ready' : '','Bereit');
-};
-
-$('endSession').onclick = () => {
-  if (!truck) return;
-  if (!confirm('Verladung beenden?')) return;
-  resetSession();
-};
-
-async function startCamera(mode) {
-  if (!Reader) return;
-
-  if (mode === 'sample' && truck) {
-    notice('sampleMessage','Zuerst Verladung beenden.','bad');
-    return;
-  }
-
-  stopCamera();
-  cameraMode = mode;
-  lastCode = '';
-  const token = ++cameraToken;
-
-  try {
-    reader = new Reader();
-    frame('','Kamera startet …');
-    $('stopCamera').classList.remove('hidden');
-
-    const c = await reader.decodeFromVideoDevice(
-      undefined,$('video'),result => {
-        if (token !== cameraToken || !result || blocked || busy) return;
-
-        const code = result.getText().trim();
-        if (!code || code === lastCode) return;
-        lastCode = code;
-
-        if (mode === 'truck') {
-          stopCamera();
-          $('truckCode').value = code;
-          acceptTruck(code);
-        } else if (mode === 'sample') {
-          stopCamera();
-          $('sampleCode').value = code.toUpperCase();
-          notice('sampleMessage',
-            'Barcode erfasst. Paketdienst prüfen und speichern.','ok'
-          );
-          $('trainingCard').scrollIntoView();
-        } else {
-          processParcel(code);
-        }
-      }
-    );
-
-    if (token !== cameraToken) {
-      c.stop();
-      return;
-    }
-
-    controls = c;
-    frame('ready','Barcode scannen');
-    tone('ready');
-  } catch (e) {
-    if (token !== cameraToken) return;
-    stopCamera();
-    const text = 'Kamerafehler: ' + e.message;
-    if (mode === 'sample') notice('sampleMessage',text,'bad');
-    else if (mode === 'truck') notice('truckMessage',text,'bad');
-    else notice('result',text,'bad');
-  }
+async function saveLog(status,code,carrier,message){
+const r=await supabase.from('scan_logs').insert({
+employee_id:profile.id,
+parcel_barcode:code,
+detected_carrier:carrier,
+dock_barcode:truck.barcode,
+dock_carrier:truck.carrier,
+status,
+message:'LKW-Verladung ab '+
+session.startedAt.toISOString()+' | '+message
+});
+if(r.error)throw r.error;
 }
 
-$('truckCamera').onclick = () => startCamera('truck');
-$('parcelCamera').onclick = () => startCamera('parcel');
-$('sampleCamera').onclick = () => startCamera('sample');
-$('stopCamera').onclick = stopCamera;
+async function processParcel(value){
+if(!truck||!session||blocked||busy)return;
 
-/* GALERIE-SCANNER */
+const code=normalize(value??$('parcel').value);
+if(!code)return;
 
-async function decodeGalleryImage(file,mode) {
-  if (!file) return;
+busy=true;
+$('parcelAccept').disabled=true;
 
-  if (!file.type.startsWith('image/')) {
-    alert('Bitte ein Bild auswählen.');
-    return;
-  }
+try{
+const carrier=detectCarrier(code);
+const duplicate=seen.has(code);
 
-  if (file.size > 20 * 1024 * 1024) {
-    alert('Bild zu groß. Maximal 20 MB.');
-    return;
-  }
+const status=duplicate?'rejected'
+:!carrier?'unknown_carrier'
+:carrier!==truck.carrier?'wrong_dock'
+:'success';
 
-  if (mode === 'parcel' && (!truck || blocked || busy)) {
-    notice('result','Scan derzeit nicht möglich.','bad');
-    return;
-  }
+const reason=duplicate?'Doppelter Scan'
+:!carrier?'Paketdienst unbekannt'
+:carrier!==truck.carrier?'Falscher Paketdienst'
+:'Passender Paketdienst';
 
-  if (mode === 'sample' && truck) {
-    notice('sampleMessage','Zuerst Verladung beenden.','bad');
-    return;
-  }
+await saveLog(status,code,carrier,reason);
 
-  stopCamera();
+if(status==='success'){
+seen.add(code);
+session.ok++;
+$('sessionOk').textContent=session.ok;
 
-  const url = URL.createObjectURL(file);
-  const image = new Image();
+notice('result',
+'✓ FREIGEGEBEN\n'+
+carrier+' → '+truck.carrier+
+'\nPaket: '+code,'ok'
+);
+frame('ok','✓ RICHTIG');
+tone('ok');
+$('parcel').value='';
 
-  try {
-    if (mode === 'sample') {
-      notice('sampleMessage','Barcode im Foto wird gesucht …');
-    } else {
-      notice('result','Barcode im Paketfoto wird gesucht …');
-    }
+clearTimeout(frameTimer);
+frameTimer=setTimeout(()=>{
+if(!blocked&&cameraMode==='parcel'){
+frame('ready','Nächstes Paket');
+}
+},700);
 
-    image.src = url;
-    await image.decode();
+}else{
+blocked=true;
+session.blocked++;
+$('sessionBlocked').textContent=session.blocked;
 
-    const decoder = new Reader();
-    const result = await decoder.decodeFromImageElement(image);
-    const code = result.getText().trim();
-
-    if (!code) throw new Error('Kein Barcode erkannt.');
-
-    if (mode === 'sample') {
-      $('sampleCode').value = code.toUpperCase();
-      notice('sampleMessage',
-        'Barcode aus Bild erkannt. Paketdienst prüfen und speichern.',
-        'ok'
-      );
-      $('trainingCard').scrollIntoView();
-    } else {
-      $('parcel').value = code.toUpperCase();
-      await processParcel(code);
-    }
-  } catch (e) {
-    const text = 'Kein lesbarer Barcode im Foto: ' + e.message;
-    if (mode === 'sample') {
-      notice('sampleMessage',text,'bad');
-    } else {
-      notice('result',text,'bad');
-    }
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+notice('result',
+'⛔ STOPP – NICHT VERLADEN\n'+
+reason+'\nPaket: '+code,'bad'
+);
+frame('bad','⛔ STOPP');
+$('ack').classList.remove('hidden');
+tone('bad');
+}
+}catch(e){
+blocked=true;
+notice('result','⛔ KEINE FREIGABE\n'+e.message,'bad');
+frame('bad','⛔ STOPP');
+$('ack').classList.remove('hidden');
+tone('bad');
+}finally{
+busy=false;
+$('parcelAccept').disabled=false;
+}
 }
 
-$('parcelGallery').onclick = () => $('parcelFile').click();
-$('sampleGallery').onclick = () => $('sampleFile').click();
+$('parcelAccept').onclick=()=>processParcel();
 
-$('parcelFile').onchange = async () => {
-  const file = $('parcelFile').files?.[0];
-  $('parcelFile').value = '';
-  await decodeGalleryImage(file,'parcel');
+$('parcel').onkeydown=e=>{
+if(e.key==='Enter'){
+e.preventDefault();
+processParcel();
+}
 };
 
-$('sampleFile').onchange = async () => {
-  const file = $('sampleFile').files?.[0];
-  $('sampleFile').value = '';
-  await decodeGalleryImage(file,'sample');
+$('ack').onclick=()=>{
+blocked=false;
+lastCode='';
+$('parcel').value='';
+$('ack').classList.add('hidden');
+notice('result','Warnung bestätigt. Nächstes Paket scannen.');
+frame(cameraMode?'ready':'','Bereit');
+};
+
+$('endSession').onclick=()=>{
+if(!truck)return;
+if(!confirm('Verladung beenden?'))return;
+resetSession();
+};
+
+/* LIVE-KAMERA */
+
+async function startCamera(mode){
+if(!Reader)return;
+
+if(mode==='sample'&&truck){
+notice('sampleMessage','Zuerst Verladung beenden.','bad');
+return;
+}
+
+stopCamera();
+cameraMode=mode;
+lastCode='';
+const token=++cameraToken;
+
+try{
+reader=new Reader();
+frame('','Kamera startet …');
+$('stopCamera').classList.remove('hidden');
+
+const c=await reader.decodeFromVideoDevice(
+undefined,$('video'),result=>{
+if(token!==cameraToken||!result||blocked||busy)return;
+
+const code=normalize(result.getText());
+if(!code||code===lastCode)return;
+lastCode=code;
+
+if(mode==='truck'){
+stopCamera();
+$('truckCode').value=code;
+acceptTruck(code);
+}else if(mode==='sample'){
+stopCamera();
+$('sampleCode').value=code;
+notice('sampleMessage',
+'Barcode erfasst. Paketdienst prüfen und speichern.','ok');
+$('trainingCard').scrollIntoView();
+}else{
+processParcel(code);
+}
+}
+);
+
+if(token!==cameraToken){
+c.stop();
+return;
+}
+
+controls=c;
+frame('ready','Barcode scannen');
+tone('ready');
+}catch(e){
+if(token!==cameraToken)return;
+stopCamera();
+const text='Kamerafehler: '+e.message;
+if(mode==='sample')notice('sampleMessage',text,'bad');
+else if(mode==='truck')notice('truckMessage',text,'bad');
+else notice('result',text,'bad');
+}
+}
+
+$('truckCamera').onclick=()=>startCamera('truck');
+$('parcelCamera').onclick=()=>startCamera('parcel');
+$('sampleCamera').onclick=()=>startCamera('sample');
+$('stopCamera').onclick=stopCamera;
+
+/* VERBESSERTER GALERIE-SCANNER */
+
+/*
+Mehrere Bildausschnitte werden untersucht.
+Die Originaldatei wird nicht hochgeladen.
+Unbekannte Barcodes werden nicht automatisch freigegeben.
+*/
+
+function makeCanvas(image,region,maxWidth=1800,contrast=false){
+const sx=Math.max(0,Math.floor(region.x*image.naturalWidth));
+const sy=Math.max(0,Math.floor(region.y*image.naturalHeight));
+const sw=Math.max(1,Math.min(
+image.naturalWidth-sx,
+Math.floor(region.w*image.naturalWidth)
+));
+const sh=Math.max(1,Math.min(
+image.naturalHeight-sy,
+Math.floor(region.h*image.naturalHeight)
+));
+
+const scale=Math.min(3,maxWidth/sw,2400/sh);
+const canvas=document.createElement('canvas');
+canvas.width=Math.max(1,Math.round(sw*scale));
+canvas.height=Math.max(1,Math.round(sh*scale));
+
+const ctx=canvas.getContext('2d',{
+willReadFrequently:contrast
+});
+
+ctx.imageSmoothingEnabled=true;
+ctx.imageSmoothingQuality='high';
+ctx.drawImage(
+image,sx,sy,sw,sh,
+0,0,canvas.width,canvas.height
+);
+
+if(contrast){
+const pixels=ctx.getImageData(
+0,0,canvas.width,canvas.height
+);
+const data=pixels.data;
+
+for(let i=0;i<data.length;i+=4){
+const gray=
+.299*data[i]+
+.587*data[i+1]+
+.114*data[i+2];
+
+const adjusted=Math.max(
+0,Math.min(255,(gray-128)*1.7+128)
+);
+
+data[i]=adjusted;
+data[i+1]=adjusted;
+data[i+2]=adjusted;
+}
+ctx.putImageData(pixels,0,0);
+}
+
+return canvas;
+}
+
+async function decodeCanvas(canvas,decoder){
+const image=new Image();
+const url=canvas.toDataURL('image/png');
+image.src=url;
+await image.decode();
+const result=await decoder.decodeFromImageElement(image);
+return normalize(result.getText());
+}
+
+function imageRegions(){
+return [
+{x:0,y:0,w:1,h:1},
+{x:.15,y:.10,w:.70,h:.80},
+{x:.25,y:.15,w:.50,h:.65},
+{x:0,y:0,w:.5,h:.5},
+{x:.5,y:0,w:.5,h:.5},
+{x:0,y:.5,w:.5,h:.5},
+{x:.5,y:.5,w:.5,h:.5},
+{x:.20,y:.25,w:.60,h:.40},
+{x:.30,y:.30,w:.45,h:.25},
+{x:.20,y:.35,w:.60,h:.25},
+{x:.20,y:.40,w:.60,h:.25},
+{x:.25,y:.45,w:.50,h:.20}
+];
+}
+
+async function analyzePackagePhoto(file,mode){
+if(!file)return;
+
+if(!file.type.startsWith('image/')){
+alert('Bitte ein Bild auswählen.');
+return;
+}
+
+if(file.size>20*1024*1024){
+alert('Bild zu groß. Maximal 20 MB.');
+return;
+}
+
+if(mode==='parcel'&&(!truck||blocked||busy)){
+notice('result','Scan derzeit nicht möglich.','bad');
+return;
+}
+
+if(mode==='sample'&&truck){
+notice('sampleMessage','Zuerst Verladung beenden.','bad');
+return;
+}
+
+stopCamera();
+
+const messageId=mode==='sample'?'sampleMessage':'result';
+notice(messageId,'🖼️ Paketfoto wird analysiert …');
+
+const objectUrl=URL.createObjectURL(file);
+const image=new Image();
+const candidates=new Map();
+
+try{
+image.src=objectUrl;
+await image.decode();
+
+const decoder=new Reader();
+const regions=imageRegions();
+
+let attempts=0;
+
+for(const region of regions){
+for(const contrast of [false,true]){
+attempts++;
+
+notice(
+messageId,
+'🔎 Suche nach Paketbarcode …\nVersuch '+
+attempts+' von '+(regions.length*2)
+);
+
+try{
+const canvas=makeCanvas(
+image,region,1800,contrast
+);
+
+const code=await decodeCanvas(canvas,decoder);
+
+if(code){
+candidates.set(
+code,(candidates.get(code)||0)+1
+);
+}
+}catch(e){
+// Dieser Bildausschnitt enthält möglicherweise
+// keinen lesbaren Barcode. Nächsten versuchen.
+}
+
+if(attempts%4===0){
+await new Promise(resolve=>setTimeout(resolve,0));
+}
+}
+}
+
+const recognized=[...candidates.keys()];
+const supported=recognized.filter(
+code=>detectCarrier(code)!==null
+);
+
+if(supported.length>1){
+throw new Error(
+'Mehrere unterschiedliche gültige Sendungsnummern erkannt. '+
+'Bitte Foto auf einen Barcode zuschneiden.'
+);
+}
+
+if(supported.length===1){
+const code=supported[0];
+const carrier=detectCarrier(code);
+
+if(mode==='sample'){
+$('sampleCode').value=code;
+$('sampleCarrier').value=carrier;
+notice(
+'sampleMessage',
+'✓ Paketbarcode erkannt\n'+
+'Paketdienst: '+carrier+
+'\nBarcode: '+code+
+'\nBitte kontrollieren und speichern.',
+'ok'
+);
+$('trainingCard').scrollIntoView();
+}else{
+$('parcel').value=code;
+await processParcel(code);
+}
+return;
+}
+
+if(recognized.length>0){
+const unique=recognized.length===1
+?recognized[0]:null;
+
+if(mode==='sample'){
+if(unique){
+$('sampleCode').value=unique;
+notice(
+'sampleMessage',
+'Barcode erkannt, Paketdienst NICHT sicher bestimmt.\n'+
+'Barcode: '+unique+
+'\nPaketdienst am Etikett prüfen.',
+'bad'
+);
+}else{
+throw new Error(
+'Mehrere unterschiedliche Barcodes gefunden. '+
+'Bitte Foto auf den richtigen Barcode zuschneiden.'
+);
+}
+}else{
+throw new Error(
+'Kein unterstützter Paket-Trackingbarcode gefunden. '+
+'Erkannte Codes werden nicht automatisch freigegeben.'
+);
+}
+return;
+}
+
+throw new Error(
+'Kein Barcode lesbar. Bitte näher fotografieren, '+
+'scharf stellen und den Barcode vollständig zeigen.'
+);
+
+}catch(e){
+notice(
+messageId,
+'⛔ Barcode nicht sicher erkannt\n'+e.message,
+'bad'
+);
+if(mode==='parcel'){
+frame('bad','⛔ KEINE FREIGABE');
+tone('bad');
+}
+}finally{
+URL.revokeObjectURL(objectUrl);
+}
+}
+
+$('parcelGallery').onclick=()=>{
+if(!truck||blocked||busy)return;
+$('parcelFile').click();
+};
+
+$('sampleGallery').onclick=()=>{
+if(profile?.role!=='admin')return;
+$('sampleFile').click();
+};
+
+$('parcelFile').onchange=async()=>{
+const file=$('parcelFile').files?.[0];
+$('parcelFile').value='';
+await analyzePackagePhoto(file,'parcel');
+};
+
+$('sampleFile').onchange=async()=>{
+const file=$('sampleFile').files?.[0];
+$('sampleFile').value='';
+await analyzePackagePhoto(file,'sample');
 };
 
 /* BARCODE-BEISPIELE */
 
-async function refreshSamples() {
-  if (profile?.role !== 'admin') return;
+async function refreshSamples(){
+if(profile?.role!=='admin')return;
 
-  const r = await supabase.from('barcode_examples')
-    .select('id,carrier,barcode,created_at')
-    .order('created_at',{ascending:false})
-    .limit(500);
+const r=await supabase.from('barcode_examples')
+.select('id,carrier,barcode,created_at')
+.order('created_at',{ascending:false})
+.limit(500);
 
-  if (r.error) {
-    notice('sampleMessage',r.error.message,'bad');
-    return;
-  }
-
-  samples = r.data || [];
-
-  $('sampleList').innerHTML = samples.length
-    ? samples.map(s =>
-      '<tr><td>'+esc(s.carrier)+'</td><td>'+
-      esc(s.barcode)+'</td><td>'+
-      esc(new Date(s.created_at).toLocaleString('de-DE'))+
-      '</td><td><button class="secondary" data-sample="'+
-      esc(s.id)+'">Löschen</button></td></tr>'
-    ).join('')
-    : '<tr><td colspan="4">Keine Beispiele vorhanden.</td></tr>';
+if(r.error){
+notice('sampleMessage',r.error.message,'bad');
+return;
 }
 
-$('sampleSave').onclick = async () => {
-  if (profile?.role !== 'admin') return;
+samples=r.data||[];
 
-  const carrier = $('sampleCarrier').value;
-  const barcode = $('sampleCode').value
-    .trim().replace(/\s+/g,'').toUpperCase();
-
-  if (!carriers.has(carrier) || !barcode || barcode.length > 150) {
-    notice('sampleMessage','Ungültiger Barcode.','bad');
-    return;
-  }
-
-  if (!confirm('Als '+carrier+'-Beispiel speichern?')) return;
-
-  const r = await supabase.from('barcode_examples')
-    .insert({carrier,barcode});
-
-  if (r.error) {
-    notice('sampleMessage',r.error.message,'bad');
-  } else {
-    $('sampleCode').value = '';
-    notice('sampleMessage','Beispiel gespeichert.','ok');
-    await refreshSamples();
-  }
-};
-
-$('sampleRefresh').onclick = refreshSamples;
-
-$('sampleList').onclick = async e => {
-  const id = e.target.dataset?.sample;
-  if (!id || !confirm('Beispiel löschen?')) return;
-
-  const r = await supabase.from('barcode_examples')
-    .delete().eq('id',id);
-
-  if (r.error) alert(r.error.message);
-  else await refreshSamples();
-};
-
-/* ADMIN */
-
-async function refreshAdmin() {
-  if (profile?.role !== 'admin') return;
-
-  const [a,b,c] = await Promise.all([
-    supabase.from('employees')
-      .select('id,employee_code,display_name,role,active,auth_user_id')
-      .order('employee_code'),
-    supabase.from('docks')
-      .select('id,barcode,carrier,active')
-      .order('barcode'),
-    supabase.from('scan_logs')
-      .select('id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at')
-      .order('created_at',{ascending:false})
-      .limit(1000)
-  ]);
-
-  if (a.error || b.error || c.error) {
-    alert((a.error || b.error || c.error).message);
-    return;
-  }
-
-  staff = a.data || [];
-  docks = b.data || [];
-  logs = c.data || [];
-
-  renderAdmin();
-  await refreshSamples();
+$('sampleList').innerHTML=samples.length
+?samples.map(s=>
+'<tr><td>'+esc(s.carrier)+'</td><td>'+
+esc(s.barcode)+'</td><td>'+
+esc(new Date(s.created_at).toLocaleString('de-DE'))+
+'</td><td><button class="secondary" data-sample="'+
+esc(s.id)+'" type="button">Löschen</button></td></tr>'
+).join('')
+:'<tr><td colspan="4">Keine Beispiele vorhanden.</td></tr>';
 }
 
-function renderAdmin() {
-  $('total').textContent = logs.length;
-  $('successful').textContent =
-    logs.filter(x => x.status === 'success').length;
-  $('blocked').textContent =
-    logs.filter(x => x.status !== 'success').length;
-  $('staffCount').textContent = staff.length;
+$('sampleSave').onclick=async()=>{
+if(profile?.role!=='admin')return;
 
-  const map = new Map(staff.map(x => [x.id,x]));
+const carrier=$('sampleCarrier').value;
+const barcode=normalize($('sampleCode').value);
 
-  $('performance').innerHTML = staff.map(s => {
-    const own = logs.filter(x => x.employee_id === s.id);
-    return '<tr><td>'+esc(s.employee_code+' · '+s.display_name)+
-      '</td><td>'+own.filter(x=>x.status==='success').length+
-      '</td><td>'+own.filter(x=>x.status!=='success').length+
-      '</td></tr>';
-  }).join('');
-
-  $('dockList').innerHTML = docks.map(d =>
-    '<div class="row"><span>'+
-    esc(d.barcode+' · '+d.carrier+' · '+(d.active?'aktiv':'inaktiv'))+
-    '</span><button class="secondary" data-dock="'+esc(d.id)+'">'+
-    (d.active?'Deaktivieren':'Aktivieren')+
-    '</button></div>'
-  ).join('');
-
-  $('staffList').innerHTML = staff.map(s =>
-    '<div class="row"><span>'+
-    esc(s.employee_code+' · '+s.display_name+' · '+s.role)+
-    '</span><button class="secondary" data-staff="'+esc(s.id)+'" '+
-    (s.id===profile.id?'disabled':'')+'>'+
-    (s.active?'Deaktivieren':'Aktivieren')+
-    '</button></div>'
-  ).join('');
-
-  $('logs').innerHTML = logs.map(l =>
-    '<tr><td>'+esc(new Date(l.created_at).toLocaleString('de-DE'))+
-    '</td><td>'+esc(map.get(l.employee_id)?.employee_code||l.employee_id)+
-    '</td><td>'+esc(l.parcel_barcode)+
-    '</td><td>'+esc(l.detected_carrier||'?')+
-    '</td><td>'+esc(l.dock_barcode)+
-    '</td><td>'+esc(l.status)+'</td></tr>'
-  ).join('');
+if(!carriers.has(carrier)||!barcode||barcode.length>150){
+notice('sampleMessage','Ungültiger Barcode.','bad');
+return;
 }
 
-$('refresh').onclick = refreshAdmin;
+if(!confirm('Als '+carrier+'-Beispiel speichern?'))return;
 
-$('saveDock').onclick = async () => {
-  const barcode = $('newDock').value.trim().toUpperCase();
-  const carrier = $('newCarrier').value;
-  if (!barcode) return alert('Barcode fehlt.');
+const r=await supabase.from('barcode_examples')
+.insert({carrier,barcode});
 
-  const r = await supabase.from('docks')
-    .upsert({barcode,carrier,active:true},{onConflict:'barcode'});
-
-  if (r.error) alert(r.error.message);
-  else {
-    $('newDock').value = '';
-    await refreshAdmin();
-  }
+if(r.error){
+notice('sampleMessage',r.error.message,'bad');
+}else{
+$('sampleCode').value='';
+notice('sampleMessage','Beispiel gespeichert.','ok');
+await refreshSamples();
+}
 };
 
-$('dockList').onclick = async e => {
-  const id = e.target.dataset?.dock;
-  const d = docks.find(x => x.id === id);
-  if (!d || !confirm('Status ändern?')) return;
+$('sampleRefresh').onclick=refreshSamples;
 
-  const r = await supabase.from('docks')
-    .update({active:!d.active}).eq('id',id);
+$('sampleList').onclick=async e=>{
+const id=e.target.dataset?.sample;
+if(!id||!confirm('Beispiel löschen?'))return;
 
-  if (r.error) alert(r.error.message);
-  else await refreshAdmin();
+const r=await supabase.from('barcode_examples')
+.delete().eq('id',id);
+
+if(r.error)alert(r.error.message);
+else await refreshSamples();
 };
 
-$('saveStaff').onclick = async () => {
-  const employee_code = $('staffCode').value.trim();
-  const display_name = $('staffName').value.trim();
-  const auth_user_id = $('staffUid').value.trim();
+/* ADMIN-DASHBOARD */
 
-  if (!employee_code || !display_name ||
-      !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(auth_user_id)) {
-    alert('Bitte gültige Mitarbeiterdaten eingeben.');
-    return;
-  }
+async function refreshAdmin(){
+if(profile?.role!=='admin')return;
 
-  const r = await supabase.from('employees').insert({
-    employee_code,display_name,auth_user_id,
-    role:'worker',active:true
-  });
+const [a,b,c]=await Promise.all([
+supabase.from('employees')
+.select('id,employee_code,display_name,role,active,auth_user_id')
+.order('employee_code'),
+supabase.from('docks')
+.select('id,barcode,carrier,active')
+.order('barcode'),
+supabase.from('scan_logs')
+.select('id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at')
+.order('created_at',{ascending:false})
+.limit(1000)
+]);
 
-  if (r.error) alert(r.error.message);
-  else {
-    $('staffCode').value = '';
-    $('staffName').value = '';
-    $('staffUid').value = '';
-    await refreshAdmin();
-  }
+if(a.error||b.error||c.error){
+alert((a.error||b.error||c.error).message);
+return;
+}
+
+staff=a.data||[];
+docks=b.data||[];
+logs=c.data||[];
+
+renderAdmin();
+await refreshSamples();
+}
+
+function renderAdmin(){
+$('total').textContent=logs.length;
+$('successful').textContent=
+logs.filter(x=>x.status==='success').length;
+$('blocked').textContent=
+logs.filter(x=>x.status!=='success').length;
+$('staffCount').textContent=staff.length;
+
+const map=new Map(staff.map(x=>[x.id,x]));
+
+$('performance').innerHTML=staff.map(s=>{
+const own=logs.filter(x=>x.employee_id===s.id);
+return '<tr><td>'+esc(s.employee_code+' · '+s.display_name)+
+'</td><td>'+own.filter(x=>x.status==='success').length+
+'</td><td>'+own.filter(x=>x.status!=='success').length+
+'</td></tr>';
+}).join('');
+
+$('dockList').innerHTML=docks.map(d=>
+'<div class="row"><span>'+
+esc(d.barcode+' · '+d.carrier+' · '+(d.active?'aktiv':'inaktiv'))+
+'</span><button class="secondary" data-dock="'+esc(d.id)+'" type="button">'+
+(d.active?'Deaktivieren':'Aktivieren')+
+'</button></div>'
+).join('');
+
+$('staffList').innerHTML=staff.map(s=>
+'<div class="row"><span>'+
+esc(s.employee_code+' · '+s.display_name+' · '+s.role)+
+'</span><button class="secondary" data-staff="'+esc(s.id)+'" '+
+(s.id===profile.id?'disabled':'')+' type="button">'+
+(s.active?'Deaktivieren':'Aktivieren')+
+'</button></div>'
+).join('');
+
+$('logs').innerHTML=logs.map(l=>
+'<tr><td>'+esc(new Date(l.created_at).toLocaleString('de-DE'))+
+'</td><td>'+esc(map.get(l.employee_id)?.employee_code||l.employee_id)+
+'</td><td>'+esc(l.parcel_barcode)+
+'</td><td>'+esc(l.detected_carrier||'?')+
+'</td><td>'+esc(l.dock_barcode)+
+'</td><td>'+esc(l.status)+'</td></tr>'
+).join('');
+}
+
+$('refresh').onclick=refreshAdmin;
+
+$('saveDock').onclick=async()=>{
+const barcode=normalize($('newDock').value);
+const carrier=$('newCarrier').value;
+if(!barcode)return alert('Barcode fehlt.');
+
+const r=await supabase.from('docks')
+.upsert({barcode,carrier,active:true},{onConflict:'barcode'});
+
+if(r.error)alert(r.error.message);
+else{
+$('newDock').value='';
+await refreshAdmin();
+}
 };
 
-$('staffList').onclick = async e => {
-  const id = e.target.dataset?.staff;
-  if (!id || id === profile.id) return;
+$('dockList').onclick=async e=>{
+const id=e.target.dataset?.dock;
+const d=docks.find(x=>x.id===id);
+if(!d||!confirm('Status ändern?'))return;
 
-  const s = staff.find(x => x.id === id);
-  if (!s || !confirm('Mitarbeiterstatus ändern?')) return;
+const r=await supabase.from('docks')
+.update({active:!d.active}).eq('id',id);
 
-  const r = await supabase.from('employees')
-    .update({active:!s.active}).eq('id',id);
-
-  if (r.error) alert(r.error.message);
-  else await refreshAdmin();
+if(r.error)alert(r.error.message);
+else await refreshAdmin();
 };
 
-$('csv').onclick = () => {
-  const columns = [
-    'created_at','employee_id','parcel_barcode',
-    'detected_carrier','dock_barcode','dock_carrier',
-    'status','message'
-  ];
+$('saveStaff').onclick=async()=>{
+const employee_code=$('staffCode').value.trim();
+const display_name=$('staffName').value.trim();
+const auth_user_id=$('staffUid').value.trim();
 
-  const q = x => '"'+String(x??'').replace(/"/g,'""')+'"';
+if(!employee_code||!display_name||
+!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auth_user_id)){
+alert('Bitte gültige Mitarbeiterdaten eingeben.');
+return;
+}
 
-  const content = [
-    columns.join(';'),
-    ...logs.map(l=>columns.map(k=>q(l[k])).join(';'))
-  ].join('\r\n');
+const r=await supabase.from('employees').insert({
+employee_code,display_name,auth_user_id,
+role:'worker',active:true
+});
 
-  const url = URL.createObjectURL(
-    new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'})
-  );
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'loadguard-scans.csv';
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+if(r.error)alert(r.error.message);
+else{
+$('staffCode').value='';
+$('staffName').value='';
+$('staffUid').value='';
+await refreshAdmin();
+}
 };
 
-for (const id of ['sound','blink']) {
-  try {
-    $(id).checked = localStorage.getItem('lg_'+id) !== 'false';
-  } catch {}
-  $(id).onchange = () => {
-    try {
-      localStorage.setItem('lg_'+id,String($(id).checked));
-    } catch {}
-  };
+$('staffList').onclick=async e=>{
+const id=e.target.dataset?.staff;
+if(!id||id===profile.id)return;
+
+const s=staff.find(x=>x.id===id);
+if(!s||!confirm('Mitarbeiterstatus ändern?'))return;
+
+const r=await supabase.from('employees')
+.update({active:!s.active}).eq('id',id);
+
+if(r.error)alert(r.error.message);
+else await refreshAdmin();
+};
+
+$('csv').onclick=()=>{
+const columns=[
+'created_at','employee_id','parcel_barcode',
+'detected_carrier','dock_barcode','dock_carrier',
+'status','message'
+];
+
+const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+
+const content=[
+columns.join(';'),
+...logs.map(l=>columns.map(k=>q(l[k])).join(';'))
+].join('\r\n');
+
+const url=URL.createObjectURL(
+new Blob(['\ufeff'+content],{
+type:'text/csv;charset=utf-8'
+})
+);
+
+const a=document.createElement('a');
+a.href=url;
+a.download='loadguard-scans.csv';
+a.click();
+setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+
+for(const id of ['sound','blink']){
+try{
+$(id).checked=localStorage.getItem('lg_'+id)!=='false';
+}catch{}
+$(id).onchange=()=>{
+try{
+localStorage.setItem('lg_'+id,String($(id).checked));
+}catch{}
+};
 }
 
 /* START */
 
-async function startLoadGuard() {
-  try {
-    const sm = await import('./supabase.js');
-    if (!sm.supabase) throw new Error('Supabase-Client fehlt.');
-    supabase = sm.supabase;
+async function startLoadGuard(){
+try{
+const sm=await import('./supabase.js');
+if(!sm.supabase)throw new Error('Supabase-Client fehlt.');
+supabase=sm.supabase;
 
-    const zm = await import('@zxing/browser');
-    if (!zm.BrowserMultiFormatReader) {
-      throw new Error('Barcode-Scanner fehlt.');
-    }
-    Reader = zm.BrowserMultiFormatReader;
+const zm=await import('@zxing/browser');
+if(!zm.BrowserMultiFormatReader){
+throw new Error('Barcode-Scanner fehlt.');
+}
+Reader=zm.BrowserMultiFormatReader;
 
-    $('loginButton').disabled = false;
-    $('loginButton').textContent = 'Anmelden';
-    notice('loginMessage','LoadGuard bereit.');
+$('loginButton').disabled=false;
+$('loginButton').textContent='Anmelden';
+notice('loginMessage','LoadGuard bereit.');
 
-    await init();
-  } catch (e) {
-    console.error(e);
-    notice('loginMessage',
-      'LoadGuard konnte nicht gestartet werden:\n'+e.message,
-      'bad'
-    );
-  }
+await init();
+}catch(e){
+console.error(e);
+notice(
+'loginMessage',
+'LoadGuard konnte nicht gestartet werden:\n'+e.message,
+'bad'
+);
+}
 }
 
 startLoadGuard();
+
 </script>
 </body>
 </html>
