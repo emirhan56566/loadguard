@@ -223,6 +223,7 @@ document.getElementById('loginMessage').textContent = 'JavaScript gestartet';
 
 import { supabase } from './supabase.js';
 import { BrowserMultiFormatReader } from '@zxing/browser';
+alert('LoadGuard-Modul gestartet');
 const $ = id => document.getElementById(id);
 let profile = null, pending = null, reader = null, controls = null, busy = false;
 let docks = [], staff = [], logs = [];
