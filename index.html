@@ -13,7 +13,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial}
-header{padding:17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
 header strong{font-size:23px}
 header strong span{color:var(--green)}
 main{max-width:950px;margin:auto;padding:15px}
@@ -34,12 +34,6 @@ button:disabled{opacity:.5}
 .notice{padding:14px;border-radius:10px;background:#2a392d;white-space:pre-wrap;margin-top:12px;font-weight:700;overflow-wrap:anywhere}
 .ok{background:#18522a!important}
 .bad{background:#762027!important;border:2px solid var(--red)}
-.scanner{position:relative;border:4px solid var(--line);border-radius:12px;overflow:hidden;background:black}
-.scanner video{width:100%;height:280px;object-fit:cover;display:block}
-.scanner.ok,.scanner.ready{border-color:var(--green)}
-.scanner.bad{border-color:var(--red)}
-.overlay{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.overlay span{background:#101713d9;padding:10px;border-radius:8px;font-weight:800}
 .metric{background:#29372c;padding:12px;border-radius:10px}
 .metric strong{display:block;font-size:26px}
 .scroll{overflow-x:auto}
@@ -48,7 +42,96 @@ td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;overflow-w
 th{color:var(--green)}
 .hint{border-left:3px solid orange;padding:12px;background:#392d1b}
 .mini{font-size:12px}
-@media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* CARRIER-SPEZIFISCHE SCANNER-LINSEN */
+
+.scanner{
+position:relative;
+height:330px;
+border:4px solid var(--line);
+border-radius:16px;
+overflow:hidden;
+background:#000;
+--rx:3%;--ry:73%;--rw:94%;--rh:24%
+}
+.scanner video{
+display:block;
+width:100%;
+height:100%;
+object-fit:cover
+}
+.scanner.ready,.scanner.ok{border-color:var(--green)}
+.scanner.bad{border-color:var(--red)}
+
+.scanner.lens-dhl,
+.scanner.lens-dpd{
+--rx:3%;--ry:73%;--rw:94%;--rh:24%
+}
+.scanner.lens-gls{
+--rx:17%;--ry:13%;--rw:66%;--rh:22%
+}
+.scanner.lens-ups{
+--rx:3%;--ry:43%;--rw:94%;--rh:20%
+}
+
+.lens{position:absolute;inset:0;pointer-events:none;display:none}
+.scanner.lens-active .lens{display:block}
+
+.lens-mask{
+position:absolute;
+background:repeating-linear-gradient(
+135deg,
+rgba(255,0,0,.82) 0 12px,
+rgba(0,0,0,.9) 12px 24px
+)
+}
+.lens-top{left:0;top:0;width:100%;height:var(--ry)}
+.lens-bottom{
+left:0;
+top:calc(var(--ry) + var(--rh));
+width:100%;
+bottom:0
+}
+.lens-left{
+left:0;top:var(--ry);
+width:var(--rx);height:var(--rh)
+}
+.lens-right{
+left:calc(var(--rx) + var(--rw));
+right:0;top:var(--ry);height:var(--rh)
+}
+.lens-window{
+position:absolute;
+left:var(--rx);top:var(--ry);
+width:var(--rw);height:var(--rh);
+border:3px solid #f020ff;
+border-radius:8px;
+box-shadow:0 0 0 1px white,0 0 18px #e800ff;
+background:transparent
+}
+.lens-name{
+position:absolute;left:8px;top:8px;
+padding:5px 9px;
+background:#000c;
+border-radius:6px;
+font-weight:900
+}
+.scan-overlay{
+position:absolute;
+left:0;right:0;bottom:3px;
+text-align:center;
+pointer-events:none
+}
+.scan-overlay span{
+display:inline-block;
+background:#000c;
+padding:5px 9px;
+border-radius:6px;
+font-size:12px
+}
+@media(min-width:720px){
+.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
@@ -81,10 +164,10 @@ th{color:var(--green)}
 <h1>Verladung prüfen</h1>
 <p id="workerName"></p>
 <p class="hint">
-Testbetrieb: Nur bestimmte DHL- und UPS-Barcodeformate
-werden erkannt. DPD, GLS und unbekannte Formate bleiben
-gesperrt. Die Prüfung ist eine digitale Warnung,
-keine physische Verladeverriegelung.
+Testbetrieb: Bisher werden nur bestimmte DHL-
+und UPS-Sendungsnummern erkannt.
+DPD, GLS und unbekannte Formate bleiben gesperrt.
+Die Prüfung ist digital, keine physische Verriegelung.
 </p>
 </div>
 
@@ -121,7 +204,7 @@ Verladung beenden / LKW wechseln
 
 <div class="card">
 <h2>02 · Pakete scannen</h2>
-<p>Die Kamera scannt fortlaufend. Bei STOPP muss die Warnung bestätigt werden.</p>
+<p>Barcode in das violette Fenster halten.</p>
 
 <label>Paketbarcode</label>
 <input id="parcel" placeholder="Paketbarcode">
@@ -145,17 +228,31 @@ Verladung beenden / LKW wechseln
 
 <div class="card">
 <h2>Kamera / Scanner</h2>
+
 <div id="scannerFrame" class="scanner">
 <video id="video" playsinline muted></video>
-<div class="overlay">
+
+<div class="lens" aria-hidden="true">
+<div class="lens-mask lens-top"></div>
+<div class="lens-mask lens-bottom"></div>
+<div class="lens-mask lens-left"></div>
+<div class="lens-mask lens-right"></div>
+<div class="lens-window"></div>
+<div id="lensName" class="lens-name"></div>
+</div>
+
+<div class="scan-overlay">
 <span id="scannerLabel">Kamera aus</span>
 </div>
 </div>
+
 <button id="stopCamera" class="secondary hidden" type="button">
 Kamera pausieren
 </button>
+
 <p class="mini">
-Für die Kamera sind HTTPS und Kameraberechtigung erforderlich.
+Rot-schwarz = nicht scannen.
+Violettes Fenster = aktiver Scanbereich.
 </p>
 </div>
 
@@ -164,8 +261,8 @@ Für die Kamera sind HTTPS und Kameraberechtigung erforderlich.
 <div id="trainingCard" class="card">
 <h2>🖼️ Barcode-Beispiele erfassen</h2>
 <p>
-Paketetiketten mit Kamera oder aus der Galerie auslesen.
-Gespeicherte Beispiele sind noch keine Freigaberegeln.
+Echte Paketetiketten mit Kamera oder Galerie erfassen.
+Beispiele werden nicht automatisch zu Freigaberegeln.
 </p>
 
 <label>Paketdienst</label>
@@ -176,7 +273,7 @@ Gespeicherte Beispiele sind noch keine Freigaberegeln.
 <option>UPS</option>
 </select>
 
-<label>Erkannter Barcode</label>
+<label>Barcode</label>
 <input id="sampleCode" placeholder="Barcode">
 
 <div class="grid">
@@ -231,8 +328,10 @@ Gespeicherte Beispiele sind noch keine Freigaberegeln.
 <h2>LKW-Barcodes verwalten</h2>
 <input id="newDock" placeholder="Barcode">
 <select id="newCarrier">
-<option>DHL</option><option>DPD</option>
-<option>GLS</option><option>UPS</option>
+<option>DHL</option>
+<option>DPD</option>
+<option>GLS</option>
+<option>UPS</option>
 </select>
 <button id="saveDock" type="button">Barcode speichern</button>
 <div id="dockList"></div>
@@ -240,7 +339,6 @@ Gespeicherte Beispiele sind noch keine Freigaberegeln.
 
 <div class="card">
 <h2>Mitarbeiter verwalten</h2>
-<p class="mini">Benutzer zuerst unter Supabase Authentication anlegen.</p>
 <input id="staffCode" placeholder="Mitarbeiter-ID">
 <input id="staffName" placeholder="Name">
 <input id="staffUid" placeholder="Supabase Auth User UID">
@@ -283,25 +381,26 @@ Rotes Blinken
 </main>
 
 <script type="module">
+const $=id=>document.getElementById(id);
+const carriers=new Set(['DHL','DPD','GLS','UPS']);
 
-const $ = id => document.getElementById(id);
-const carriers = new Set(['DHL','DPD','GLS','UPS']);
-
-const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({
 '&':'&amp;','<':'&lt;','>':'&gt;',
 '"':'&quot;',"'":'&#39;'
 }[c]));
 
-const normalize = value =>
-String(value ?? '').toUpperCase().replace(/\s+/g,'');
+const normalize=x=>
+String(x??'').toUpperCase().replace(/\s+/g,'');
 
-let supabase, Reader, profile;
+let supabase,Reader,profile;
 let staff=[],docks=[],logs=[],samples=[];
 let truck=null,session=null;
 let controls=null,reader=null,cameraMode=null;
 let cameraToken=0,busy=false,blocked=false;
 let seen=new Set(),lastCode='';
 let audioCtx=null,frameTimer=null;
+let scanLoop=null,scanBusy=false;
+let scanCanvas=document.createElement('canvas');
 
 function notice(id,text,type=''){
 $(id).textContent=text;
@@ -309,7 +408,16 @@ $(id).className='notice '+type;
 }
 
 function frame(type,text){
-$('scannerFrame').className='scanner '+type;
+const carrier=cameraMode==='parcel'&&truck
+?truck.carrier.toLowerCase():'';
+
+$('scannerFrame').className=
+'scanner '+type+
+(carrier?' lens-active lens-'+carrier:'');
+
+$('lensName').textContent=carrier
+?truck.carrier+' – Scanner-Linse':'';
+
 $('scannerLabel').textContent=text;
 }
 
@@ -320,11 +428,13 @@ const Audio=window.AudioContext||window.webkitAudioContext;
 if(!Audio)return;
 if(!audioCtx)audioCtx=new Audio();
 audioCtx.resume().catch(()=>{});
+
 const notes=type==='bad'
 ?[[300,0,.3],[240,.35,.3],[300,.7,.3]]
 :type==='ok'
 ?[[800,0,.1],[1100,.14,.12]]
 :[[700,0,.1]];
+
 for(const [hz,delay,duration] of notes){
 const o=audioCtx.createOscillator();
 const g=audioCtx.createGain();
@@ -347,17 +457,85 @@ if(/^0034\d{16}$/.test(code))return 'DHL';
 return null;
 }
 
+/* SCANFENSTER-KOORDINATEN */
+
+function getRegion(carrier){
+switch(carrier){
+case 'DHL':
+case 'DPD':
+return {x:.03,y:.73,w:.94,h:.24};
+case 'GLS':
+return {x:.17,y:.13,w:.66,h:.22};
+case 'UPS':
+return {x:.03,y:.43,w:.94,h:.20};
+default:
+return {x:0,y:0,w:1,h:1};
+}
+}
+
+/*
+Das Video nutzt object-fit:cover.
+Daher muss der sichtbare Kameraausschnitt
+auf die echten Videopixel umgerechnet werden.
+*/
+
+function cropVideoToCanvas(video,carrier){
+const vw=video.videoWidth;
+const vh=video.videoHeight;
+const ew=video.clientWidth;
+const eh=video.clientHeight;
+
+if(!vw||!vh||!ew||!eh)return null;
+
+const scale=Math.max(ew/vw,eh/vh);
+const visibleW=ew/scale;
+const visibleH=eh/scale;
+const offsetX=(vw-visibleW)/2;
+const offsetY=(vh-visibleH)/2;
+
+const r=getRegion(carrier);
+
+const sx=offsetX+r.x*visibleW;
+const sy=offsetY+r.y*visibleH;
+const sw=r.w*visibleW;
+const sh=r.h*visibleH;
+
+scanCanvas.width=Math.max(1,Math.round(sw));
+scanCanvas.height=Math.max(1,Math.round(sh));
+
+const ctx=scanCanvas.getContext('2d',{
+willReadFrequently:true
+});
+
+ctx.drawImage(
+video,
+sx,sy,sw,sh,
+0,0,scanCanvas.width,scanCanvas.height
+);
+
+return scanCanvas;
+}
+
 function stopCamera(){
 cameraToken++;
+
+if(scanLoop){
+clearTimeout(scanLoop);
+scanLoop=null;
+}
+
 try{controls?.stop();}catch{}
 controls=null;
 reader=null;
 cameraMode=null;
+
 const video=$('video');
+
 if(video.srcObject){
 video.srcObject.getTracks().forEach(t=>t.stop());
 video.srcObject=null;
 }
+
 $('stopCamera').classList.add('hidden');
 frame('','Kamera aus');
 }
@@ -365,12 +543,14 @@ frame('','Kamera aus');
 function resetSession(){
 stopCamera();
 clearTimeout(frameTimer);
+
 truck=null;
 session=null;
 seen=new Set();
 busy=false;
 blocked=false;
 lastCode='';
+
 $('truckSetup').classList.remove('hidden');
 $('loadingView').classList.add('hidden');
 $('ack').classList.add('hidden');
@@ -378,6 +558,7 @@ $('truckCode').value='';
 $('parcel').value='';
 $('sessionOk').textContent='0';
 $('sessionBlocked').textContent='0';
+
 notice('truckMessage','Noch kein LKW aktiv.');
 }
 
@@ -388,14 +569,15 @@ $('logout').classList.toggle('hidden',!loggedIn);
 $('adminView').classList.toggle(
 'hidden',!loggedIn||profile?.role!=='admin'
 );
+
 $('who').textContent=loggedIn?profile.display_name:'';
+
 $('workerName').textContent=loggedIn
 ?profile.display_name+' · '+profile.employee_code:'';
 }
 
 async function init(){
-const {data:{user},error:userError}=await supabase.auth.getUser();
-if(userError)console.warn(userError);
+const {data:{user}}=await supabase.auth.getUser();
 
 if(!user){
 profile=null;
@@ -429,11 +611,13 @@ if(profile.role==='admin')await refreshAdmin();
 $('loginForm').onsubmit=async e=>{
 e.preventDefault();
 $('loginButton').disabled=true;
+
 try{
 const r=await supabase.auth.signInWithPassword({
 email:$('email').value.trim(),
 password:$('password').value
 });
+
 if(r.error)throw r.error;
 await init();
 $('password').value='';
@@ -454,6 +638,7 @@ loginState(false);
 
 async function acceptTruck(value){
 if(!profile||truck||busy)return;
+
 const code=normalize(value??$('truckCode').value);
 
 if(!carriers.has(code)){
@@ -463,6 +648,7 @@ return;
 }
 
 busy=true;
+
 try{
 const r=await supabase.from('docks')
 .select('barcode,carrier,active')
@@ -471,6 +657,7 @@ const r=await supabase.from('docks')
 .maybeSingle();
 
 if(r.error)throw r.error;
+
 if(!r.data||r.data.carrier!==code){
 throw new Error('LKW-Barcode nicht aktiv oder falsch zugeordnet.');
 }
@@ -482,13 +669,16 @@ seen=new Set();
 $('activeTruck').textContent=code;
 $('sessionStart').textContent=
 'Beginn: '+session.startedAt.toLocaleString('de-DE');
+
 $('sessionOk').textContent='0';
 $('sessionBlocked').textContent='0';
 
 $('truckSetup').classList.add('hidden');
 $('loadingView').classList.remove('hidden');
+
 notice('result','LKW aktiv. Kamera wird gestartet.');
 await startCamera('parcel');
+
 }catch(e){
 notice('truckMessage',e.message,'bad');
 tone('bad');
@@ -517,6 +707,7 @@ status,
 message:'LKW-Verladung ab '+
 session.startedAt.toISOString()+' | '+message
 });
+
 if(r.error)throw r.error;
 }
 
@@ -555,6 +746,7 @@ notice('result',
 carrier+' → '+truck.carrier+
 '\nPaket: '+code,'ok'
 );
+
 frame('ok','✓ RICHTIG');
 tone('ok');
 $('parcel').value='';
@@ -575,16 +767,19 @@ notice('result',
 '⛔ STOPP – NICHT VERLADEN\n'+
 reason+'\nPaket: '+code,'bad'
 );
+
 frame('bad','⛔ STOPP');
 $('ack').classList.remove('hidden');
 tone('bad');
 }
+
 }catch(e){
 blocked=true;
 notice('result','⛔ KEINE FREIGABE\n'+e.message,'bad');
 frame('bad','⛔ STOPP');
 $('ack').classList.remove('hidden');
 tone('bad');
+
 }finally{
 busy=false;
 $('parcelAccept').disabled=false;
@@ -615,7 +810,7 @@ if(!confirm('Verladung beenden?'))return;
 resetSession();
 };
 
-/* LIVE-KAMERA */
+/* LIVE-KAMERA MIT ECHTEM SCANBEREICH */
 
 async function startCamera(mode){
 if(!Reader)return;
@@ -628,6 +823,7 @@ return;
 stopCamera();
 cameraMode=mode;
 lastCode='';
+
 const token=++cameraToken;
 
 try{
@@ -635,26 +831,90 @@ reader=new Reader();
 frame('','Kamera startet …');
 $('stopCamera').classList.remove('hidden');
 
+if(mode==='parcel'){
+/*
+Live-Kamera selbst öffnen.
+ZXing erhält nur ausgeschnittene Frames.
+*/
+
+const stream=await navigator.mediaDevices.getUserMedia({
+audio:false,
+video:{
+facingMode:{ideal:'environment'},
+width:{ideal:1920},
+height:{ideal:1080}
+}
+});
+
+if(token!==cameraToken){
+stream.getTracks().forEach(t=>t.stop());
+return;
+}
+
+const video=$('video');
+video.srcObject=stream;
+await video.play();
+
+frame('ready','Barcode ins violette Fenster halten');
+tone('ready');
+
+async function scanFrame(){
+if(token!==cameraToken)return;
+
+if(!blocked&&!busy&&!scanBusy){
+scanBusy=true;
+
+try{
+const canvas=cropVideoToCanvas(video,truck.carrier);
+
+if(canvas){
+const img=new Image();
+img.src=canvas.toDataURL('image/png');
+await img.decode();
+
+const result=await reader.decodeFromImageElement(img);
+const code=normalize(result.getText());
+
+if(code&&code!==lastCode){
+lastCode=code;
+await processParcel(code);
+}
+}
+}catch(e){
+// Kein Barcode im aktiven Fenster.
+// Nächsten Frame versuchen.
+}finally{
+scanBusy=false;
+}
+}
+
+if(token===cameraToken){
+scanLoop=setTimeout(scanFrame,220);
+}
+}
+
+scanFrame();
+
+}else{
 const c=await reader.decodeFromVideoDevice(
 undefined,$('video'),result=>{
 if(token!==cameraToken||!result||blocked||busy)return;
 
 const code=normalize(result.getText());
 if(!code||code===lastCode)return;
+
 lastCode=code;
 
 if(mode==='truck'){
 stopCamera();
 $('truckCode').value=code;
 acceptTruck(code);
-}else if(mode==='sample'){
+}else{
 stopCamera();
 $('sampleCode').value=code;
 notice('sampleMessage',
 'Barcode erfasst. Paketdienst prüfen und speichern.','ok');
 $('trainingCard').scrollIntoView();
-}else{
-processParcel(code);
 }
 }
 );
@@ -667,10 +927,14 @@ return;
 controls=c;
 frame('ready','Barcode scannen');
 tone('ready');
+}
+
 }catch(e){
 if(token!==cameraToken)return;
 stopCamera();
+
 const text='Kamerafehler: '+e.message;
+
 if(mode==='sample')notice('sampleMessage',text,'bad');
 else if(mode==='truck')notice('truckMessage',text,'bad');
 else notice('result',text,'bad');
@@ -682,76 +946,7 @@ $('parcelCamera').onclick=()=>startCamera('parcel');
 $('sampleCamera').onclick=()=>startCamera('sample');
 $('stopCamera').onclick=stopCamera;
 
-/* VERBESSERTER GALERIE-SCANNER */
-
-/*
-Mehrere Bildausschnitte werden untersucht.
-Die Originaldatei wird nicht hochgeladen.
-Unbekannte Barcodes werden nicht automatisch freigegeben.
-*/
-
-function makeCanvas(image,region,maxWidth=1800,contrast=false){
-const sx=Math.max(0,Math.floor(region.x*image.naturalWidth));
-const sy=Math.max(0,Math.floor(region.y*image.naturalHeight));
-const sw=Math.max(1,Math.min(
-image.naturalWidth-sx,
-Math.floor(region.w*image.naturalWidth)
-));
-const sh=Math.max(1,Math.min(
-image.naturalHeight-sy,
-Math.floor(region.h*image.naturalHeight)
-));
-
-const scale=Math.min(3,maxWidth/sw,2400/sh);
-const canvas=document.createElement('canvas');
-canvas.width=Math.max(1,Math.round(sw*scale));
-canvas.height=Math.max(1,Math.round(sh*scale));
-
-const ctx=canvas.getContext('2d',{
-willReadFrequently:contrast
-});
-
-ctx.imageSmoothingEnabled=true;
-ctx.imageSmoothingQuality='high';
-ctx.drawImage(
-image,sx,sy,sw,sh,
-0,0,canvas.width,canvas.height
-);
-
-if(contrast){
-const pixels=ctx.getImageData(
-0,0,canvas.width,canvas.height
-);
-const data=pixels.data;
-
-for(let i=0;i<data.length;i+=4){
-const gray=
-.299*data[i]+
-.587*data[i+1]+
-.114*data[i+2];
-
-const adjusted=Math.max(
-0,Math.min(255,(gray-128)*1.7+128)
-);
-
-data[i]=adjusted;
-data[i+1]=adjusted;
-data[i+2]=adjusted;
-}
-ctx.putImageData(pixels,0,0);
-}
-
-return canvas;
-}
-
-async function decodeCanvas(canvas,decoder){
-const image=new Image();
-const url=canvas.toDataURL('image/png');
-image.src=url;
-await image.decode();
-const result=await decoder.decodeFromImageElement(image);
-return normalize(result.getText());
-}
+/* GALERIE-SCANNER */
 
 function imageRegions(){
 return [
@@ -765,12 +960,51 @@ return [
 {x:.20,y:.25,w:.60,h:.40},
 {x:.30,y:.30,w:.45,h:.25},
 {x:.20,y:.35,w:.60,h:.25},
-{x:.20,y:.40,w:.60,h:.25},
-{x:.25,y:.45,w:.50,h:.20}
+{x:.20,y:.40,w:.60,h:.25}
 ];
 }
 
-async function analyzePackagePhoto(file,mode){
+function makeCanvas(image,r,contrast=false){
+const sx=Math.floor(r.x*image.naturalWidth);
+const sy=Math.floor(r.y*image.naturalHeight);
+const sw=Math.max(1,Math.floor(r.w*image.naturalWidth));
+const sh=Math.max(1,Math.floor(r.h*image.naturalHeight));
+
+const scale=Math.min(3,1800/sw,2400/sh);
+const c=document.createElement('canvas');
+c.width=Math.max(1,Math.round(sw*scale));
+c.height=Math.max(1,Math.round(sh*scale));
+
+const ctx=c.getContext('2d',{willReadFrequently:true});
+ctx.drawImage(image,sx,sy,sw,sh,0,0,c.width,c.height);
+
+if(contrast){
+const pixels=ctx.getImageData(0,0,c.width,c.height);
+const data=pixels.data;
+
+for(let i=0;i<data.length;i+=4){
+const gray=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+const v=Math.max(0,Math.min(255,(gray-128)*1.7+128));
+data[i]=v;
+data[i+1]=v;
+data[i+2]=v;
+}
+
+ctx.putImageData(pixels,0,0);
+}
+
+return c;
+}
+
+async function decodeCanvas(canvas,decoder){
+const img=new Image();
+img.src=canvas.toDataURL('image/png');
+await img.decode();
+const result=await decoder.decodeFromImageElement(img);
+return normalize(result.getText());
+}
+
+async function analyzePhoto(file,mode){
 if(!file)return;
 
 if(!file.type.startsWith('image/')){
@@ -783,11 +1017,7 @@ alert('Bild zu groß. Maximal 20 MB.');
 return;
 }
 
-if(mode==='parcel'&&(!truck||blocked||busy)){
-notice('result','Scan derzeit nicht möglich.','bad');
-return;
-}
-
+if(mode==='parcel'&&(!truck||blocked||busy))return;
 if(mode==='sample'&&truck){
 notice('sampleMessage','Zuerst Verladung beenden.','bad');
 return;
@@ -798,45 +1028,32 @@ stopCamera();
 const messageId=mode==='sample'?'sampleMessage':'result';
 notice(messageId,'🖼️ Paketfoto wird analysiert …');
 
-const objectUrl=URL.createObjectURL(file);
+const url=URL.createObjectURL(file);
 const image=new Image();
-const candidates=new Map();
+const candidates=new Set();
 
 try{
-image.src=objectUrl;
+image.src=url;
 await image.decode();
 
 const decoder=new Reader();
 const regions=imageRegions();
-
 let attempts=0;
 
 for(const region of regions){
 for(const contrast of [false,true]){
 attempts++;
 
-notice(
-messageId,
-'🔎 Suche nach Paketbarcode …\nVersuch '+
+notice(messageId,
+'🔎 Barcode-Suche: Versuch '+
 attempts+' von '+(regions.length*2)
 );
 
 try{
-const canvas=makeCanvas(
-image,region,1800,contrast
-);
-
+const canvas=makeCanvas(image,region,contrast);
 const code=await decodeCanvas(canvas,decoder);
-
-if(code){
-candidates.set(
-code,(candidates.get(code)||0)+1
-);
-}
-}catch(e){
-// Dieser Bildausschnitt enthält möglicherweise
-// keinen lesbaren Barcode. Nächsten versuchen.
-}
+if(code)candidates.add(code);
+}catch(e){}
 
 if(attempts%4===0){
 await new Promise(resolve=>setTimeout(resolve,0));
@@ -844,15 +1061,13 @@ await new Promise(resolve=>setTimeout(resolve,0));
 }
 }
 
-const recognized=[...candidates.keys()];
-const supported=recognized.filter(
-code=>detectCarrier(code)!==null
-);
+const recognized=[...candidates];
+const supported=recognized.filter(code=>detectCarrier(code));
 
 if(supported.length>1){
 throw new Error(
-'Mehrere unterschiedliche gültige Sendungsnummern erkannt. '+
-'Bitte Foto auf einen Barcode zuschneiden.'
+'Mehrere unterschiedliche Sendungsnummern erkannt. '+
+'Bitte Bild auf einen Barcode zuschneiden.'
 );
 }
 
@@ -863,14 +1078,14 @@ const carrier=detectCarrier(code);
 if(mode==='sample'){
 $('sampleCode').value=code;
 $('sampleCarrier').value=carrier;
-notice(
-'sampleMessage',
-'✓ Paketbarcode erkannt\n'+
+
+notice('sampleMessage',
+'✓ Barcode erkannt\n'+
 'Paketdienst: '+carrier+
 '\nBarcode: '+code+
-'\nBitte kontrollieren und speichern.',
-'ok'
+'\nBitte kontrollieren und speichern.','ok'
 );
+
 $('trainingCard').scrollIntoView();
 }else{
 $('parcel').value=code;
@@ -879,75 +1094,47 @@ await processParcel(code);
 return;
 }
 
-if(recognized.length>0){
-const unique=recognized.length===1
-?recognized[0]:null;
+if(mode==='sample'&&recognized.length===1){
+$('sampleCode').value=recognized[0];
 
-if(mode==='sample'){
-if(unique){
-$('sampleCode').value=unique;
-notice(
-'sampleMessage',
-'Barcode erkannt, Paketdienst NICHT sicher bestimmt.\n'+
-'Barcode: '+unique+
-'\nPaketdienst am Etikett prüfen.',
-'bad'
+notice('sampleMessage',
+'Barcode erkannt, Paketdienst nicht sicher bestimmt.\n'+
+'Bitte Etikett prüfen.','bad'
 );
-}else{
-throw new Error(
-'Mehrere unterschiedliche Barcodes gefunden. '+
-'Bitte Foto auf den richtigen Barcode zuschneiden.'
-);
-}
-}else{
-throw new Error(
-'Kein unterstützter Paket-Trackingbarcode gefunden. '+
-'Erkannte Codes werden nicht automatisch freigegeben.'
-);
-}
 return;
 }
 
 throw new Error(
-'Kein Barcode lesbar. Bitte näher fotografieren, '+
-'scharf stellen und den Barcode vollständig zeigen.'
+'Kein eindeutiger unterstützter Paketbarcode erkannt. '+
+'Bitte Barcode größer und schärfer fotografieren.'
 );
 
 }catch(e){
-notice(
-messageId,
-'⛔ Barcode nicht sicher erkannt\n'+e.message,
-'bad'
-);
-if(mode==='parcel'){
-frame('bad','⛔ KEINE FREIGABE');
-tone('bad');
-}
+notice(messageId,'⛔ Keine Freigabe\n'+e.message,'bad');
+if(mode==='parcel')tone('bad');
 }finally{
-URL.revokeObjectURL(objectUrl);
+URL.revokeObjectURL(url);
 }
 }
 
 $('parcelGallery').onclick=()=>{
-if(!truck||blocked||busy)return;
-$('parcelFile').click();
+if(truck&&!blocked&&!busy)$('parcelFile').click();
 };
 
 $('sampleGallery').onclick=()=>{
-if(profile?.role!=='admin')return;
-$('sampleFile').click();
+if(profile?.role==='admin')$('sampleFile').click();
 };
 
 $('parcelFile').onchange=async()=>{
 const file=$('parcelFile').files?.[0];
 $('parcelFile').value='';
-await analyzePackagePhoto(file,'parcel');
+await analyzePhoto(file,'parcel');
 };
 
 $('sampleFile').onchange=async()=>{
 const file=$('sampleFile').files?.[0];
 $('sampleFile').value='';
-await analyzePackagePhoto(file,'sample');
+await analyzePhoto(file,'sample');
 };
 
 /* BARCODE-BEISPIELE */
@@ -1016,7 +1203,7 @@ if(r.error)alert(r.error.message);
 else await refreshSamples();
 };
 
-/* ADMIN-DASHBOARD */
+/* ADMIN */
 
 async function refreshAdmin(){
 if(profile?.role!=='admin')return;
@@ -1025,9 +1212,11 @@ const [a,b,c]=await Promise.all([
 supabase.from('employees')
 .select('id,employee_code,display_name,role,active,auth_user_id')
 .order('employee_code'),
+
 supabase.from('docks')
 .select('id,barcode,carrier,active')
 .order('barcode'),
+
 supabase.from('scan_logs')
 .select('id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at')
 .order('created_at',{ascending:false})
@@ -1059,6 +1248,7 @@ const map=new Map(staff.map(x=>[x.id,x]));
 
 $('performance').innerHTML=staff.map(s=>{
 const own=logs.filter(x=>x.employee_id===s.id);
+
 return '<tr><td>'+esc(s.employee_code+' · '+s.display_name)+
 '</td><td>'+own.filter(x=>x.status==='success').length+
 '</td><td>'+own.filter(x=>x.status!=='success').length+
@@ -1097,6 +1287,7 @@ $('refresh').onclick=refreshAdmin;
 $('saveDock').onclick=async()=>{
 const barcode=normalize($('newDock').value);
 const carrier=$('newCarrier').value;
+
 if(!barcode)return alert('Barcode fehlt.');
 
 const r=await supabase.from('docks')
@@ -1112,6 +1303,7 @@ await refreshAdmin();
 $('dockList').onclick=async e=>{
 const id=e.target.dataset?.dock;
 const d=docks.find(x=>x.id===id);
+
 if(!d||!confirm('Status ändern?'))return;
 
 const r=await supabase.from('docks')
@@ -1175,15 +1367,14 @@ columns.join(';'),
 ].join('\r\n');
 
 const url=URL.createObjectURL(
-new Blob(['\ufeff'+content],{
-type:'text/csv;charset=utf-8'
-})
+new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'})
 );
 
 const a=document.createElement('a');
 a.href=url;
 a.download='loadguard-scans.csv';
 a.click();
+
 setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 
@@ -1191,6 +1382,7 @@ for(const id of ['sound','blink']){
 try{
 $(id).checked=localStorage.getItem('lg_'+id)!=='false';
 }catch{}
+
 $(id).onchange=()=>{
 try{
 localStorage.setItem('lg_'+id,String($(id).checked));
@@ -1203,22 +1395,31 @@ localStorage.setItem('lg_'+id,String($(id).checked));
 async function startLoadGuard(){
 try{
 const sm=await import('./supabase.js');
-if(!sm.supabase)throw new Error('Supabase-Client fehlt.');
+
+if(!sm.supabase){
+throw new Error('Supabase-Client fehlt.');
+}
+
 supabase=sm.supabase;
 
 const zm=await import('@zxing/browser');
+
 if(!zm.BrowserMultiFormatReader){
 throw new Error('Barcode-Scanner fehlt.');
 }
+
 Reader=zm.BrowserMultiFormatReader;
 
 $('loginButton').disabled=false;
 $('loginButton').textContent='Anmelden';
+
 notice('loginMessage','LoadGuard bereit.');
 
 await init();
+
 }catch(e){
 console.error(e);
+
 notice(
 'loginMessage',
 'LoadGuard konnte nicht gestartet werden:\n'+e.message,
@@ -1228,7 +1429,6 @@ notice(
 }
 
 startLoadGuard();
-
 </script>
 </body>
 </html>
