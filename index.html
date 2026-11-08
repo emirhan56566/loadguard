@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101713">
+<title>LoadGuard</title>
+<style>
+:root{--bg:#101713;--card:#1b271e;--line:#35473a;--green:#a3f36b;--red:#ff5252;--text:#f4f7f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif}
+header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+header strong{font-size:23px}header strong span{color:var(--green)}main{max-width:950px;margin:auto;padding:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;margin-bottom:15px}
+h1{font-size:25px}h2{font-size:20px}p,small{color:#b7c6b8}label{display:block;margin:12px 0 5px}
+input,select,button{font:inherit;padding:12px;border-radius:9px;width:100%;min-height:45px}
+input,select{background:#101713;color:white;border:1px solid var(--line)}
+button{background:var(--green);color:#14200d;border:0;font-weight:750;cursor:pointer;margin:5px 0}button:disabled{opacity:.5}
+.secondary{background:#2a392d;color:white}.danger{background:var(--red);color:white}.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.row button{width:auto}
+.notice{padding:14px;border-radius:10px;background:#2a392d;white-space:pre-wrap;margin-top:12px;font-weight:700;overflow-wrap:anywhere}
+.ok{background:#18522a!important}.bad{background:#762027!important;border:2px solid var(--red)}
+.metric{background:#29372c;padding:12px;border-radius:10px}.metric strong{display:block;font-size:26px}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;overflow-wrap:anywhere}th{color:var(--green)}
+.hint{border-left:3px solid orange;padding:12px;background:#392d1b}.mini{font-size:12px}
+/* Kamera: Ansicht und Scan-Bereich sind absichtlich deckungsgleich. */
+.scanner{position:relative;height:330px;border:4px solid var(--line);border-radius:16px;overflow:hidden;background:#000}
+.scanner video{display:block;width:100%;height:100%;object-fit:cover}
+.scanner.ready,.scanner.ok{border-color:var(--green)}.scanner.bad{border-color:var(--red)}
+#templateSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#scanWindow{position:absolute;border:3px solid #f020ff;border-radius:8px;box-shadow:0 0 0 1px white,0 0 18px #e800ff;pointer-events:none}
+#lensTitle{position:absolute;left:8px;top:8px;padding:5px 9px;background:#000c;border-radius:6px;font-weight:900;pointer-events:none}
+.scan-overlay{position:absolute;left:0;right:0;bottom:3px;text-align:center;pointer-events:none}
+.scan-overlay span{display:inline-block;background:#000c;padding:5px 9px;border-radius:6px;font-size:12px}
+.barcode-picker{margin-top:15px;padding:14px;border:2px solid #8d64df;border-radius:13px;background:#241c35}
+.barcode-picker h3{margin:0 0 8px;color:#e1c9ff}.barcode-picker p{margin:7px 0 12px}
+.barcode-option{display:flex;align-items:flex-start;gap:12px;padding:13px;margin:8px 0;border:1px solid #655579;border-radius:10px;background:#191525;cursor:pointer}
+.barcode-option:has(input:checked){border:2px solid #d99aff;background:#38254c}
+.barcode-option input{width:22px;min-height:22px;height:22px;margin:2px 0 0;accent-color:#c889ff;flex-shrink:0}
+.barcode-option-content{min-width:0;flex:1}.barcode-value{font-family:ui-monospace,monospace;font-size:15px;font-weight:800;overflow-wrap:anywhere}
+.barcode-meta{display:block;margin-top:5px;font-size:12px;color:#d4c6e0}
+.barcode-tag{display:inline-block;margin-top:7px;padding:4px 8px;border-radius:5px;background:#4b3a61;font-size:11px;font-weight:700}
+.picker-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.picker-actions button{min-width:0;overflow-wrap:anywhere}
+.preview-photo{display:block;max-width:100%;max-height:220px;object-fit:contain;margin:10px auto;border-radius:9px;border:1px solid #655579}
+.status-small{font-size:12px;color:#cfcfcf}
+@media(min-width:720px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><strong>LOAD<span>GUARD</span></strong><div class="row"><small id="who"></small><button id="logout" class="secondary hidden" type="button">Abmelden</button></div></header>
+<main>
+<section id="loginView" class="card"><h1>Anmelden</h1>
+<form id="loginForm"><label for="email">E-Mail</label><input id="email" type="email" autocomplete="username" required>
+<label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password" required>
+<button id="loginButton" disabled>Anwendung lädt …</button></form><div id="loginMessage" class="notice">LoadGuard startet …</div></section>
+<section id="appView" class="hidden">
+<div class="card"><h1>Verladung prüfen</h1><p id="workerName"></p>
+<p class="hint">Automatische Paketdienst-Erkennung. Mehrdeutige oder unbekannte Formate bleiben gesperrt. Die Auswahl eines Barcodes ist keine Freigabe des Pakets. Freigaben werden erst nach bestätigter Datenbankspeicherung angezeigt. LoadGuard ist keine physische Sicherheitsverriegelung.</p></div>
+<section id="truckSetup" class="card"><h2>01 · LKW scannen</h2><p>LKW-Tür-Barcode: DHL, DPD, GLS oder UPS.</p>
+<input id="truckCode" placeholder="LKW-Barcode" autocomplete="off">
+<div class="grid"><button id="truckCamera" class="secondary" type="button">📷 LKW scannen</button><button id="truckAccept" type="button">LKW übernehmen</button></div>
+<div id="truckMessage" class="notice">Noch kein LKW aktiv.</div></section>
+<section id="loadingView" class="hidden">
+<div class="card"><h2>Aktiver LKW: <span id="activeTruck">–</span></h2><small id="sessionStart"></small>
+<div class="grid"><div class="metric"><small>Freigegeben</small><strong id="sessionOk">0</strong></div><div class="metric"><small>Blockiert</small><strong id="sessionBlocked">0</strong></div></div>
+<button id="endSession" class="secondary" type="button">Verladung beenden / LKW wechseln</button></div>
+<div class="card"><h2>02 · Pakete scannen</h2><p>Kamera, Galerie oder roten TC-Hardware-Scanner verwenden.</p>
+<label for="parcel">Paketbarcode</label><input id="parcel" placeholder="Paketbarcode" autocomplete="off" autocapitalize="characters">
+<div class="grid"><button id="parcelAccept" type="button">Paket prüfen</button><button id="parcelCamera" class="secondary" type="button">📷 Kamera starten</button>
+<button id="parcelGallery" class="secondary" type="button">🖼️ Paketfoto scannen</button></div>
+<input id="parcelFile" class="hidden" type="file" accept="image/*">
+<div id="result" class="notice">Bereit.</div>
+<div id="parcelPicker" class="barcode-picker hidden"><h3>🔎 Erkannte Barcodes auswählen</h3>
+<p>Wähle die Sendungsnummer aus, die geprüft werden soll.</p><img id="parcelPreview" class="preview-photo hidden" alt="Paketfoto">
+<div id="parcelCandidates"></div><div class="picker-actions"><button id="parcelChoose" type="button">✓ Barcode übernehmen</button><button id="parcelCancel" class="secondary" type="button">Abbrechen</button></div>
+<p class="status-small">Der ausgewählte Barcode wird anschließend ganz normal geprüft. Unbekannte und mehrdeutige Formate bleiben gesperrt.</p></div>
+<button id="ack" class="danger hidden" type="button">⛔ STOPP verstanden – weiterscannen</button></div>
+</section>
+<div class="card"><h2>Kamera / Scanner</h2>
+<div id="scannerFrame" class="scanner"><video id="video" playsinline muted></video>
+<svg id="templateSvg" class="hidden" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+<defs><mask id="trackingMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1000">
+<rect width="1000" height="1000" fill="white"/><rect id="trackingHole" fill="black"/></mask></defs>
+<image id="templateImage" x="0" y="0" width="1000" height="1000" preserveAspectRatio="none" opacity=".68" mask="url(#trackingMask)"/>
+</svg><div id="scanWindow" class="hidden"></div><div id="lensTitle" class="hidden"></div>
+<div class="scan-overlay"><span id="scannerLabel">Kamera aus</span></div></div>
+<button id="stopCamera" class="secondary hidden" type="button">Kamera pausieren</button>
+<p class="mini">Musteretikett halbtransparent; nur das magentafarbene Fenster wird von der Kamera ausgewertet. Der TC-Hardware-Scanner ist davon unabhängig.</p></div>
+<section id="adminView" class="hidden">
+<div id="trainingCard" class="card"><h2>🖼️ Barcode-Beispiele erfassen</h2>
+<p>Barcode-Beispiele aus Kamera oder Galerie erfassen. Gespeicherte Beispiele werden nicht automatisch zu Freigaberegeln.</p>
+<label for="sampleCarrier">Paketdienst</label><select id="sampleCarrier"><option>DHL</option><option>DPD</option><option>GLS</option><option>UPS</option></select>
+<label for="sampleCode">Barcode</label><input id="sampleCode" placeholder="Barcode">
+<div class="grid"><button id="sampleCamera" class="secondary" type="button">📷 Kamera</button><button id="sampleGallery" class="secondary" type="button">🖼️ Galerie</button><button id="sampleSave" type="button">Beispiel speichern</button></div>
+<input id="sampleFile" class="hidden" type="file" accept="image/*">
+<div id="sampleMessage" class="notice">Noch kein Beispiel erfasst.</div>
+<div id="samplePicker" class="barcode-picker hidden"><h3>🔎 Erkannte Barcodes auswählen</h3><p>Wähle den Barcode, der als Beispiel erfasst werden soll.</p>
+<img id="samplePreview" class="preview-photo hidden" alt="Paketetikett"><div id="sampleCandidates"></div>
+<div class="picker-actions"><button id="sampleChoose" type="button">✓ Barcode übernehmen</button><button id="sampleCancel" class="secondary" type="button">Abbrechen</button></div>
+<p class="status-small">Nach der Übernahme bitte Paketdienst kontrollieren und Beispiel separat speichern.</p></div>
+<div class="row"><h3>Gespeicherte Beispiele</h3><button id="sampleRefresh" class="secondary" type="button">Aktualisieren</button></div>
+<div class="scroll"><table><thead><tr><th>Dienst</th><th>Barcode</th><th>Datum</th><th>Aktion</th></tr></thead><tbody id="sampleList"></tbody></table></div></div>
+<div class="card"><div class="row"><h2>Admin-Dashboard</h2><button id="refresh" class="secondary" type="button">Aktualisieren</button></div>
+<div class="grid"><div class="metric"><small>Scans (letzte 1000)</small><strong id="total">0</strong></div>
+<div class="metric"><small>Erfolgreich</small><strong id="successful">0</strong></div><div class="metric"><small>Blockiert</small><strong id="blocked">0</strong></div>
+<div class="metric"><small>Mitarbeiter</small><strong id="staffCount">0</strong></div></div></div>
+<div class="card"><h2>Scans je Mitarbeiter (letzte 1000)</h2><div class="scroll"><table><thead><tr><th>Mitarbeiter</th><th>Erfolgreich</th><th>Fehler</th></tr></thead><tbody id="performance"></tbody></table></div></div>
+<div class="card"><h2>LKW-Barcodes verwalten</h2><input id="newDock" placeholder="Barcode"><select id="newCarrier"><option>DHL</option><option>DPD</option><option>GLS</option><option>UPS</option></select>
+<button id="saveDock" type="button">Barcode speichern</button><div id="dockList"></div></div>
+<div class="card"><h2>Mitarbeiter verwalten</h2><input id="staffCode" placeholder="Mitarbeiter-ID"><input id="staffName" placeholder="Name"><input id="staffUid" placeholder="Supabase Auth User UID">
+<button id="saveStaff" type="button">Mitarbeiter hinzufügen</button><div id="staffList"></div></div>
+<div class="card"><h2>Warntöne</h2><label><input id="sound" type="checkbox" checked style="width:auto;min-height:auto"> Töne aktivieren</label>
+<label><input id="blink" type="checkbox" checked style="width:auto;min-height:auto"> Rotes Blinken</label></div>
+<div class="card"><div class="row"><h2>Scanprotokoll</h2><button id="csv" class="secondary" type="button">CSV exportieren</button></div>
+<div class="scroll"><table><thead><tr><th>Zeit</th><th>Mitarbeiter</th><th>Paket</th><th>Carrier</th><th>LKW</th><th>Ergebnis</th></tr></thead><tbody id="logs"></tbody></table></div></div>
+</section></section></main>
+<script type="module">
+/* ============================================================
+  LOADGUARD: bestehende Funktionen + Musterlabel-Kamera + RPC
+  Sicherheitsentscheidung ausschließlich in Supabase.
+============================================================ */
+const $=id=>document.getElementById(id);
+const carriers=new Set(['DHL','DPD','GLS','UPS']);
+const normalize=x=>String(x??'').toUpperCase().replace(/\s+/g,'');
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* Bilder liegen bei Vite in public/ und werden unter / bereitgestellt. */
+const LABEL_IMAGES={GLS:'/gls-muster.jpg',DHL:'/dhl-muster.jpg',DPD:'/dpd-muster.jpg',UPS:'/ups-muster.jpg'};
+/* Koordinaten relativ zur sichtbaren Kameraansicht. */
+const REGIONS={GLS:{x:.29,y:.22,w:.43,h:.17},DHL:{x:.08,y:.72,w:.84,h:.15},DPD:{x:.07,y:.705,w:.86,h:.18},UPS:{x:.08,y:.655,w:.84,h:.20}};
+
+let supabase,Reader,profile;
+let staff=[],docks=[],logs=[],samples=[];
+let truck=null,session=null,controls=null,reader=null,cameraMode=null;
+let cameraToken=0,busy=false,blocked=false,scanBusy=false,scanLoop=null,frameTimer=null;
+let audioCtx=null,blinkTimer=null,photoAnalysisBusy=false;
+let scanCanvas=document.createElement('canvas');
+const pickerState={parcel:[],sample:[]},pickerPhotoUrls={parcel:null,sample:null};
+/* Gleicher Bildinhalt ist NICHT automatisch ein neuer physischer Scan.
+   Wiederholung per TC-Scanner/Enter wird dagegen immer geprüft. */
+let cameraLatchedCode='',cameraMisses=0;
+
+function notice(id,text,type=''){$(id).textContent=text;$(id).className='notice '+type}
+function focusParcel(){
+  if(!truck||blocked||busy||photoAnalysisBusy)return;
+  try{$('parcel').focus({preventScroll:true})}catch(e){$('parcel').focus()}
+}
+function frame(type,text){$('scannerFrame').className='scanner '+type;$('scannerLabel').textContent=text}
+function tone(type){
+  if(!$('sound').checked)return;
+  try{
+    const Audio=window.AudioContext||window.webkitAudioContext;
+    if(!Audio)return;
+    if(!audioCtx)audioCtx=new Audio();
+    audioCtx.resume().catch(()=>{});
+    const notes=type==='bad'?[[300,0,.3],[240,.35,.3],[300,.7,.3]]:
+      type==='ok'?[[800,0,.1],[1100,.14,.12]]:[[700,0,.1]];
+    for(const [hz,delay,duration] of notes){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type=type==='bad'?'square':'sine';o.frequency.value=hz;g.gain.value=type==='bad'?.15:.08;
+      o.connect(g);g.connect(audioCtx.destination);
+      const t=audioCtx.currentTime+delay;o.start(t);o.stop(t+duration);
+    }
+  }catch(e){console.warn('Audio',e)}
+}
+function stopBlink(){if(blinkTimer){clearInterval(blinkTimer);blinkTimer=null}$('scannerFrame').style.filter=''}
+function startBlink(){
+  stopBlink();if(!$('blink').checked)return;
+  let on=false;blinkTimer=setInterval(()=>{
+    on=!on;$('scannerFrame').style.filter=on?'drop-shadow(0 0 17px red) brightness(1.3)':'';
+  },260);
+}
+
+/* Alte Regelwerke bleiben für Kandidatenanzeige erhalten.
+   Ob wirklich freigegeben wird, bestimmt die identisch zu
+   pflegende serverseitige Funktion loadguard_scan_parcel. */
+function classifyBarcode(raw){
+  const code=normalize(raw),candidates=[],reasons=[];
+  const add=(carrier,reason)=>{if(!candidates.includes(carrier))candidates.push(carrier);reasons.push(reason)};
+  if(/^1Z[A-Z0-9]{16}$/.test(code))add('UPS','UPS 1Z / 18 Zeichen');
+  if(/^0034\d{16}$/.test(code))add('DHL','DHL 0034 / 20 Ziffern');
+  if(/^\d{14}$/.test(code))add('DPD','DPD 14 Ziffern – nicht eindeutig');
+  if(/^\d{11,12}$/.test(code))add('GLS','GLS 11–12 Ziffern – nicht eindeutig');
+  if(/^[A-Z0-9]{8}$/.test(code))add('GLS','GLS 8 Zeichen – nicht eindeutig');
+  if(/^\d{10}$/.test(code))add('DHL','DHL Express 10 Ziffern – nicht eindeutig');
+  if(/^T[A-Z0-9]{10}$/.test(code))add('UPS','UPS T + 10 Zeichen – nicht eindeutig');
+  if(/^\d{9}$/.test(code)||/^\d{12}$/.test(code))add('UPS','UPS numerisches Alternativformat – nicht eindeutig');
+  const unambiguous=/^1Z[A-Z0-9]{16}$/.test(code)||/^0034\d{16}$/.test(code);
+  const carrier=unambiguous&&candidates.length===1?candidates[0]:null;
+  return {code,carrier,candidates,reasons,ambiguous:!carrier&&candidates.length>0};
+}
+
+function clearPicker(mode){
+  pickerState[mode]=[];
+  $(mode+'Picker').classList.add('hidden');$(mode+'Candidates').innerHTML='';
+  const preview=$(mode+'Preview');preview.classList.add('hidden');preview.removeAttribute('src');
+  if(pickerPhotoUrls[mode]){URL.revokeObjectURL(pickerPhotoUrls[mode]);pickerPhotoUrls[mode]=null}
+}
+function clearAllPickers(){clearPicker('parcel');clearPicker('sample')}
+function candidateDescription(code){
+  const c=classifyBarcode(code);
+  if(c.carrier)return {title:c.carrier+' – Format erkannt',detail:c.reasons.join(' · '),tag:'Formatkandidat'};
+  if(c.ambiguous)return {title:'Mögliche Dienste: '+c.candidates.join(', '),detail:c.reasons.join(' · '),tag:'Nicht eindeutig'};
+  return {title:'Paketdienst unbekannt',detail:'Kein unterstütztes Format erkannt',tag:'Keine automatische Freigabe'};
+}
+function showPicker(mode,codes,file){
+  clearPicker(mode);const unique=[...new Set(codes.map(normalize).filter(Boolean))];pickerState[mode]=unique;
+  if(file){pickerPhotoUrls[mode]=URL.createObjectURL(file);$(mode+'Preview').src=pickerPhotoUrls[mode];$(mode+'Preview').classList.remove('hidden')}
+  $(mode+'Candidates').innerHTML=unique.map((code,i)=>{
+    const d=candidateDescription(code);
+    return `<label class="barcode-option"><input type="radio" name="${mode}BarcodeChoice" value="${esc(code)}" ${i===0?'checked':''}>
+      <span class="barcode-option-content"><span class="barcode-value">${esc(code)}</span>
+      <span class="barcode-meta">${esc(d.title)}</span><span class="barcode-meta">${esc(d.detail)}</span>
+      <span class="barcode-tag">${esc(d.tag)}</span></span></label>`;
+  }).join('');
+  $(mode+'Picker').classList.remove('hidden');
+  notice(mode==='parcel'?'result':'sampleMessage',unique.length+' Barcode'+(unique.length===1?'':'s')+' erkannt. Bitte auswählen.');
+  $(mode+'Picker').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function selectedBarcode(mode){return normalize(document.querySelector(`input[name="${mode}BarcodeChoice"]:checked`)?.value)}
+$('parcelChoose').onclick=async()=>{
+  const code=selectedBarcode('parcel');if(!code)return alert('Bitte Barcode auswählen.');
+  if(blocked||busy||!truck)return;
+  clearPicker('parcel');$('parcel').value=code;
+  await processParcel(code);
+};
+$('sampleChoose').onclick=()=>{
+  if(profile?.role!=='admin')return;
+  const code=selectedBarcode('sample');if(!code)return alert('Bitte Barcode auswählen.');
+  clearPicker('sample');$('sampleCode').value=code;
+  const classification=classifyBarcode(code);
+  if(classification.carrier)$('sampleCarrier').value=classification.carrier;
+  notice('sampleMessage','Barcode übernommen:\n'+code+'\n\nBitte Paketdienst prüfen und anschließend speichern.','ok');
+  $('sampleCode').focus();
+};
+$('parcelCancel').onclick=()=>{clearPicker('parcel');notice('result','Barcode-Auswahl abgebrochen.');focusParcel()};
+$('sampleCancel').onclick=()=>{clearPicker('sample');notice('sampleMessage','Barcode-Auswahl abgebrochen.')};
+
+function showTemplate(carrier){
+  const r=REGIONS[carrier],src=LABEL_IMAGES[carrier];
+  if(!r||!src){hideTemplate();return}
+  $('trackingHole').setAttribute('x',r.x*1000);$('trackingHole').setAttribute('y',r.y*1000);
+  $('trackingHole').setAttribute('width',r.w*1000);$('trackingHole').setAttribute('height',r.h*1000);
+  $('templateImage').setAttribute('href',src);
+  const win=$('scanWindow');
+  win.style.left=r.x*100+'%';win.style.top=r.y*100+'%';win.style.width=r.w*100+'%';win.style.height=r.h*100+'%';
+  win.classList.remove('hidden');$('templateSvg').classList.remove('hidden');
+  $('lensTitle').textContent=carrier+' – Scanner-Linse';$('lensTitle').classList.remove('hidden');
+  const img=new Image();
+  img.onerror=()=>{if(cameraMode==='parcel'&&truck?.carrier===carrier)notice('result','Musterlabel fehlt: '+src+' – Bitte public/-Dateien und Schreibweise prüfen.','bad')};
+  img.src=src;
+}
+function hideTemplate(){$('templateSvg').classList.add('hidden');$('scanWindow').classList.add('hidden');$('lensTitle').classList.add('hidden')}
+function cropVideoToCanvas(video,carrier){
+  const vw=video.videoWidth,vh=video.videoHeight,ew=video.clientWidth,eh=video.clientHeight;
+  if(!vw||!vh||!ew||!eh)return null;
+  const scale=Math.max(ew/vw,eh/vh),visibleW=ew/scale,visibleH=eh/scale;
+  const offsetX=(vw-visibleW)/2,offsetY=(vh-visibleH)/2,r=REGIONS[carrier];if(!r)return null;
+  const sx=offsetX+r.x*visibleW,sy=offsetY+r.y*visibleH,sw=r.w*visibleW,sh=r.h*visibleH;
+  scanCanvas.width=Math.max(1,Math.round(sw));scanCanvas.height=Math.max(1,Math.round(sh));
+  scanCanvas.getContext('2d',{willReadFrequently:true}).drawImage(video,sx,sy,sw,sh,0,0,scanCanvas.width,scanCanvas.height);
+  return scanCanvas;
+}
+function stopCamera(){
+  cameraToken++;if(scanLoop){clearTimeout(scanLoop);scanLoop=null}
+  try{controls?.stop()}catch(e){}controls=null;reader=null;cameraMode=null;
+  const video=$('video');
+  if(video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null}
+  $('stopCamera').classList.add('hidden');hideTemplate();frame('','Kamera aus');
+  cameraLatchedCode='';cameraMisses=0;
+}
+function resetSession(){
+  stopCamera();stopBlink();clearTimeout(frameTimer);clearAllPickers();
+  truck=null;session=null;busy=false;blocked=false;
+  $('truckSetup').classList.remove('hidden');$('loadingView').classList.add('hidden');$('ack').classList.add('hidden');
+  $('truckCode').value='';$('parcel').value='';$('sessionOk').textContent='0';$('sessionBlocked').textContent='0';
+  notice('truckMessage','Noch kein LKW aktiv.');
+}
+function loginState(loggedIn){
+  $('loginView').classList.toggle('hidden',loggedIn);$('appView').classList.toggle('hidden',!loggedIn);
+  $('logout').classList.toggle('hidden',!loggedIn);
+  $('adminView').classList.toggle('hidden',!loggedIn||profile?.role!=='admin');
+  $('who').textContent=loggedIn?profile.display_name:'';
+  $('workerName').textContent=loggedIn?profile.display_name+' · '+profile.employee_code:'';
+}
+async function init(){
+  const {data:{user},error:userError}=await supabase.auth.getUser();if(userError)throw userError;
+  if(!user){profile=null;resetSession();loginState(false);return}
+  const r=await supabase.from('employees').select('id,employee_code,display_name,role,active')
+    .eq('auth_user_id',user.id).eq('active',true).single();
+  if(r.error||!r.data){
+    await supabase.auth.signOut();profile=null;resetSession();loginState(false);
+    notice('loginMessage','Kein aktiver Mitarbeiter vorhanden.','bad');return;
+  }
+  profile=r.data;resetSession();loginState(true);
+  if(profile.role==='admin')await refreshAdmin();
+}
+$('loginForm').onsubmit=async e=>{
+  e.preventDefault();$('loginButton').disabled=true;
+  try{
+    const r=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+    if(r.error)throw r.error;await init();$('password').value='';
+  }catch(e){notice('loginMessage',e.message,'bad')}
+  finally{$('loginButton').disabled=false}
+};
+$('logout').onclick=async()=>{
+  if(session&&!confirm('Verladung beenden und abmelden?'))return;
+  resetSession();await supabase.auth.signOut();profile=null;loginState(false);
+};
+
+async function acceptTruck(value){
+  if(!profile||truck||busy)return;
+  const code=normalize(value??$('truckCode').value);
+  if(!carriers.has(code)){notice('truckMessage','Unbekannter LKW-Barcode.','bad');tone('bad');return}
+  busy=true;
+  try{
+    const r=await supabase.from('docks').select('barcode,carrier,active').eq('barcode',code).eq('active',true).maybeSingle();
+    if(r.error)throw r.error;
+    if(!r.data||r.data.carrier!==code)throw new Error('LKW-Barcode nicht aktiv oder falsch zugeordnet.');
+    truck={barcode:code,carrier:code};session={startedAt:new Date(),ok:0,blocked:0};
+    $('activeTruck').textContent=code;$('sessionStart').textContent='Beginn: '+session.startedAt.toLocaleString('de-DE');
+    $('sessionOk').textContent='0';$('sessionBlocked').textContent='0';
+    $('truckSetup').classList.add('hidden');$('loadingView').classList.remove('hidden');
+    notice('result','LKW aktiv. Kamera wird gestartet.');
+  }catch(e){notice('truckMessage',e.message,'bad');tone('bad')}
+  finally{busy=false}
+  if(truck){await startCamera('parcel');setTimeout(focusParcel,300)}
+}
+$('truckAccept').onclick=()=>acceptTruck();
+$('truckCode').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();acceptTruck()}};
+
+function triggerStop(reason,code){
+  if(!blocked&&session){session.blocked++;$('sessionBlocked').textContent=session.blocked}
+  blocked=true;
+  notice('result','⛔ STOPP – NICHT VERLADEN\n'+reason+'\nPaket: '+code,'bad');
+  frame('bad','⛔ STOPP');$('ack').classList.remove('hidden');tone('bad');startBlink();
+}
+/* Nur RPC darf Paketfreigaben schreiben. Keine lokale "success"-Abkürzung. */
+async function processParcel(value){
+  if(!truck||!session||blocked||busy)return;
+  const code=normalize(value??$('parcel').value);if(!code)return;
+  busy=true;$('parcelAccept').disabled=true;
+  try{
+    const r=await supabase.rpc('loadguard_scan_parcel',{p_barcode:code,p_dock_barcode:truck.barcode});
+    if(r.error)throw r.error;
+    const result=r.data;
+    if(!result||!['success','rejected','unknown_carrier','wrong_dock'].includes(result.status))
+      throw new Error('Ungültige Antwort der Datenbankprüfung.');
+    if(result.status==='success'){
+      session.ok++;$('sessionOk').textContent=session.ok;
+      notice('result','✓ FREIGEGEBEN\n'+result.carrier+' → '+result.dock_carrier+'\nPaket: '+result.barcode,'ok');
+      frame('ok','✓ RICHTIG – REGISTRIERT');tone('ok');$('parcel').value='';
+      clearTimeout(frameTimer);
+      frameTimer=setTimeout(()=>{if(!blocked&&cameraMode==='parcel')frame('ready','Nächstes Paket')},800);
+    }else triggerStop(result.message||'Paket gesperrt',result.barcode||code);
+  }catch(e){triggerStop('KEINE FREIGABE – Datenbankprüfung fehlgeschlagen: '+e.message,code)}
+  finally{busy=false;$('parcelAccept').disabled=false;if(!blocked)setTimeout(focusParcel,100)}
+}
+$('parcelAccept').onclick=()=>processParcel();
+$('parcel').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();processParcel()}};
+$('ack').onclick=()=>{
+  blocked=false;stopBlink();$('parcel').value='';$('ack').classList.add('hidden');
+  notice('result','Warnung bestätigt. Nächstes Paket scannen.');
+  frame(cameraMode?'ready':'','Bereit');setTimeout(focusParcel,100);
+};
+$('endSession').onclick=()=>{if(truck&&confirm('Verladung beenden?'))resetSession()};
+
+async function startCamera(mode){
+  if(!Reader)return;
+  if(mode==='sample'&&truck){notice('sampleMessage','Zuerst Verladung beenden.','bad');return}
+  if(mode==='sample'&&profile?.role!=='admin')return;
+  if(mode==='parcel'&&(!truck||blocked))return;
+  stopCamera();cameraMode=mode;const token=++cameraToken;
+  try{
+    reader=new Reader();frame('','Kamera startet …');$('stopCamera').classList.remove('hidden');
+    if(mode==='parcel'){
+      const stream=await navigator.mediaDevices.getUserMedia({
+        audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}
+      });
+      if(token!==cameraToken){stream.getTracks().forEach(t=>t.stop());return}
+      const video=$('video');video.srcObject=stream;await video.play();
+      if(token!==cameraToken)return;
+      showTemplate(truck.carrier);frame('ready','Barcode ins magentafarbene Fenster halten');tone('ready');focusParcel();
+      async function scanFrame(){
+        if(token!==cameraToken)return;
+        if(!blocked&&!busy&&!scanBusy&&!photoAnalysisBusy){
+          scanBusy=true;
+          try{
+            const canvas=cropVideoToCanvas(video,truck.carrier);
+            if(canvas){
+              const img=new Image();img.src=canvas.toDataURL('image/png');await img.decode();
+              const decoded=await reader.decodeFromImageElement(img);
+              const code=normalize(decoded.getText());
+              cameraMisses=0;
+              if(code&&code!==cameraLatchedCode){
+                cameraLatchedCode=code;
+                await processParcel(code);
+              }
+            }
+          }catch(e){
+            // Ohne Barcode einige Frames abwarten. Derselbe im Bild
+            // liegende Barcode soll nicht als zweiter Scan gelten.
+            cameraMisses++;
+            if(cameraMisses>=7){cameraLatchedCode='';cameraMisses=7}
+          }finally{scanBusy=false}
+        }
+        if(token===cameraToken)scanLoop=setTimeout(scanFrame,220);
+      }
+      scanFrame();
+    }else{
+      const c=await reader.decodeFromVideoDevice(undefined,$('video'),result=>{
+        if(token!==cameraToken||!result||blocked||busy)return;
+        const code=normalize(result.getText());if(!code)return;
+        stopCamera();
+        if(mode==='truck'){$('truckCode').value=code;acceptTruck(code)}
+        else{
+          $('sampleCode').value=code;
+          notice('sampleMessage','Barcode erfasst. Paketdienst prüfen und speichern.','ok');
+          $('trainingCard').scrollIntoView();
+        }
+      });
+      if(token!==cameraToken){c.stop();return}
+      controls=c;frame('ready','Barcode scannen');tone('ready');
+    }
+  }catch(e){
+    if(token!==cameraToken)return;
+    stopCamera();const text='Kamerafehler: '+e.message;
+    notice(mode==='sample'?'sampleMessage':mode==='truck'?'truckMessage':'result',text,'bad');
+  }
+}
+$('truckCamera').onclick=()=>startCamera('truck');
+$('parcelCamera').onclick=()=>startCamera('parcel');
+$('sampleCamera').onclick=()=>startCamera('sample');
+$('stopCamera').onclick=()=>{stopCamera();if(truck)focusParcel()};
+
+/* Foto-Galerie: alte Mehrbereichserkennung mit manuell zu bestätigender Auswahl. */
+function imageRegions(){return [
+  {x:0,y:0,w:1,h:1},{x:.05,y:.05,w:.90,h:.90},{x:.15,y:.10,w:.70,h:.80},{x:.25,y:.15,w:.50,h:.65},
+  {x:0,y:0,w:.5,h:.5},{x:.5,y:0,w:.5,h:.5},{x:0,y:.5,w:.5,h:.5},{x:.5,y:.5,w:.5,h:.5},
+  {x:0,y:0,w:1,h:.35},{x:0,y:.30,w:1,h:.35},{x:0,y:.65,w:1,h:.35},
+  {x:0,y:0,w:.35,h:1},{x:.30,y:0,w:.40,h:1},{x:.65,y:0,w:.35,h:1},
+  {x:.20,y:.25,w:.60,h:.40},{x:.30,y:.30,w:.45,h:.25},{x:.20,y:.35,w:.60,h:.25},{x:.20,y:.40,w:.60,h:.25}
+]}
+function makeCanvas(image,region,contrast=false){
+  const sx=Math.floor(region.x*image.naturalWidth),sy=Math.floor(region.y*image.naturalHeight);
+  const sw=Math.max(1,Math.floor(region.w*image.naturalWidth)),sh=Math.max(1,Math.floor(region.h*image.naturalHeight));
+  const scale=Math.min(3,1800/sw,2400/sh),c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(sw*scale));c.height=Math.max(1,Math.round(sh*scale));
+  const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,sx,sy,sw,sh,0,0,c.width,c.height);
+  if(contrast){
+    const pixels=ctx.getImageData(0,0,c.width,c.height),data=pixels.data;
+    for(let i=0;i<data.length;i+=4){
+      const gray=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+      const v=Math.max(0,Math.min(255,(gray-128)*1.7+128));
+      data[i]=v;data[i+1]=v;data[i+2]=v;
+    }
+    ctx.putImageData(pixels,0,0);
+  }
+  return c;
+}
+async function decodeCanvas(canvas,decoder){
+  const img=new Image();img.src=canvas.toDataURL('image/png');await img.decode();
+  const result=await decoder.decodeFromImageElement(img);return normalize(result.getText());
+}
+async function analyzePhoto(file,mode){
+  if(!file)return;
+  if(photoAnalysisBusy)return alert('Bitte warten, bis die aktuelle Bildanalyse beendet ist.');
+  if(!file.type.startsWith('image/'))return alert('Bitte ein Bild auswählen.');
+  if(file.size>20*1024*1024)return alert('Bild zu groß. Maximal 20 MB.');
+  if(mode==='parcel'&&(!truck||blocked||busy))return;
+  if(mode==='sample'&&(truck||profile?.role!=='admin'))return;
+  photoAnalysisBusy=true;stopCamera();clearPicker(mode);
+  const messageId=mode==='sample'?'sampleMessage':'result';notice(messageId,'🖼️ Paketfoto wird analysiert …');
+  const url=URL.createObjectURL(file),image=new Image(),candidates=new Set();
+  try{
+    image.src=url;await image.decode();const decoder=new Reader(),regions=imageRegions();let attempts=0;
+    for(const region of regions){for(const contrast of [false,true]){
+      attempts++;notice(messageId,'🔎 Suche nach Barcodes …\nVersuch '+attempts+' von '+regions.length*2+'\nBereits gefunden: '+candidates.size);
+      try{const canvas=makeCanvas(image,region,contrast),code=await decodeCanvas(canvas,decoder);if(code)candidates.add(code)}catch(e){}
+      if(attempts%4===0)await new Promise(resolve=>setTimeout(resolve,0));
+    }}
+    if(!candidates.size){
+      notice(messageId,'⛔ Kein Barcode aus dem Foto lesbar.\nBitte das Etikett gerade und scharf fotografieren. Alternativ TC-Hardware-Scanner verwenden.','bad');
+    }else showPicker(mode,[...candidates],file);
+  }catch(e){notice(messageId,'⛔ Foto konnte nicht analysiert werden.\n'+e.message,'bad')}
+  finally{URL.revokeObjectURL(url);photoAnalysisBusy=false}
+}
+$('parcelGallery').onclick=()=>{if(truck&&!blocked&&!busy&&!photoAnalysisBusy)$('parcelFile').click()};
+$('sampleGallery').onclick=()=>{if(profile?.role==='admin'&&!truck&&!photoAnalysisBusy)$('sampleFile').click()};
+$('parcelFile').onchange=async()=>{const file=$('parcelFile').files?.[0];$('parcelFile').value='';await analyzePhoto(file,'parcel')};
+$('sampleFile').onchange=async()=>{const file=$('sampleFile').files?.[0];$('sampleFile').value='';await analyzePhoto(file,'sample')};
+
+/* Admin: Barcode-Beispiele */
+async function refreshSamples(){
+  if(profile?.role!=='admin')return;
+  const r=await supabase.from('barcode_examples').select('id,carrier,barcode,created_at')
+    .order('created_at',{ascending:false}).limit(500);
+  if(r.error){notice('sampleMessage',r.error.message,'bad');return}
+  samples=r.data||[];
+  $('sampleList').innerHTML=samples.length?samples.map(s=>`<tr><td>${esc(s.carrier)}</td><td>${esc(s.barcode)}</td>
+    <td>${esc(new Date(s.created_at).toLocaleString('de-DE'))}</td>
+    <td><button class="secondary" data-sample="${esc(s.id)}" type="button">Löschen</button></td></tr>`).join(''):
+    '<tr><td colspan="4">Keine Beispiele vorhanden.</td></tr>';
+}
+$('sampleSave').onclick=async()=>{
+  if(profile?.role!=='admin')return;
+  const carrier=$('sampleCarrier').value,barcode=normalize($('sampleCode').value);
+  if(!carriers.has(carrier)||!barcode||barcode.length>150){notice('sampleMessage','Ungültiger Barcode.','bad');return}
+  if(!confirm('Als '+carrier+'-Beispiel speichern?'))return;
+  const r=await supabase.from('barcode_examples').insert({carrier,barcode});
+  if(r.error)notice('sampleMessage',r.error.message,'bad');
+  else{$('sampleCode').value='';notice('sampleMessage','Beispiel gespeichert.','ok');await refreshSamples()}
+};
+$('sampleRefresh').onclick=refreshSamples;
+$('sampleList').onclick=async e=>{
+  if(profile?.role!=='admin')return;
+  const id=e.target.closest('[data-sample]')?.dataset.sample;
+  if(!id||!confirm('Beispiel löschen?'))return;
+  const r=await supabase.from('barcode_examples').delete().eq('id',id);
+  if(r.error)alert(r.error.message);else await refreshSamples();
+};
+
+/* Admin: Dashboard, LKW, Mitarbeiter und Protokolle */
+async function refreshAdmin(){
+  if(profile?.role!=='admin')return;
+  const [a,b,c]=await Promise.all([
+    supabase.from('employees').select('id,employee_code,display_name,role,active,auth_user_id').order('employee_code'),
+    supabase.from('docks').select('id,barcode,carrier,active').order('barcode'),
+    supabase.from('scan_logs').select('id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at')
+      .order('created_at',{ascending:false}).limit(1000)
+  ]);
+  if(a.error||b.error||c.error){alert((a.error||b.error||c.error).message);return}
+  staff=a.data||[];docks=b.data||[];logs=c.data||[];renderAdmin();await refreshSamples();
+}
+function renderAdmin(){
+  $('total').textContent=logs.length;$('successful').textContent=logs.filter(x=>x.status==='success').length;
+  $('blocked').textContent=logs.filter(x=>x.status!=='success').length;$('staffCount').textContent=staff.length;
+  const map=new Map(staff.map(x=>[x.id,x]));
+  $('performance').innerHTML=staff.map(s=>{
+    const own=logs.filter(x=>x.employee_id===s.id),ok=own.filter(x=>x.status==='success').length;
+    return `<tr><td>${esc(s.employee_code+' · '+s.display_name)}</td><td>${ok}</td><td>${own.length-ok}</td></tr>`;
+  }).join('');
+  $('dockList').innerHTML=docks.map(d=>`<div class="row"><span>${esc(d.barcode+' · '+d.carrier+' · '+(d.active?'aktiv':'inaktiv'))}</span>
+    <button class="secondary" data-dock="${esc(d.id)}" type="button">${d.active?'Deaktivieren':'Aktivieren'}</button></div>`).join('');
+  $('staffList').innerHTML=staff.map(s=>`<div class="row"><span>${esc(s.employee_code+' · '+s.display_name+' · '+s.role)}</span>
+    <button class="secondary" data-staff="${esc(s.id)}" ${s.id===profile.id?'disabled':''} type="button">${s.active?'Deaktivieren':'Aktivieren'}</button></div>`).join('');
+  $('logs').innerHTML=logs.map(l=>`<tr><td>${esc(new Date(l.created_at).toLocaleString('de-DE'))}</td>
+    <td>${esc(map.get(l.employee_id)?.employee_code||l.employee_id)}</td><td>${esc(l.parcel_barcode)}</td>
+    <td>${esc(l.detected_carrier||'?')}</td><td>${esc(l.dock_barcode)}</td><td>${esc(l.status)}</td></tr>`).join('');
+}
+$('refresh').onclick=refreshAdmin;
+$('saveDock').onclick=async()=>{
+  if(profile?.role!=='admin')return;
+  const barcode=normalize($('newDock').value),carrier=$('newCarrier').value;
+  if(!barcode)return alert('Barcode fehlt.');
+  /* Altes Verhalten erhalten: Upsert via barcode. In der
+     aktuellen LKW-Aktivierung sind nur DHL/DPD/GLS/UPS erlaubt. */
+  const r=await supabase.from('docks').upsert({barcode,carrier,active:true},{onConflict:'barcode'});
+  if(r.error)alert(r.error.message);else{$('newDock').value='';await refreshAdmin()}
+};
+$('dockList').onclick=async e=>{
+  if(profile?.role!=='admin')return;
+  const id=e.target.closest('[data-dock]')?.dataset.dock,d=docks.find(x=>String(x.id)===id);
+  if(!d||!confirm('Status ändern?'))return;
+  const r=await supabase.from('docks').update({active:!d.active}).eq('id',id);
+  if(r.error)alert(r.error.message);else await refreshAdmin();
+};
+$('saveStaff').onclick=async()=>{
+  if(profile?.role!=='admin')return;
+  const employee_code=$('staffCode').value.trim(),display_name=$('staffName').value.trim(),auth_user_id=$('staffUid').value.trim();
+  const validUuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if(!employee_code||!display_name||!validUuid.test(auth_user_id))return alert('Bitte gültige Mitarbeiterdaten eingeben.');
+  const r=await supabase.from('employees').insert({employee_code,display_name,auth_user_id,role:'worker',active:true});
+  if(r.error)alert(r.error.message);else{
+    $('staffCode').value='';$('staffName').value='';$('staffUid').value='';await refreshAdmin();
+  }
+};
+$('staffList').onclick=async e=>{
+  if(profile?.role!=='admin')return;
+  const id=e.target.closest('[data-staff]')?.dataset.staff;if(!id||id===String(profile.id))return;
+  const s=staff.find(x=>String(x.id)===id);if(!s||!confirm('Mitarbeiterstatus ändern?'))return;
+  const r=await supabase.from('employees').update({active:!s.active}).eq('id',id);
+  if(r.error)alert(r.error.message);else await refreshAdmin();
+};
+$('csv').onclick=()=>{
+  if(profile?.role!=='admin')return;
+  const columns=['created_at','employee_id','parcel_barcode','detected_carrier','dock_barcode','dock_carrier','status','message'];
+  const q=x=>{let s=String(x??'');if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+  const content=[columns.join(';'),...logs.map(l=>columns.map(k=>q(l[k])).join(';'))].join('\r\n');
+  const url=URL.createObjectURL(new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download='loadguard-scans.csv';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+for(const id of ['sound','blink']){
+  try{$(id).checked=localStorage.getItem('lg_'+id)!=='false'}catch(e){}
+  $(id).onchange=()=>{
+    try{localStorage.setItem('lg_'+id,String($(id).checked))}catch(e){}
+    if(id==='blink'&&blocked){if($(id).checked)startBlink();else stopBlink()}
+  };
+}
+async function startLoadGuard(){
+  try{
+    const sm=await import('./supabase.js');if(!sm.supabase)throw new Error('Supabase-Client fehlt.');supabase=sm.supabase;
+    const zm=await import('@zxing/browser');if(!zm.BrowserMultiFormatReader)throw new Error('Barcode-Scanner fehlt.');
+    Reader=zm.BrowserMultiFormatReader;$('loginButton').disabled=false;$('loginButton').textContent='Anmelden';
+    notice('loginMessage','LoadGuard bereit.');await init();
+  }catch(e){console.error(e);notice('loginMessage','LoadGuard konnte nicht gestartet werden:\n'+e.message,'bad')}
+}
+startLoadGuard();
+</script>
+</body>
+</html>
