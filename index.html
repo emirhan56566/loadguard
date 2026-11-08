@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="de">
 <head>
@@ -6,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101713">
 <title>LoadGuard</title>
-
 <style>
 :root{
   --bg:#101713;
@@ -15,20 +13,14 @@
   --green:#a3f36b;
   --red:#ff5252;
   --text:#f4f7f4;
-  --magenta:#ff00f5;
 }
-
-*{
-  box-sizing:border-box;
-}
-
+*{box-sizing:border-box}
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:system-ui,Arial,sans-serif;
 }
-
 header{
   padding:16px;
   border-bottom:1px solid var(--line);
@@ -37,21 +29,9 @@ header{
   align-items:center;
   gap:8px;
 }
-
-header strong{
-  font-size:23px;
-}
-
-header strong span{
-  color:var(--green);
-}
-
-main{
-  max-width:950px;
-  margin:auto;
-  padding:15px;
-}
-
+header strong{font-size:23px}
+header strong span{color:var(--green)}
+main{max-width:950px;margin:auto;padding:15px}
 .card{
   background:var(--card);
   border:1px solid var(--line);
@@ -59,41 +39,22 @@ main{
   padding:17px;
   margin-bottom:15px;
 }
-
-h1{
-  font-size:25px;
-}
-
-h2{
-  font-size:20px;
-}
-
-p,small{
-  color:#b7c6b8;
-}
-
-label{
-  display:block;
-  margin:12px 0 5px;
-}
-
-input,
-select,
-button{
+h1{font-size:25px}
+h2{font-size:20px}
+p,small{color:#b7c6b8}
+label{display:block;margin:12px 0 5px}
+input,select,button{
   font:inherit;
   padding:12px;
   border-radius:9px;
   width:100%;
   min-height:45px;
 }
-
-input,
-select{
+input,select{
   background:#101713;
   color:white;
   border:1px solid var(--line);
 }
-
 button{
   background:var(--green);
   color:#14200d;
@@ -102,31 +63,15 @@ button{
   cursor:pointer;
   margin:5px 0;
 }
-
-button:disabled{
-  opacity:.5;
-}
-
-.secondary{
-  background:#2a392d;
-  color:white;
-}
-
-.danger{
-  background:var(--red);
-  color:white;
-}
-
-.hidden{
-  display:none!important;
-}
-
+button:disabled{opacity:.5}
+.secondary{background:#2a392d;color:white}
+.danger{background:var(--red);color:white}
+.hidden{display:none!important}
 .grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;
 }
-
 .row{
   display:flex;
   justify-content:space-between;
@@ -134,11 +79,7 @@ button:disabled{
   gap:10px;
   flex-wrap:wrap;
 }
-
-.row button{
-  width:auto;
-}
-
+.row button{width:auto}
 .notice{
   padding:14px;
   border-radius:10px;
@@ -148,254 +89,157 @@ button:disabled{
   font-weight:700;
   overflow-wrap:anywhere;
 }
-
-.notice.ok{
-  background:#18522a!important;
-}
-
-.notice.bad{
+.ok{background:#18522a!important}
+.bad{
   background:#762027!important;
   border:2px solid var(--red);
 }
-
 .metric{
   background:#29372c;
   padding:12px;
   border-radius:10px;
 }
-
-.metric strong{
-  display:block;
-  font-size:26px;
-}
-
-.scroll{
-  overflow-x:auto;
-}
-
+.metric strong{display:block;font-size:26px}
+.scroll{overflow-x:auto}
 table{
   width:100%;
   border-collapse:collapse;
   font-size:13px;
 }
-
 td,th{
   padding:9px;
   border-bottom:1px solid var(--line);
   text-align:left;
   overflow-wrap:anywhere;
 }
-
-th{
-  color:var(--green);
-}
-
+th{color:var(--green)}
 .hint{
   border-left:3px solid orange;
   padding:12px;
   background:#392d1b;
 }
+.mini{font-size:12px}
+.section-title{margin-bottom:5px}
 
-.mini{
-  font-size:12px;
-}
-
-.section-title{
-  margin-bottom:5px;
-}
-
-/* ==========================================
-   NEUE SCANNER-LINSEN
-
-   Magenta = aktiver Kamerascan
-   Außen = leicht abgedunkelt
-========================================== */
+/* SCANNER-LINSEN */
 
 .scanner{
   position:relative;
-  height:390px;
+  height:330px;
   border:4px solid var(--line);
   border-radius:16px;
   overflow:hidden;
   background:#000;
-
-  --rx:5%;
+  --rx:3%;
   --ry:73%;
-  --rw:90%;
-  --rh:22%;
+  --rw:94%;
+  --rh:24%;
 }
-
 .scanner video{
   display:block;
   width:100%;
   height:100%;
   object-fit:cover;
 }
-
 .scanner.ready,
-.scanner.ok{
-  border-color:var(--green);
-}
+.scanner.ok{border-color:var(--green)}
+.scanner.bad{border-color:var(--red)}
 
-.scanner.bad{
-  border-color:var(--red);
-}
-
-/*
-  DHL:
-  Sendungsnummern-Barcode unten.
-  Leitcode darüber bleibt außerhalb.
-*/
-
-.scanner.lens-dhl{
-  --rx:5%;
-  --ry:73%;
-  --rw:90%;
-  --rh:22%;
-}
-
-/*
-  DPD:
-  Tracking-Barcode unten.
-*/
-
+.scanner.lens-dhl,
 .scanner.lens-dpd{
-  --rx:5%;
+  --rx:3%;
   --ry:73%;
-  --rw:90%;
+  --rw:94%;
+  --rh:24%;
+}
+.scanner.lens-gls{
+  --rx:17%;
+  --ry:13%;
+  --rw:66%;
   --rh:22%;
 }
-
-/*
-  GLS:
-  Paketnummer im oberen Bereich.
-*/
-
-.scanner.lens-gls{
-  --rx:25%;
-  --ry:23%;
-  --rw:50%;
-  --rh:19%;
-}
-
-/*
-  UPS:
-  Trackingnummer im unteren Bereich.
-*/
-
 .scanner.lens-ups{
-  --rx:5%;
-  --ry:72%;
-  --rw:90%;
-  --rh:23%;
+  --rx:3%;
+  --ry:43%;
+  --rw:94%;
+  --rh:20%;
 }
-
 .lens{
   position:absolute;
   inset:0;
   pointer-events:none;
   display:none;
 }
-
-.scanner.lens-active .lens{
-  display:block;
-}
-
-/*
-  Keine rot-schwarze Schraffur mehr.
-
-  Die Kamera bleibt auch außerhalb
-  des Fensters sichtbar.
-*/
-
+.scanner.lens-active .lens{display:block}
 .lens-mask{
   position:absolute;
-  background:rgba(0,0,0,.40);
+  background:repeating-linear-gradient(
+    135deg,
+    rgba(255,0,0,.82) 0 12px,
+    rgba(0,0,0,.9) 12px 24px
+  );
 }
-
 .lens-top{
   left:0;
   top:0;
   width:100%;
   height:var(--ry);
 }
-
 .lens-bottom{
   left:0;
   top:calc(var(--ry) + var(--rh));
   width:100%;
   bottom:0;
 }
-
 .lens-left{
   left:0;
   top:var(--ry);
   width:var(--rx);
   height:var(--rh);
 }
-
 .lens-right{
   left:calc(var(--rx) + var(--rw));
   right:0;
   top:var(--ry);
   height:var(--rh);
 }
-
-/*
-  Transparentes magentafarbenes
-  Scanfenster.
-*/
-
 .lens-window{
   position:absolute;
   left:var(--rx);
   top:var(--ry);
   width:var(--rw);
   height:var(--rh);
-
-  border:3px solid var(--magenta);
-  border-radius:14px;
-
+  border:3px solid #f020ff;
+  border-radius:8px;
+  box-shadow:0 0 0 1px white,0 0 18px #e800ff;
   background:transparent;
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.7),
-    0 0 14px rgba(255,0,245,.8),
-    inset 0 0 10px rgba(255,0,245,.2);
 }
-
 .lens-name{
   position:absolute;
-  left:10px;
-  top:10px;
-  padding:6px 10px;
-  background:rgba(0,0,0,.78);
-  border-radius:8px;
-  color:white;
+  left:8px;
+  top:8px;
+  padding:5px 9px;
+  background:#000c;
+  border-radius:6px;
   font-weight:900;
 }
-
 .scan-overlay{
   position:absolute;
   left:0;
   right:0;
-  bottom:5px;
+  bottom:3px;
   text-align:center;
   pointer-events:none;
 }
-
 .scan-overlay span{
   display:inline-block;
-  background:rgba(0,0,0,.82);
-  color:white;
-  padding:6px 10px;
-  border-radius:8px;
+  background:#000c;
+  padding:5px 9px;
+  border-radius:6px;
   font-size:12px;
 }
 
-/* ==========================================
-   BARCODE-AUSWAHL
-========================================== */
+/* NEU: BARCODE-AUSWAHL */
 
 .barcode-picker{
   margin-top:15px;
@@ -404,16 +248,13 @@ th{
   border-radius:13px;
   background:#241c35;
 }
-
 .barcode-picker h3{
   margin:0 0 8px;
   color:#e1c9ff;
 }
-
 .barcode-picker p{
   margin:7px 0 12px;
 }
-
 .barcode-option{
   display:flex;
   align-items:flex-start;
@@ -425,12 +266,10 @@ th{
   background:#191525;
   cursor:pointer;
 }
-
 .barcode-option:has(input:checked){
   border:2px solid #d99aff;
   background:#38254c;
 }
-
 .barcode-option input{
   width:22px;
   min-height:22px;
@@ -439,26 +278,22 @@ th{
   accent-color:#c889ff;
   flex-shrink:0;
 }
-
 .barcode-option-content{
   min-width:0;
   flex:1;
 }
-
 .barcode-value{
   font-family:ui-monospace,monospace;
   font-size:15px;
   font-weight:800;
   overflow-wrap:anywhere;
 }
-
 .barcode-meta{
   display:block;
   margin-top:5px;
   font-size:12px;
   color:#d4c6e0;
 }
-
 .barcode-tag{
   display:inline-block;
   margin-top:7px;
@@ -468,18 +303,15 @@ th{
   font-size:11px;
   font-weight:700;
 }
-
 .picker-actions{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:8px;
 }
-
 .picker-actions button{
   min-width:0;
   overflow-wrap:anywhere;
 }
-
 .preview-photo{
   display:block;
   max-width:100%;
@@ -489,38 +321,28 @@ th{
   border-radius:9px;
   border:1px solid #655579;
 }
-
 .status-small{
   font-size:12px;
   color:#cfcfcf;
 }
-
 @media(min-width:720px){
   .grid{
-    grid-template-columns:
-      repeat(4,minmax(0,1fr));
+    grid-template-columns:repeat(4,minmax(0,1fr));
   }
 }
 </style>
 </head>
-
 <body>
 
 <header>
-  <strong>
-    LOAD<span>GUARD</span>
-  </strong>
-
+  <strong>LOAD<span>GUARD</span></strong>
   <div class="row">
     <small id="who"></small>
-
     <button
       id="logout"
       class="secondary hidden"
       type="button"
-    >
-      Abmelden
-    </button>
+    >Abmelden</button>
   </div>
 </header>
 
@@ -530,10 +352,7 @@ th{
   <h1>Anmelden</h1>
 
   <form id="loginForm">
-    <label for="email">
-      E-Mail
-    </label>
-
+    <label for="email">E-Mail</label>
     <input
       id="email"
       type="email"
@@ -541,10 +360,7 @@ th{
       required
     >
 
-    <label for="password">
-      Passwort
-    </label>
-
+    <label for="password">Passwort</label>
     <input
       id="password"
       type="password"
@@ -552,18 +368,12 @@ th{
       required
     >
 
-    <button
-      id="loginButton"
-      disabled
-    >
+    <button id="loginButton" disabled>
       Anwendung lädt …
     </button>
   </form>
 
-  <div
-    id="loginMessage"
-    class="notice"
-  >
+  <div id="loginMessage" class="notice">
     LoadGuard startet …
   </div>
 </section>
@@ -572,32 +382,23 @@ th{
 
   <div class="card">
     <h1>Verladung prüfen</h1>
-
     <p id="workerName"></p>
 
     <p class="hint">
       Automatische Paketdienst-Erkennung.
-
-      Mehrdeutige oder unbekannte
-      Formate bleiben gesperrt.
-
-      Die Auswahl eines Barcodes
-      ist keine Freigabe des Pakets.
-
+      Mehrdeutige oder unbekannte Formate bleiben
+      gesperrt. Die Auswahl eines Barcodes ist
+      keine Freigabe des Pakets.
       LoadGuard ist keine physische
       Sicherheitsverriegelung.
     </p>
   </div>
 
-  <section
-    id="truckSetup"
-    class="card"
-  >
+  <section id="truckSetup" class="card">
     <h2>01 · LKW scannen</h2>
 
     <p>
-      LKW-Tür-Barcode:
-      DHL, DPD, GLS oder UPS.
+      LKW-Tür-Barcode: DHL, DPD, GLS oder UPS.
     </p>
 
     <input
@@ -611,30 +412,20 @@ th{
         id="truckCamera"
         class="secondary"
         type="button"
-      >
-        📷 LKW scannen
-      </button>
+      >📷 LKW scannen</button>
 
       <button
         id="truckAccept"
         type="button"
-      >
-        LKW übernehmen
-      </button>
+      >LKW übernehmen</button>
     </div>
 
-    <div
-      id="truckMessage"
-      class="notice"
-    >
+    <div id="truckMessage" class="notice">
       Noch kein LKW aktiv.
     </div>
   </section>
 
-  <section
-    id="loadingView"
-    class="hidden"
-  >
+  <section id="loadingView" class="hidden">
 
     <div class="card">
       <h2>
@@ -688,25 +479,19 @@ th{
         <button
           id="parcelAccept"
           type="button"
-        >
-          Paket prüfen
-        </button>
+        >Paket prüfen</button>
 
         <button
           id="parcelCamera"
           class="secondary"
           type="button"
-        >
-          📷 Kamera starten
-        </button>
+        >📷 Kamera starten</button>
 
         <button
           id="parcelGallery"
           class="secondary"
           type="button"
-        >
-          🖼️ Paketfoto scannen
-        </button>
+        >🖼️ Paketfoto scannen</button>
       </div>
 
       <input
@@ -716,20 +501,16 @@ th{
         accept="image/*"
       >
 
-      <div
-        id="result"
-        class="notice"
-      >
+      <div id="result" class="notice">
         Bereit.
       </div>
 
+      <!-- NEU: AUSWAHL FÜR PAKETFOTOS -->
       <div
         id="parcelPicker"
         class="barcode-picker hidden"
       >
-        <h3>
-          🔎 Erkannte Barcodes auswählen
-        </h3>
+        <h3>🔎 Erkannte Barcodes auswählen</h3>
 
         <p>
           Wähle die Sendungsnummer aus,
@@ -748,25 +529,19 @@ th{
           <button
             id="parcelChoose"
             type="button"
-          >
-            ✓ Barcode übernehmen
-          </button>
+          >✓ Barcode übernehmen</button>
 
           <button
             id="parcelCancel"
             class="secondary"
             type="button"
-          >
-            Abbrechen
-          </button>
+          >Abbrechen</button>
         </div>
 
         <p class="status-small">
-          Der ausgewählte Barcode wird
-          anschließend geprüft.
-
-          Unbekannte oder mehrdeutige
-          Formate bleiben gesperrt.
+          Der ausgewählte Barcode wird anschließend
+          ganz normal geprüft. Unbekannte oder
+          mehrdeutige Formate bleiben gesperrt.
         </p>
       </div>
 
@@ -784,44 +559,20 @@ th{
   <div class="card">
     <h2>Kamera / Scanner</h2>
 
-    <div
-      id="scannerFrame"
-      class="scanner"
-    >
+    <div id="scannerFrame" class="scanner">
       <video
         id="video"
         playsinline
         muted
       ></video>
 
-      <div
-        class="lens"
-        aria-hidden="true"
-      >
-        <div
-          class="lens-mask lens-top"
-        ></div>
-
-        <div
-          class="lens-mask lens-bottom"
-        ></div>
-
-        <div
-          class="lens-mask lens-left"
-        ></div>
-
-        <div
-          class="lens-mask lens-right"
-        ></div>
-
-        <div
-          class="lens-window"
-        ></div>
-
-        <div
-          id="lensName"
-          class="lens-name"
-        ></div>
+      <div class="lens" aria-hidden="true">
+        <div class="lens-mask lens-top"></div>
+        <div class="lens-mask lens-bottom"></div>
+        <div class="lens-mask lens-left"></div>
+        <div class="lens-mask lens-right"></div>
+        <div class="lens-window"></div>
+        <div id="lensName" class="lens-name"></div>
       </div>
 
       <div class="scan-overlay">
@@ -840,40 +591,21 @@ th{
     </button>
 
     <p class="mini">
-      Magenta = aktiver Kamera-Scanbereich.
-
-      Außerhalb bleibt das Etikett
-      leicht abgedunkelt sichtbar.
-
-      Nur Barcodes innerhalb des
-      magentafarbenen Fensters
-      werden von der Kamera gelesen.
-
-      Der TC-Hardware-Scanner
-      arbeitet unabhängig davon.
+      Rot-schwarz = kein Kamerascan.
+      Violettes Fenster = aktiver Scanbereich.
+      Der TC-Hardware-Scanner ist davon unabhängig.
     </p>
   </div>
 
-  <section
-    id="adminView"
-    class="hidden"
-  >
+  <section id="adminView" class="hidden">
 
-    <div
-      id="trainingCard"
-      class="card"
-    >
-      <h2>
-        🖼️ Barcode-Beispiele erfassen
-      </h2>
+    <div id="trainingCard" class="card">
+      <h2>🖼️ Barcode-Beispiele erfassen</h2>
 
       <p>
-        Barcode-Beispiele aus Kamera
-        oder Galerie erfassen.
-
-        Gespeicherte Beispiele
-        werden nicht automatisch
-        zu Freigaberegeln.
+        Barcode-Beispiele aus Kamera oder Galerie
+        erfassen. Gespeicherte Beispiele werden
+        nicht automatisch zu Freigaberegeln.
       </p>
 
       <label for="sampleCarrier">
@@ -901,24 +633,18 @@ th{
           id="sampleCamera"
           class="secondary"
           type="button"
-        >
-          📷 Kamera
-        </button>
+        >📷 Kamera</button>
 
         <button
           id="sampleGallery"
           class="secondary"
           type="button"
-        >
-          🖼️ Galerie
-        </button>
+        >🖼️ Galerie</button>
 
         <button
           id="sampleSave"
           type="button"
-        >
-          Beispiel speichern
-        </button>
+        >Beispiel speichern</button>
       </div>
 
       <input
@@ -928,24 +654,19 @@ th{
         accept="image/*"
       >
 
-      <div
-        id="sampleMessage"
-        class="notice"
-      >
+      <div id="sampleMessage" class="notice">
         Noch kein Beispiel erfasst.
       </div>
 
+      <!-- NEU: AUSWAHL FÜR ADMIN -->
       <div
         id="samplePicker"
         class="barcode-picker hidden"
       >
-        <h3>
-          🔎 Erkannte Barcodes auswählen
-        </h3>
+        <h3>🔎 Erkannte Barcodes auswählen</h3>
 
         <p>
-          Wähle den Barcode,
-          der als Beispiel
+          Wähle den Barcode, der als Beispiel
           erfasst werden soll.
         </p>
 
@@ -961,39 +682,30 @@ th{
           <button
             id="sampleChoose"
             type="button"
-          >
-            ✓ Barcode übernehmen
-          </button>
+          >✓ Barcode übernehmen</button>
 
           <button
             id="sampleCancel"
             class="secondary"
             type="button"
-          >
-            Abbrechen
-          </button>
+          >Abbrechen</button>
         </div>
 
         <p class="status-small">
-          Nach der Übernahme bitte
-          den Paketdienst kontrollieren
-          und das Beispiel
-          separat speichern.
+          Nach der Übernahme bitte den
+          Paketdienst kontrollieren und
+          das Beispiel separat speichern.
         </p>
       </div>
 
       <div class="row">
-        <h3>
-          Gespeicherte Beispiele
-        </h3>
+        <h3>Gespeicherte Beispiele</h3>
 
         <button
           id="sampleRefresh"
           class="secondary"
           type="button"
-        >
-          Aktualisieren
-        </button>
+        >Aktualisieren</button>
       </div>
 
       <div class="scroll">
@@ -1006,7 +718,6 @@ th{
               <th>Aktion</th>
             </tr>
           </thead>
-
           <tbody id="sampleList"></tbody>
         </table>
       </div>
@@ -1020,9 +731,7 @@ th{
           id="refresh"
           class="secondary"
           type="button"
-        >
-          Aktualisieren
-        </button>
+        >Aktualisieren</button>
       </div>
 
       <div class="grid">
@@ -1049,9 +758,7 @@ th{
     </div>
 
     <div class="card">
-      <h2>
-        Scans je Mitarbeiter
-      </h2>
+      <h2>Scans je Mitarbeiter</h2>
 
       <div class="scroll">
         <table>
@@ -1062,16 +769,13 @@ th{
               <th>Fehler</th>
             </tr>
           </thead>
-
           <tbody id="performance"></tbody>
         </table>
       </div>
     </div>
 
     <div class="card">
-      <h2>
-        LKW-Barcodes verwalten
-      </h2>
+      <h2>LKW-Barcodes verwalten</h2>
 
       <input
         id="newDock"
@@ -1088,17 +792,13 @@ th{
       <button
         id="saveDock"
         type="button"
-      >
-        Barcode speichern
-      </button>
+      >Barcode speichern</button>
 
       <div id="dockList"></div>
     </div>
 
     <div class="card">
-      <h2>
-        Mitarbeiter verwalten
-      </h2>
+      <h2>Mitarbeiter verwalten</h2>
 
       <input
         id="staffCode"
@@ -1118,9 +818,7 @@ th{
       <button
         id="saveStaff"
         type="button"
-      >
-        Mitarbeiter hinzufügen
-      </button>
+      >Mitarbeiter hinzufügen</button>
 
       <div id="staffList"></div>
     </div>
@@ -1133,10 +831,7 @@ th{
           id="sound"
           type="checkbox"
           checked
-          style="
-            width:auto;
-            min-height:auto
-          "
+          style="width:auto;min-height:auto"
         >
         Töne aktivieren
       </label>
@@ -1146,10 +841,7 @@ th{
           id="blink"
           type="checkbox"
           checked
-          style="
-            width:auto;
-            min-height:auto
-          "
+          style="width:auto;min-height:auto"
         >
         Rotes Blinken
       </label>
@@ -1163,9 +855,7 @@ th{
           id="csv"
           class="secondary"
           type="button"
-        >
-          CSV exportieren
-        </button>
+        >CSV exportieren</button>
       </div>
 
       <div class="scroll">
@@ -1180,16 +870,13 @@ th{
               <th>Ergebnis</th>
             </tr>
           </thead>
-
           <tbody id="logs"></tbody>
         </table>
       </div>
     </div>
 
   </section>
-
 </section>
-
 </main>
 
 <script type="module">
@@ -1198,27 +885,22 @@ th{
    LOADGUARD – GRUNDFUNKTIONEN
 ========================================== */
 
-const $=id=>
-  document.getElementById(id);
+const $=id=>document.getElementById(id);
 
 const carriers=new Set([
-  'DHL',
-  'DPD',
-  'GLS',
-  'UPS'
+  'DHL','DPD','GLS','UPS'
 ]);
 
-const esc=x=>
-  String(x??'').replace(
-    /[&<>"']/g,
-    c=>({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c])
-  );
+const esc=x=>String(x??'').replace(
+  /[&<>"']/g,
+  c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c])
+);
 
 const normalize=x=>
   String(x??'')
@@ -1253,12 +935,9 @@ let frameTimer=null;
 let scanLoop=null;
 let scanBusy=false;
 
-const scanCanvas=
-  document.createElement('canvas');
+let scanCanvas=document.createElement('canvas');
 
-/* ==========================================
-   BARCODE-AUSWAHL-STATUS
-========================================== */
+/* BARCODE-AUSWAHL-STATUS */
 
 const pickerState={
   parcel:[],
@@ -1274,28 +953,20 @@ let photoAnalysisBusy=false;
 
 function notice(id,text,type=''){
   $(id).textContent=text;
-  $(id).className=
-    'notice '+type;
+  $(id).className='notice '+type;
 }
 
 function focusParcel(){
-  if(!truck||blocked){
-    return;
-  }
+  if(!truck||blocked)return;
 
   try{
     $('parcel').focus({
       preventScroll:true
     });
-
   }catch(e){
     $('parcel').focus();
   }
 }
-
-/* ==========================================
-   SCANNER-RAHMEN
-========================================== */
 
 function frame(type,text){
   const carrier=
@@ -1305,37 +976,26 @@ function frame(type,text){
 
   $('scannerFrame').className=
     'scanner '+type+
-    (
-      carrier
-        ?' lens-active lens-'+carrier
-        :''
-    );
+    (carrier
+      ?' lens-active lens-'+carrier
+      :'');
 
-  $('lensName').textContent=
-    carrier
-      ?truck.carrier+' – Tracking-Scan'
-      :'';
+  $('lensName').textContent=carrier
+    ?truck.carrier+' – Scanner-Linse'
+    :'';
 
   $('scannerLabel').textContent=text;
 }
 
-/* ==========================================
-   TÖNE
-========================================== */
-
 function tone(type){
-  if(!$('sound').checked){
-    return;
-  }
+  if(!$('sound').checked)return;
 
   try{
     const Audio=
       window.AudioContext||
       window.webkitAudioContext;
 
-    if(!Audio){
-      return;
-    }
+    if(!Audio)return;
 
     if(!audioCtx){
       audioCtx=new Audio();
@@ -1343,56 +1003,42 @@ function tone(type){
 
     audioCtx.resume().catch(()=>{});
 
-    const notes=
-      type==='bad'
-        ?[
-          [300,0,.3],
-          [240,.35,.3],
-          [300,.7,.3]
-        ]
-        :type==='ok'
-        ?[
-          [800,0,.1],
-          [1100,.14,.12]
-        ]
-        :[
-          [700,0,.1]
-        ];
+    const notes=type==='bad'
+      ?[
+        [300,0,.3],
+        [240,.35,.3],
+        [300,.7,.3]
+      ]
+      :type==='ok'
+      ?[
+        [800,0,.1],
+        [1100,.14,.12]
+      ]
+      :[
+        [700,0,.1]
+      ];
 
-    for(
-      const [hz,delay,duration]
-      of notes
-    ){
-      const o=
-        audioCtx.createOscillator();
+    for(const [hz,delay,duration] of notes){
+      const o=audioCtx.createOscillator();
+      const g=audioCtx.createGain();
 
-      const g=
-        audioCtx.createGain();
-
-      o.type=
-        type==='bad'
-          ?'square'
-          :'sine';
+      o.type=type==='bad'
+        ?'square'
+        :'sine';
 
       o.frequency.value=hz;
-
-      g.gain.value=
-        type==='bad'
-          ?.15
-          :.08;
+      g.gain.value=type==='bad'
+        ?.15
+        :.08;
 
       o.connect(g);
-      g.connect(
-        audioCtx.destination
-      );
+      g.connect(audioCtx.destination);
 
-      const t=
-        audioCtx.currentTime+delay;
+      const t=audioCtx.currentTime+delay;
 
       o.start(t);
       o.stop(t+duration);
     }
-
   }catch(e){
     console.warn(e);
   }
@@ -1409,72 +1055,56 @@ function classifyBarcode(raw){
   const reasons=[];
 
   const add=(carrier,reason)=>{
-    if(
-      !candidates.includes(carrier)
-    ){
+    if(!candidates.includes(carrier)){
       candidates.push(carrier);
     }
 
     reasons.push(reason);
   };
 
-  if(
-    /^1Z[A-Z0-9]{16}$/.test(code)
-  ){
+  if(/^1Z[A-Z0-9]{16}$/.test(code)){
     add(
       'UPS',
       'UPS 1Z / 18 Zeichen'
     );
   }
 
-  if(
-    /^0034\d{16}$/.test(code)
-  ){
+  if(/^0034\d{16}$/.test(code)){
     add(
       'DHL',
       'DHL 0034 / 20 Ziffern'
     );
   }
 
-  if(
-    /^\d{14}$/.test(code)
-  ){
+  if(/^\d{14}$/.test(code)){
     add(
       'DPD',
       'DPD 14 Ziffern – nicht eindeutig'
     );
   }
 
-  if(
-    /^\d{11,12}$/.test(code)
-  ){
+  if(/^\d{11,12}$/.test(code)){
     add(
       'GLS',
       'GLS 11–12 Ziffern – nicht eindeutig'
     );
   }
 
-  if(
-    /^[A-Z0-9]{8}$/.test(code)
-  ){
+  if(/^[A-Z0-9]{8}$/.test(code)){
     add(
       'GLS',
       'GLS 8 Zeichen – nicht eindeutig'
     );
   }
 
-  if(
-    /^\d{10}$/.test(code)
-  ){
+  if(/^\d{10}$/.test(code)){
     add(
       'DHL',
       'DHL Express 10 Ziffern – nicht eindeutig'
     );
   }
 
-  if(
-    /^T[A-Z0-9]{10}$/.test(code)
-  ){
+  if(/^T[A-Z0-9]{10}$/.test(code)){
     add(
       'UPS',
       'UPS T + 10 Zeichen – nicht eindeutig'
@@ -1496,8 +1126,7 @@ function classifyBarcode(raw){
     /^0034\d{16}$/.test(code);
 
   const carrier=
-    unambiguous&&
-    candidates.length===1
+    unambiguous&&candidates.length===1
       ?candidates[0]
       :null;
 
@@ -1507,35 +1136,25 @@ function classifyBarcode(raw){
     candidates,
     reasons,
     ambiguous:
-      !carrier&&
-      candidates.length>0
+      !carrier&&candidates.length>0
   };
 }
 
 /* ==========================================
-   BARCODE-AUSWAHL
+   NEU: BARCODE-AUSWAHL
 ========================================== */
 
 function clearPicker(mode){
   pickerState[mode]=[];
 
-  const box=
-    $(mode+'Picker');
-
-  const list=
-    $(mode+'Candidates');
-
-  const preview=
-    $(mode+'Preview');
+  const box=$(mode+'Picker');
+  const list=$(mode+'Candidates');
+  const preview=$(mode+'Preview');
 
   box.classList.add('hidden');
-
   list.innerHTML='';
 
-  preview.classList.add(
-    'hidden'
-  );
-
+  preview.classList.add('hidden');
   preview.removeAttribute('src');
 
   if(pickerPhotoUrls[mode]){
@@ -1553,20 +1172,13 @@ function clearAllPickers(){
 }
 
 function candidateDescription(code){
-  const c=
-    classifyBarcode(code);
+  const c=classifyBarcode(code);
 
   if(c.carrier){
     return {
-      title:
-        c.carrier+
-        ' – Format erkannt',
-
-      detail:
-        c.reasons.join(' · '),
-
-      tag:
-        'Formatkandidat'
+      title:c.carrier+' – Format erkannt',
+      detail:c.reasons.join(' · '),
+      tag:'Formatkandidat'
     };
   }
 
@@ -1575,24 +1187,16 @@ function candidateDescription(code){
       title:
         'Mögliche Dienste: '+
         c.candidates.join(', '),
-
-      detail:
-        c.reasons.join(' · '),
-
-      tag:
-        'Nicht eindeutig'
+      detail:c.reasons.join(' · '),
+      tag:'Nicht eindeutig'
     };
   }
 
   return {
-    title:
-      'Paketdienst unbekannt',
-
+    title:'Paketdienst unbekannt',
     detail:
       'Kein unterstütztes Format erkannt',
-
-    tag:
-      'Keine automatische Freigabe'
+    tag:'Keine automatische Freigabe'
   };
 }
 
@@ -1609,76 +1213,59 @@ function showPicker(mode,codes,file){
 
   pickerState[mode]=unique;
 
-  const list=
-    $(mode+'Candidates');
+  const list=$(mode+'Candidates');
 
   if(file){
-    const url=
-      URL.createObjectURL(file);
-
+    const url=URL.createObjectURL(file);
     pickerPhotoUrls[mode]=url;
 
-    const preview=
-      $(mode+'Preview');
-
+    const preview=$(mode+'Preview');
     preview.src=url;
-
-    preview.classList.remove(
-      'hidden'
-    );
+    preview.classList.remove('hidden');
   }
 
-  list.innerHTML=
-    unique.map((code,i)=>{
-      const d=
-        candidateDescription(code);
+  list.innerHTML=unique.map((code,i)=>{
+    const d=candidateDescription(code);
 
-      return `
-        <label class="barcode-option">
-          <input
-            type="radio"
-            name="${mode}BarcodeChoice"
-            value="${esc(code)}"
-            ${i===0?'checked':''}
-          >
+    return `
+      <label class="barcode-option">
+        <input
+          type="radio"
+          name="${mode}BarcodeChoice"
+          value="${esc(code)}"
+          ${i===0?'checked':''}
+        >
 
-          <span class="barcode-option-content">
-            <span class="barcode-value">
-              ${esc(code)}
-            </span>
-
-            <span class="barcode-meta">
-              ${esc(d.title)}
-            </span>
-
-            <span class="barcode-meta">
-              ${esc(d.detail)}
-            </span>
-
-            <span class="barcode-tag">
-              ${esc(d.tag)}
-            </span>
+        <span class="barcode-option-content">
+          <span class="barcode-value">
+            ${esc(code)}
           </span>
-        </label>
-      `;
-    }).join('');
 
-  $(mode+'Picker')
-    .classList.remove('hidden');
+          <span class="barcode-meta">
+            ${esc(d.title)}
+          </span>
+
+          <span class="barcode-meta">
+            ${esc(d.detail)}
+          </span>
+
+          <span class="barcode-tag">
+            ${esc(d.tag)}
+          </span>
+        </span>
+      </label>
+    `;
+  }).join('');
+
+  $(mode+'Picker').classList.remove('hidden');
 
   notice(
-    mode==='parcel'
-      ?'result'
-      :'sampleMessage',
-
+    mode==='parcel'?'result':'sampleMessage',
     unique.length+
-    ' Barcode'+
-    (
-      unique.length===1
-        ?''
-        :'s'
-    )+
-    ' erkannt. Bitte auswählen.'
+      ' Barcode'+
+      (unique.length===1?'':'s')+
+      ' erkannt. Bitte auswählen.',
+    ''
   );
 
   $(mode+'Picker').scrollIntoView({
@@ -1688,10 +1275,9 @@ function showPicker(mode,codes,file){
 }
 
 function selectedBarcode(mode){
-  const selected=
-    document.querySelector(
-      `input[name="${mode}BarcodeChoice"]:checked`
-    );
+  const selected=document.querySelector(
+    `input[name="${mode}BarcodeChoice"]:checked`
+  );
 
   return selected
     ?normalize(selected.value)
@@ -1699,21 +1285,14 @@ function selectedBarcode(mode){
 }
 
 $('parcelChoose').onclick=async()=>{
-  const code=
-    selectedBarcode('parcel');
+  const code=selectedBarcode('parcel');
 
   if(!code){
-    alert(
-      'Bitte Barcode auswählen.'
-    );
+    alert('Bitte Barcode auswählen.');
     return;
   }
 
-  if(
-    blocked||
-    busy||
-    !truck
-  ){
+  if(blocked||busy||!truck){
     return;
   }
 
@@ -1729,13 +1308,10 @@ $('parcelChoose').onclick=async()=>{
 };
 
 $('sampleChoose').onclick=()=>{
-  const code=
-    selectedBarcode('sample');
+  const code=selectedBarcode('sample');
 
   if(!code){
-    alert(
-      'Bitte Barcode auswählen.'
-    );
+    alert('Bitte Barcode auswählen.');
     return;
   }
 
@@ -1743,8 +1319,7 @@ $('sampleChoose').onclick=()=>{
 
   $('sampleCode').value=code;
 
-  const classification=
-    classifyBarcode(code);
+  const classification=classifyBarcode(code);
 
   if(classification.carrier){
     $('sampleCarrier').value=
@@ -1753,12 +1328,9 @@ $('sampleChoose').onclick=()=>{
 
   notice(
     'sampleMessage',
-
-    'Barcode übernommen:\n'+
-    code+
+    'Barcode übernommen:\n'+code+
     '\n\nBitte Paketdienst prüfen '+
     'und anschließend speichern.',
-
     'ok'
   );
 
@@ -1786,52 +1358,34 @@ $('sampleCancel').onclick=()=>{
 };
 
 /* ==========================================
-   NEUE KAMERA-SCANBEREICHE
-
-   Diese Werte entsprechen den
-   magentafarbenen Fenstern im CSS.
-
-   Wichtig:
-   Nicht das gesamte Kamerabild
-   wird decodiert.
-
-   Nur der hier definierte
-   Ausschnitt wird ausgewertet.
+   KAMERA-SCANBEREICHE
 ========================================== */
 
 function getRegion(carrier){
   switch(carrier){
-
     case 'DHL':
-      return {
-        x:.05,
-        y:.73,
-        w:.90,
-        h:.22
-      };
-
     case 'DPD':
       return {
-        x:.05,
+        x:.03,
         y:.73,
-        w:.90,
-        h:.22
+        w:.94,
+        h:.24
       };
 
     case 'GLS':
       return {
-        x:.25,
-        y:.23,
-        w:.50,
-        h:.19
+        x:.17,
+        y:.13,
+        w:.66,
+        h:.22
       };
 
     case 'UPS':
       return {
-        x:.05,
-        y:.72,
-        w:.90,
-        h:.23
+        x:.03,
+        y:.43,
+        w:.94,
+        h:.20
       };
 
     default:
@@ -1844,86 +1398,33 @@ function getRegion(carrier){
   }
 }
 
-/* ==========================================
-   VIDEO AUF SCANFENSTER BESCHNEIDEN
+function cropVideoToCanvas(video,carrier){
+  const vw=video.videoWidth;
+  const vh=video.videoHeight;
+  const ew=video.clientWidth;
+  const eh=video.clientHeight;
 
-   Berücksichtigt object-fit:cover.
-
-   Dadurch entspricht der gelesene
-   Ausschnitt dem sichtbaren
-   magentafarbenen Fenster.
-========================================== */
-
-function cropVideoToCanvas(
-  video,
-  carrier
-){
-  const vw=
-    video.videoWidth;
-
-  const vh=
-    video.videoHeight;
-
-  const ew=
-    video.clientWidth;
-
-  const eh=
-    video.clientHeight;
-
-  if(
-    !vw||
-    !vh||
-    !ew||
-    !eh
-  ){
+  if(!vw||!vh||!ew||!eh){
     return null;
   }
-
-  /*
-    Das Video verwendet
-    object-fit:cover.
-
-    Deshalb zuerst den tatsächlich
-    sichtbaren Videoausschnitt
-    berechnen.
-  */
 
   const scale=Math.max(
     ew/vw,
     eh/vh
   );
 
-  const visibleW=
-    ew/scale;
+  const visibleW=ew/scale;
+  const visibleH=eh/scale;
 
-  const visibleH=
-    eh/scale;
+  const offsetX=(vw-visibleW)/2;
+  const offsetY=(vh-visibleH)/2;
 
-  const offsetX=
-    (vw-visibleW)/2;
+  const r=getRegion(carrier);
 
-  const offsetY=
-    (vh-visibleH)/2;
-
-  const r=
-    getRegion(carrier);
-
-  /*
-    Magenta-Fenster in echte
-    Videokoordinaten umrechnen.
-  */
-
-  const sx=
-    offsetX+r.x*visibleW;
-
-  const sy=
-    offsetY+r.y*visibleH;
-
-  const sw=
-    r.w*visibleW;
-
-  const sh=
-    r.h*visibleH;
+  const sx=offsetX+r.x*visibleW;
+  const sy=offsetY+r.y*visibleH;
+  const sw=r.w*visibleW;
+  const sh=r.h*visibleH;
 
   scanCanvas.width=Math.max(
     1,
@@ -1935,34 +1436,15 @@ function cropVideoToCanvas(
     Math.round(sh)
   );
 
-  const ctx=
-    scanCanvas.getContext(
-      '2d',
-      {
-        willReadFrequently:true
-      }
-    );
-
-  if(!ctx){
-    return null;
-  }
-
-  /*
-    Ausschließlich den Bereich
-    innerhalb des Fensters
-    auf die Scanfläche zeichnen.
-  */
+  const ctx=scanCanvas.getContext(
+    '2d',
+    {willReadFrequently:true}
+  );
 
   ctx.drawImage(
     video,
-
-    sx,
-    sy,
-    sw,
-    sh,
-
-    0,
-    0,
+    sx,sy,sw,sh,
+    0,0,
     scanCanvas.width,
     scanCanvas.height
   );
@@ -1990,26 +1472,19 @@ function stopCamera(){
   reader=null;
   cameraMode=null;
 
-  const video=
-    $('video');
+  const video=$('video');
 
   if(video.srcObject){
     video.srcObject
       .getTracks()
-      .forEach(
-        t=>t.stop()
-      );
+      .forEach(t=>t.stop());
 
     video.srcObject=null;
   }
 
-  $('stopCamera')
-    .classList.add('hidden');
+  $('stopCamera').classList.add('hidden');
 
-  frame(
-    '',
-    'Kamera aus'
-  );
+  frame('','Kamera aus');
 }
 
 /* ==========================================
@@ -2020,7 +1495,6 @@ function resetSession(){
   stopCamera();
 
   clearTimeout(frameTimer);
-
   clearAllPickers();
 
   truck=null;
@@ -2032,20 +1506,15 @@ function resetSession(){
   blocked=false;
   lastCode='';
 
-  $('truckSetup')
-    .classList.remove('hidden');
+  $('truckSetup').classList.remove('hidden');
+  $('loadingView').classList.add('hidden');
 
-  $('loadingView')
-    .classList.add('hidden');
-
-  $('ack')
-    .classList.add('hidden');
+  $('ack').classList.add('hidden');
 
   $('truckCode').value='';
   $('parcel').value='';
 
   $('sessionOk').textContent='0';
-
   $('sessionBlocked').textContent='0';
 
   notice(
@@ -2072,21 +1541,18 @@ function loginState(loggedIn){
 
   $('adminView').classList.toggle(
     'hidden',
-    !loggedIn||
-    profile?.role!=='admin'
+    !loggedIn||profile?.role!=='admin'
   );
 
-  $('who').textContent=
-    loggedIn
-      ?profile.display_name
-      :'';
+  $('who').textContent=loggedIn
+    ?profile.display_name
+    :'';
 
-  $('workerName').textContent=
-    loggedIn
-      ?profile.display_name+
-        ' · '+
-        profile.employee_code
-      :'';
+  $('workerName').textContent=loggedIn
+    ?profile.display_name+
+      ' · '+
+      profile.employee_code
+    :'';
 }
 
 /* ==========================================
@@ -2096,42 +1562,28 @@ function loginState(loggedIn){
 async function init(){
   const {
     data:{user}
-  }=
-    await supabase.auth.getUser();
+  }=await supabase.auth.getUser();
 
   if(!user){
     profile=null;
-
     resetSession();
     loginState(false);
-
     return;
   }
 
-  const r=
-    await supabase
-      .from('employees')
-      .select(
-        'id,employee_code,display_name,role,active'
-      )
-      .eq(
-        'auth_user_id',
-        user.id
-      )
-      .eq(
-        'active',
-        true
-      )
-      .single();
+  const r=await supabase
+    .from('employees')
+    .select(
+      'id,employee_code,display_name,role,active'
+    )
+    .eq('auth_user_id',user.id)
+    .eq('active',true)
+    .single();
 
-  if(
-    r.error||
-    !r.data
-  ){
+  if(r.error||!r.data){
     await supabase.auth.signOut();
 
     profile=null;
-
     resetSession();
     loginState(false);
 
@@ -2160,15 +1612,11 @@ $('loginForm').onsubmit=async e=>{
   $('loginButton').disabled=true;
 
   try{
-    const r=
-      await supabase.auth
-        .signInWithPassword({
-          email:
-            $('email').value.trim(),
-
-          password:
-            $('password').value
-        });
+    const r=await supabase.auth
+      .signInWithPassword({
+        email:$('email').value.trim(),
+        password:$('password').value
+      });
 
     if(r.error){
       throw r.error;
@@ -2177,14 +1625,12 @@ $('loginForm').onsubmit=async e=>{
     await init();
 
     $('password').value='';
-
   }catch(e){
     notice(
       'loginMessage',
       e.message,
       'bad'
     );
-
   }finally{
     $('loginButton').disabled=false;
   }
@@ -2205,7 +1651,6 @@ $('logout').onclick=async()=>{
   await supabase.auth.signOut();
 
   profile=null;
-
   loginState(false);
 };
 
@@ -2214,11 +1659,7 @@ $('logout').onclick=async()=>{
 ========================================== */
 
 async function acceptTruck(value){
-  if(
-    !profile||
-    truck||
-    busy
-  ){
+  if(!profile||truck||busy){
     return;
   }
 
@@ -2240,21 +1681,12 @@ async function acceptTruck(value){
   busy=true;
 
   try{
-    const r=
-      await supabase
-        .from('docks')
-        .select(
-          'barcode,carrier,active'
-        )
-        .eq(
-          'barcode',
-          code
-        )
-        .eq(
-          'active',
-          true
-        )
-        .maybeSingle();
+    const r=await supabase
+      .from('docks')
+      .select('barcode,carrier,active')
+      .eq('barcode',code)
+      .eq('active',true)
+      .maybeSingle();
 
     if(r.error){
       throw r.error;
@@ -2283,8 +1715,7 @@ async function acceptTruck(value){
 
     seen=new Set();
 
-    $('activeTruck').textContent=
-      code;
+    $('activeTruck').textContent=code;
 
     $('sessionStart').textContent=
       'Beginn: '+
@@ -2292,25 +1723,20 @@ async function acceptTruck(value){
         .toLocaleString('de-DE');
 
     $('sessionOk').textContent='0';
-
     $('sessionBlocked').textContent='0';
 
-    $('truckSetup')
-      .classList.add('hidden');
+    $('truckSetup').classList.add(
+      'hidden'
+    );
 
-    $('loadingView')
-      .classList.remove('hidden');
+    $('loadingView').classList.remove(
+      'hidden'
+    );
 
     notice(
       'result',
-      'LKW aktiv. '+
-      'Kamera wird gestartet.'
+      'LKW aktiv. Kamera wird gestartet.'
     );
-
-    /*
-      Automatisch die passende
-      Carrier-Linse starten.
-    */
 
     await startCamera('parcel');
 
@@ -2356,33 +1782,21 @@ async function saveLog(
   carrier,
   message
 ){
-  const r=
-    await supabase
-      .from('scan_logs')
-      .insert({
-        employee_id:
-          profile.id,
-
-        parcel_barcode:
-          code,
-
-        detected_carrier:
-          carrier,
-
-        dock_barcode:
-          truck.barcode,
-
-        dock_carrier:
-          truck.carrier,
-
-        status,
-
-        message:
-          'LKW-Verladung ab '+
-          session.startedAt.toISOString()+
-          ' | '+
-          message
-      });
+  const r=await supabase
+    .from('scan_logs')
+    .insert({
+      employee_id:profile.id,
+      parcel_barcode:code,
+      detected_carrier:carrier,
+      dock_barcode:truck.barcode,
+      dock_carrier:truck.carrier,
+      status,
+      message:
+        'LKW-Verladung ab '+
+        session.startedAt.toISOString()+
+        ' | '+
+        message
+    });
 
   if(r.error){
     throw r.error;
@@ -2407,12 +1821,9 @@ async function processParcel(value){
     value??$('parcel').value
   );
 
-  if(!code){
-    return;
-  }
+  if(!code)return;
 
   busy=true;
-
   $('parcelAccept').disabled=true;
 
   try{
@@ -2425,28 +1836,26 @@ async function processParcel(value){
     const duplicate=
       seen.has(code);
 
-    const status=
-      duplicate
-        ?'rejected'
-        :!carrier
-        ?'unknown_carrier'
-        :carrier!==truck.carrier
-        ?'wrong_dock'
-        :'success';
+    const status=duplicate
+      ?'rejected'
+      :!carrier
+      ?'unknown_carrier'
+      :carrier!==truck.carrier
+      ?'wrong_dock'
+      :'success';
 
-    const reason=
-      duplicate
-        ?'Doppelter Scan'
-        :!carrier
-        ?(
-          classification.ambiguous
-            ?'Mehrdeutig: '+
-              classification.candidates.join(', ')
-            :'Paketdienst unbekannt'
-        )
-        :carrier!==truck.carrier
-        ?'Falscher Paketdienst'
-        :'Passender Paketdienst';
+    const reason=duplicate
+      ?'Doppelter Scan'
+      :!carrier
+      ?(
+        classification.ambiguous
+          ?'Mehrdeutig: '+
+            classification.candidates.join(', ')
+          :'Paketdienst unbekannt'
+      )
+      :carrier!==truck.carrier
+      ?'Falscher Paketdienst'
+      :'Passender Paketdienst';
 
     await saveLog(
       status,
@@ -2465,14 +1874,12 @@ async function processParcel(value){
 
       notice(
         'result',
-
         '✓ FREIGEGEBEN\n'+
         carrier+
         ' → '+
         truck.carrier+
         '\nPaket: '+
         code,
-
         'ok'
       );
 
@@ -2509,12 +1916,10 @@ async function processParcel(value){
 
       notice(
         'result',
-
         '⛔ STOPP – NICHT VERLADEN\n'+
         reason+
         '\nPaket: '+
         code,
-
         'bad'
       );
 
@@ -2523,8 +1928,9 @@ async function processParcel(value){
         '⛔ STOPP'
       );
 
-      $('ack')
-        .classList.remove('hidden');
+      $('ack').classList.remove(
+        'hidden'
+      );
 
       tone('bad');
     }
@@ -2534,10 +1940,8 @@ async function processParcel(value){
 
     notice(
       'result',
-
       '⛔ KEINE FREIGABE\n'+
       e.message,
-
       'bad'
     );
 
@@ -2546,8 +1950,9 @@ async function processParcel(value){
       '⛔ STOPP'
     );
 
-    $('ack')
-      .classList.remove('hidden');
+    $('ack').classList.remove(
+      'hidden'
+    );
 
     tone('bad');
 
@@ -2582,8 +1987,9 @@ $('ack').onclick=()=>{
 
   $('parcel').value='';
 
-  $('ack')
-    .classList.add('hidden');
+  $('ack').classList.add(
+    'hidden'
+  );
 
   notice(
     'result',
@@ -2592,10 +1998,7 @@ $('ack').onclick=()=>{
   );
 
   frame(
-    cameraMode
-      ?'ready'
-      :'',
-
+    cameraMode?'ready':'',
     'Bereit'
   );
 
@@ -2606,15 +2009,9 @@ $('ack').onclick=()=>{
 };
 
 $('endSession').onclick=()=>{
-  if(!truck){
-    return;
-  }
+  if(!truck)return;
 
-  if(
-    !confirm(
-      'Verladung beenden?'
-    )
-  ){
+  if(!confirm('Verladung beenden?')){
     return;
   }
 
@@ -2623,24 +2020,12 @@ $('endSession').onclick=()=>{
 
 /* ==========================================
    LIVE-KAMERA
-
-   Paketkamera:
-   Nur das magentafarbene Fenster
-   wird an den Decoder übergeben.
-
-   LKW- und Admin-Kamera:
-   Normale Barcode-Erkennung.
 ========================================== */
 
 async function startCamera(mode){
-  if(!Reader){
-    return;
-  }
+  if(!Reader)return;
 
-  if(
-    mode==='sample'&&
-    truck
-  ){
+  if(mode==='sample'&&truck){
     notice(
       'sampleMessage',
       'Zuerst Verladung beenden.',
@@ -2655,8 +2040,7 @@ async function startCamera(mode){
   cameraMode=mode;
   lastCode='';
 
-  const token=
-    ++cameraToken;
+  const token=++cameraToken;
 
   try{
     reader=new Reader();
@@ -2666,54 +2050,37 @@ async function startCamera(mode){
       'Kamera startet …'
     );
 
-    $('stopCamera')
-      .classList.remove('hidden');
+    $('stopCamera').classList.remove(
+      'hidden'
+    );
 
     if(mode==='parcel'){
-
-      /*
-        Paketkamera separat starten.
-
-        So kann jeder Videoframe
-        zuerst exakt auf das
-        Scanfenster beschnitten
-        werden.
-      */
-
       const stream=
         await navigator.mediaDevices
           .getUserMedia({
             audio:false,
-
             video:{
               facingMode:{
                 ideal:'environment'
               },
-
               width:{
                 ideal:1920
               },
-
               height:{
                 ideal:1080
               }
             }
           });
 
-      if(
-        token!==cameraToken
-      ){
+      if(token!==cameraToken){
         stream
           .getTracks()
-          .forEach(
-            t=>t.stop()
-          );
+          .forEach(t=>t.stop());
 
         return;
       }
 
-      const video=
-        $('video');
+      const video=$('video');
 
       video.srcObject=stream;
 
@@ -2721,25 +2088,15 @@ async function startCamera(mode){
 
       frame(
         'ready',
-        'Barcode ins magentafarbene Fenster halten'
+        'Barcode ins violette Fenster halten'
       );
 
       tone('ready');
 
       focusParcel();
 
-      /*
-        Nur zugeschnittene Frames
-        werden decodiert.
-
-        Der Rest des Kamerabildes
-        bleibt lediglich sichtbar.
-      */
-
       async function scanFrame(){
-        if(
-          token!==cameraToken
-        ){
+        if(token!==cameraToken){
           return;
         }
 
@@ -2758,30 +2115,17 @@ async function startCamera(mode){
               );
 
             if(canvas){
-              const img=
-                new Image();
+              const img=new Image();
 
-              img.src=
-                canvas.toDataURL(
-                  'image/png'
-                );
+              img.src=canvas.toDataURL(
+                'image/png'
+              );
 
               await img.decode();
 
-              /*
-                Wichtig:
-                Nicht das vollständige
-                Video decodieren.
-
-                Nur das ausgeschnittene
-                Canvas-Bild.
-              */
-
               const result=
                 await reader
-                  .decodeFromImageElement(
-                    img
-                  );
+                  .decodeFromImageElement(img);
 
               const code=normalize(
                 result.getText()
@@ -2793,35 +2137,20 @@ async function startCamera(mode){
               ){
                 lastCode=code;
 
-                /*
-                  Anschließend erfolgt
-                  die normale
-                  Carrier-Formatprüfung.
-                */
-
-                await processParcel(
-                  code
-                );
+                await processParcel(code);
               }
             }
 
           }catch(e){
-            /*
-              Kein Barcode im
-              aktiven Scanfenster
-              erkannt.
-
-              Kamera läuft weiter.
-            */
+            // Kein lesbarer Barcode
+            // im aktiven Scanfenster.
 
           }finally{
             scanBusy=false;
           }
         }
 
-        if(
-          token===cameraToken
-        ){
+        if(token===cameraToken){
           scanLoop=setTimeout(
             scanFrame,
             220
@@ -2832,74 +2161,60 @@ async function startCamera(mode){
       scanFrame();
 
     }else{
-
-      /*
-        LKW und Admin-Beispiele:
-        Vollbildscan wie bisher.
-      */
-
       const c=
-        await reader
-          .decodeFromVideoDevice(
-            undefined,
-            $('video'),
+        await reader.decodeFromVideoDevice(
+          undefined,
+          $('video'),
+          result=>{
+            if(
+              token!==cameraToken||
+              !result||
+              blocked||
+              busy
+            ){
+              return;
+            }
 
-            result=>{
-              if(
-                token!==cameraToken||
-                !result||
-                blocked||
-                busy
-              ){
-                return;
-              }
+            const code=normalize(
+              result.getText()
+            );
 
-              const code=normalize(
-                result.getText()
+            if(
+              !code||
+              code===lastCode
+            ){
+              return;
+            }
+
+            lastCode=code;
+
+            if(mode==='truck'){
+              stopCamera();
+
+              $('truckCode').value=code;
+
+              acceptTruck(code);
+
+            }else{
+              stopCamera();
+
+              $('sampleCode').value=code;
+
+              notice(
+                'sampleMessage',
+                'Barcode erfasst. '+
+                'Paketdienst prüfen '+
+                'und speichern.',
+                'ok'
               );
 
-              if(
-                !code||
-                code===lastCode
-              ){
-                return;
-              }
-
-              lastCode=code;
-
-              if(mode==='truck'){
-                stopCamera();
-
-                $('truckCode').value=
-                  code;
-
-                acceptTruck(code);
-
-              }else{
-                stopCamera();
-
-                $('sampleCode').value=
-                  code;
-
-                notice(
-                  'sampleMessage',
-
-                  'Barcode erfasst. '+
-                  'Paketdienst prüfen '+
-                  'und speichern.',
-
-                  'ok'
-                );
-
-                $('trainingCard')
-                  .scrollIntoView();
-              }
+              $('trainingCard')
+                .scrollIntoView();
             }
-          );
+          }
+        );
 
-      if(
-        token!==cameraToken
-      ){
+      if(token!==cameraToken){
         c.stop();
         return;
       }
@@ -2915,9 +2230,7 @@ async function startCamera(mode){
     }
 
   }catch(e){
-    if(
-      token!==cameraToken
-    ){
+    if(token!==cameraToken){
       return;
     }
 
@@ -2972,136 +2285,47 @@ $('stopCamera').onclick=()=>{
 };
 
 /* ==========================================
-   MEHRERE BARCODES AUS FOTO LESEN
+   NEU: MEHRERE BARCODES AUS FOTO LESEN
 ========================================== */
+
+/*
+   Wir prüfen mehrere Bildbereiche.
+
+   Jeder erfolgreich gelesene Barcode
+   wird gesammelt.
+
+   Anschließend wird die vollständige
+   Kandidatenliste angezeigt.
+
+   Kein Barcode wird allein wegen
+   seiner Position automatisch freigegeben.
+*/
 
 function imageRegions(){
   return [
-    {
-      x:0,
-      y:0,
-      w:1,
-      h:1
-    },
+    {x:0,y:0,w:1,h:1},
 
-    {
-      x:.05,
-      y:.05,
-      w:.90,
-      h:.90
-    },
+    {x:.05,y:.05,w:.90,h:.90},
+    {x:.15,y:.10,w:.70,h:.80},
+    {x:.25,y:.15,w:.50,h:.65},
 
-    {
-      x:.15,
-      y:.10,
-      w:.70,
-      h:.80
-    },
+    {x:0,y:0,w:.5,h:.5},
+    {x:.5,y:0,w:.5,h:.5},
+    {x:0,y:.5,w:.5,h:.5},
+    {x:.5,y:.5,w:.5,h:.5},
 
-    {
-      x:.25,
-      y:.15,
-      w:.50,
-      h:.65
-    },
+    {x:0,y:0,w:1,h:.35},
+    {x:0,y:.30,w:1,h:.35},
+    {x:0,y:.65,w:1,h:.35},
 
-    {
-      x:0,
-      y:0,
-      w:.5,
-      h:.5
-    },
+    {x:0,y:0,w:.35,h:1},
+    {x:.30,y:0,w:.40,h:1},
+    {x:.65,y:0,w:.35,h:1},
 
-    {
-      x:.5,
-      y:0,
-      w:.5,
-      h:.5
-    },
-
-    {
-      x:0,
-      y:.5,
-      w:.5,
-      h:.5
-    },
-
-    {
-      x:.5,
-      y:.5,
-      w:.5,
-      h:.5
-    },
-
-    {
-      x:0,
-      y:0,
-      w:1,
-      h:.35
-    },
-
-    {
-      x:0,
-      y:.30,
-      w:1,
-      h:.35
-    },
-
-    {
-      x:0,
-      y:.65,
-      w:1,
-      h:.35
-    },
-
-    {
-      x:0,
-      y:0,
-      w:.35,
-      h:1
-    },
-
-    {
-      x:.30,
-      y:0,
-      w:.40,
-      h:1
-    },
-
-    {
-      x:.65,
-      y:0,
-      w:.35,
-      h:1
-    },
-
-    {
-      x:.20,
-      y:.25,
-      w:.60,
-      h:.40
-    },
-
-    {
-      x:.30,
-      y:.30,
-      w:.45,
-      h:.25
-    },
-
-    {
-      x:.20,
-      y:.35,
-      w:.60,
-      h:.25
-    },
-
-    {
-      x:.20,
-      y:.40,
-      w:.60,
-      h:.25
-    }
+    {x:.20,y:.25,w:.60,h:.40},
+    {x:.30,y:.30,w:.45,h:.25},
+    {x:.20,y:.35,w:.60,h:.25},
+    {x:.20,y:.40,w:.60,h:.25}
   ];
 }
 
@@ -3111,28 +2335,24 @@ function makeCanvas(
   contrast=false
 ){
   const sx=Math.floor(
-    region.x*
-    image.naturalWidth
+    region.x*image.naturalWidth
   );
 
   const sy=Math.floor(
-    region.y*
-    image.naturalHeight
+    region.y*image.naturalHeight
   );
 
   const sw=Math.max(
     1,
     Math.floor(
-      region.w*
-      image.naturalWidth
+      region.w*image.naturalWidth
     )
   );
 
   const sh=Math.max(
     1,
     Math.floor(
-      region.h*
-      image.naturalHeight
+      region.h*image.naturalHeight
     )
   );
 
@@ -3142,10 +2362,9 @@ function makeCanvas(
     2400/sh
   );
 
-  const c=
-    document.createElement(
-      'canvas'
-    );
+  const c=document.createElement(
+    'canvas'
+  );
 
   c.width=Math.max(
     1,
@@ -3157,37 +2376,26 @@ function makeCanvas(
     Math.round(sh*scale)
   );
 
-  const ctx=
-    c.getContext(
-      '2d',
-      {
-        willReadFrequently:true
-      }
-    );
+  const ctx=c.getContext(
+    '2d',
+    {willReadFrequently:true}
+  );
 
   ctx.drawImage(
     image,
-    sx,
-    sy,
-    sw,
-    sh,
-    0,
-    0,
-    c.width,
-    c.height
+    sx,sy,sw,sh,
+    0,0,
+    c.width,c.height
   );
 
   if(contrast){
-    const pixels=
-      ctx.getImageData(
-        0,
-        0,
-        c.width,
-        c.height
-      );
+    const pixels=ctx.getImageData(
+      0,0,
+      c.width,
+      c.height
+    );
 
-    const data=
-      pixels.data;
+    const data=pixels.data;
 
     for(
       let i=0;
@@ -3214,8 +2422,7 @@ function makeCanvas(
 
     ctx.putImageData(
       pixels,
-      0,
-      0
+      0,0
     );
   }
 
@@ -3226,21 +2433,18 @@ async function decodeCanvas(
   canvas,
   decoder
 ){
-  const img=
-    new Image();
+  const img=new Image();
 
-  img.src=
-    canvas.toDataURL(
-      'image/png'
-    );
+  img.src=canvas.toDataURL(
+    'image/png'
+  );
 
   await img.decode();
 
   const result=
-    await decoder
-      .decodeFromImageElement(
-        img
-      );
+    await decoder.decodeFromImageElement(
+      img
+    );
 
   return normalize(
     result.getText()
@@ -3248,32 +2452,22 @@ async function decodeCanvas(
 }
 
 /* ==========================================
-   FOTO ANALYSIEREN
+   FOTO ANALYSIEREN UND AUSWAHL ANZEIGEN
 ========================================== */
 
-async function analyzePhoto(
-  file,
-  mode
-){
-  if(!file){
-    return;
-  }
+async function analyzePhoto(file,mode){
+  if(!file)return;
 
   if(photoAnalysisBusy){
     alert(
-      'Bitte warten, bis die '+
-      'aktuelle Bildanalyse '+
-      'beendet ist.'
+      'Bitte warten, bis die aktuelle '+
+      'Bildanalyse beendet ist.'
     );
 
     return;
   }
 
-  if(
-    !file.type.startsWith(
-      'image/'
-    )
-  ){
+  if(!file.type.startsWith('image/')){
     alert(
       'Bitte ein Bild auswählen.'
     );
@@ -3281,13 +2475,9 @@ async function analyzePhoto(
     return;
   }
 
-  if(
-    file.size>
-    20*1024*1024
-  ){
+  if(file.size>20*1024*1024){
     alert(
-      'Bild zu groß. '+
-      'Maximal 20 MB.'
+      'Bild zu groß. Maximal 20 MB.'
     );
 
     return;
@@ -3332,44 +2522,35 @@ async function analyzePhoto(
     '🖼️ Paketfoto wird analysiert …'
   );
 
-  const url=
-    URL.createObjectURL(file);
+  const url=URL.createObjectURL(file);
 
-  const image=
-    new Image();
+  const image=new Image();
 
-  const candidates=
-    new Set();
+  const candidates=new Set();
 
   try{
     image.src=url;
 
     await image.decode();
 
-    const decoder=
-      new Reader();
+    const decoder=new Reader();
 
-    const regions=
-      imageRegions();
+    const regions=imageRegions();
 
     let attempts=0;
 
     const totalAttempts=
       regions.length*2;
 
-    for(
-      const region
-      of regions
-    ){
-      for(
-        const contrast
-        of [false,true]
-      ){
+    for(const region of regions){
+      for(const contrast of [
+        false,
+        true
+      ]){
         attempts++;
 
         notice(
           messageId,
-
           '🔎 Suche nach Barcodes …\n'+
           'Versuch '+
           attempts+
@@ -3380,41 +2561,32 @@ async function analyzePhoto(
         );
 
         try{
-          const canvas=
-            makeCanvas(
-              image,
-              region,
-              contrast
-            );
+          const canvas=makeCanvas(
+            image,
+            region,
+            contrast
+          );
 
-          const code=
-            await decodeCanvas(
-              canvas,
-              decoder
-            );
+          const code=await decodeCanvas(
+            canvas,
+            decoder
+          );
 
           if(code){
-            candidates.add(
-              code
-            );
+            candidates.add(code);
           }
 
         }catch(e){
-          /*
-            Kein lesbarer Barcode
-            in diesem Bildbereich.
-          */
+          // Kein lesbarer Barcode
+          // in diesem Bildbereich.
         }
 
-        if(
-          attempts%4===0
-        ){
+        if(attempts%4===0){
           await new Promise(
-            resolve=>
-              setTimeout(
-                resolve,
-                0
-              )
+            resolve=>setTimeout(
+              resolve,
+              0
+            )
           );
         }
       }
@@ -3424,21 +2596,15 @@ async function analyzePhoto(
       ...candidates
     ];
 
-    if(
-      recognized.length===0
-    ){
+    if(recognized.length===0){
       notice(
         messageId,
-
-        '⛔ Kein Barcode aus '+
-        'dem Foto lesbar.\n\n'+
-        'Bitte das Etikett '+
-        'möglichst gerade und '+
-        'scharf fotografieren. '+
-        'Alternativ den Barcode '+
-        'mit dem TC-Hardware-' +
-        'Scanner erfassen.',
-
+        '⛔ Kein Barcode aus dem Foto '+
+        'lesbar.\n\n'+
+        'Bitte das Etikett möglichst '+
+        'gerade und scharf fotografieren. '+
+        'Alternativ den Barcode mit dem '+
+        'TC-Hardware-Scanner erfassen.',
         'bad'
       );
 
@@ -3446,13 +2612,13 @@ async function analyzePhoto(
     }
 
     /*
-      Alle erfolgreich
-      gelesenen Barcodes
-      zur Auswahl anzeigen.
+      NEU:
+      Keine automatische Auswahl
+      eines vermeintlich passenden
+      Barcodes mehr.
 
-      Keine automatische
-      Freigabe durch
-      die Bildanalyse.
+      Alle gefundenen Nummern
+      werden angezeigt.
     */
 
     showPicker(
@@ -3464,25 +2630,20 @@ async function analyzePhoto(
   }catch(e){
     notice(
       messageId,
-
       '⛔ Foto konnte nicht '+
       'analysiert werden.\n'+
       e.message,
-
       'bad'
     );
 
   }finally{
-    URL.revokeObjectURL(
-      url
-    );
-
+    URL.revokeObjectURL(url);
     photoAnalysisBusy=false;
   }
 }
 
 /* ==========================================
-   GALERIE
+   GALERIE-BUTTONS
 ========================================== */
 
 $('parcelGallery').onclick=()=>{
@@ -3534,25 +2695,20 @@ $('sampleFile').onchange=async()=>{
 ========================================== */
 
 async function refreshSamples(){
-  if(
-    profile?.role!=='admin'
-  ){
+  if(profile?.role!=='admin'){
     return;
   }
 
-  const r=
-    await supabase
-      .from('barcode_examples')
-      .select(
-        'id,carrier,barcode,created_at'
-      )
-      .order(
-        'created_at',
-        {
-          ascending:false
-        }
-      )
-      .limit(500);
+  const r=await supabase
+    .from('barcode_examples')
+    .select(
+      'id,carrier,barcode,created_at'
+    )
+    .order(
+      'created_at',
+      {ascending:false}
+    )
+    .limit(500);
 
   if(r.error){
     notice(
@@ -3564,39 +2720,27 @@ async function refreshSamples(){
     return;
   }
 
-  samples=
-    r.data||[];
+  samples=r.data||[];
 
   $('sampleList').innerHTML=
     samples.length
       ?samples.map(s=>`
         <tr>
-          <td>
-            ${esc(s.carrier)}
-          </td>
-
-          <td>
-            ${esc(s.barcode)}
-          </td>
-
+          <td>${esc(s.carrier)}</td>
+          <td>${esc(s.barcode)}</td>
           <td>
             ${esc(
               new Date(
                 s.created_at
-              ).toLocaleString(
-                'de-DE'
-              )
+              ).toLocaleString('de-DE')
             )}
           </td>
-
           <td>
             <button
               class="secondary"
               data-sample="${esc(s.id)}"
               type="button"
-            >
-              Löschen
-            </button>
+            >Löschen</button>
           </td>
         </tr>
       `).join('')
@@ -3610,9 +2754,7 @@ async function refreshSamples(){
 }
 
 $('sampleSave').onclick=async()=>{
-  if(
-    profile?.role!=='admin'
-  ){
+  if(profile?.role!=='admin'){
     return;
   }
 
@@ -3647,13 +2789,12 @@ $('sampleSave').onclick=async()=>{
     return;
   }
 
-  const r=
-    await supabase
-      .from('barcode_examples')
-      .insert({
-        carrier,
-        barcode
-      });
+  const r=await supabase
+    .from('barcode_examples')
+    .insert({
+      carrier,
+      barcode
+    });
 
   if(r.error){
     notice(
@@ -3684,26 +2825,18 @@ $('sampleList').onclick=async e=>{
 
   if(
     !id||
-    !confirm(
-      'Beispiel löschen?'
-    )
+    !confirm('Beispiel löschen?')
   ){
     return;
   }
 
-  const r=
-    await supabase
-      .from('barcode_examples')
-      .delete()
-      .eq(
-        'id',
-        id
-      );
+  const r=await supabase
+    .from('barcode_examples')
+    .delete()
+    .eq('id',id);
 
   if(r.error){
-    alert(
-      r.error.message
-    );
+    alert(r.error.message);
 
   }else{
     await refreshSamples();
@@ -3715,45 +2848,36 @@ $('sampleList').onclick=async e=>{
 ========================================== */
 
 async function refreshAdmin(){
-  if(
-    profile?.role!=='admin'
-  ){
+  if(profile?.role!=='admin'){
     return;
   }
 
-  const [a,b,c]=
-    await Promise.all([
-      supabase
-        .from('employees')
-        .select(
-          'id,employee_code,display_name,role,active,auth_user_id'
-        )
-        .order(
-          'employee_code'
-        ),
+  const [a,b,c]=await Promise.all([
+    supabase
+      .from('employees')
+      .select(
+        'id,employee_code,display_name,role,active,auth_user_id'
+      )
+      .order('employee_code'),
 
-      supabase
-        .from('docks')
-        .select(
-          'id,barcode,carrier,active'
-        )
-        .order(
-          'barcode'
-        ),
+    supabase
+      .from('docks')
+      .select(
+        'id,barcode,carrier,active'
+      )
+      .order('barcode'),
 
-      supabase
-        .from('scan_logs')
-        .select(
-          'id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at'
-        )
-        .order(
-          'created_at',
-          {
-            ascending:false
-          }
-        )
-        .limit(1000)
-    ]);
+    supabase
+      .from('scan_logs')
+      .select(
+        'id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at'
+      )
+      .order(
+        'created_at',
+        {ascending:false}
+      )
+      .limit(1000)
+  ]);
 
   if(
     a.error||
@@ -3797,32 +2921,25 @@ function renderAdmin(){
   $('staffCount').textContent=
     staff.length;
 
-  const map=
-    new Map(
-      staff.map(
-        x=>[x.id,x]
-      )
-    );
+  const map=new Map(
+    staff.map(
+      x=>[x.id,x]
+    )
+  );
 
   $('performance').innerHTML=
     staff.map(s=>{
-      const own=
-        logs.filter(
-          x=>
-            x.employee_id===s.id
-        );
+      const own=logs.filter(
+        x=>x.employee_id===s.id
+      );
 
-      const ok=
-        own.filter(
-          x=>
-            x.status==='success'
-        ).length;
+      const ok=own.filter(
+        x=>x.status==='success'
+      ).length;
 
-      const bad=
-        own.filter(
-          x=>
-            x.status!=='success'
-        ).length;
+      const bad=own.filter(
+        x=>x.status!=='success'
+      ).length;
 
       return `
         <tr>
@@ -3833,7 +2950,6 @@ function renderAdmin(){
               s.display_name
             )}
           </td>
-
           <td>${ok}</td>
           <td>${bad}</td>
         </tr>
@@ -3910,9 +3026,7 @@ function renderAdmin(){
           ${esc(
             new Date(
               l.created_at
-            ).toLocaleString(
-              'de-DE'
-            )
+            ).toLocaleString('de-DE')
           )}
         </td>
 
@@ -3926,9 +3040,7 @@ function renderAdmin(){
         </td>
 
         <td>
-          ${esc(
-            l.parcel_barcode
-          )}
+          ${esc(l.parcel_barcode)}
         </td>
 
         <td>
@@ -3938,23 +3050,15 @@ function renderAdmin(){
         </td>
 
         <td>
-          ${esc(
-            l.dock_barcode
-          )}
+          ${esc(l.dock_barcode)}
         </td>
 
         <td>
-          ${esc(
-            l.status
-          )}
+          ${esc(l.status)}
         </td>
       </tr>
     `).join('');
 }
-
-/* ==========================================
-   ADMIN AKTUALISIEREN
-========================================== */
 
 $('refresh').onclick=
   refreshAdmin;
@@ -3972,31 +3076,25 @@ $('saveDock').onclick=async()=>{
     $('newCarrier').value;
 
   if(!barcode){
-    alert(
-      'Barcode fehlt.'
-    );
-
+    alert('Barcode fehlt.');
     return;
   }
 
-  const r=
-    await supabase
-      .from('docks')
-      .upsert(
-        {
-          barcode,
-          carrier,
-          active:true
-        },
-        {
-          onConflict:'barcode'
-        }
-      );
+  const r=await supabase
+    .from('docks')
+    .upsert(
+      {
+        barcode,
+        carrier,
+        active:true
+      },
+      {
+        onConflict:'barcode'
+      }
+    );
 
   if(r.error){
-    alert(
-      r.error.message
-    );
+    alert(r.error.message);
 
   }else{
     $('newDock').value='';
@@ -4009,35 +3107,26 @@ $('dockList').onclick=async e=>{
   const id=
     e.target.dataset?.dock;
 
-  const d=
-    docks.find(
-      x=>x.id===id
-    );
+  const d=docks.find(
+    x=>x.id===id
+  );
 
   if(
     !d||
-    !confirm(
-      'Status ändern?'
-    )
+    !confirm('Status ändern?')
   ){
     return;
   }
 
-  const r=
-    await supabase
-      .from('docks')
-      .update({
-        active:!d.active
-      })
-      .eq(
-        'id',
-        id
-      );
+  const r=await supabase
+    .from('docks')
+    .update({
+      active:!d.active
+    })
+    .eq('id',id);
 
   if(r.error){
-    alert(
-      r.error.message
-    );
+    alert(r.error.message);
 
   }else{
     await refreshAdmin();
@@ -4064,9 +3153,7 @@ $('saveStaff').onclick=async()=>{
   if(
     !employee_code||
     !display_name||
-    !validUuid.test(
-      auth_user_id
-    )
+    !validUuid.test(auth_user_id)
   ){
     alert(
       'Bitte gültige '+
@@ -4076,21 +3163,18 @@ $('saveStaff').onclick=async()=>{
     return;
   }
 
-  const r=
-    await supabase
-      .from('employees')
-      .insert({
-        employee_code,
-        display_name,
-        auth_user_id,
-        role:'worker',
-        active:true
-      });
+  const r=await supabase
+    .from('employees')
+    .insert({
+      employee_code,
+      display_name,
+      auth_user_id,
+      role:'worker',
+      active:true
+    });
 
   if(r.error){
-    alert(
-      r.error.message
-    );
+    alert(r.error.message);
 
   }else{
     $('staffCode').value='';
@@ -4112,10 +3196,9 @@ $('staffList').onclick=async e=>{
     return;
   }
 
-  const s=
-    staff.find(
-      x=>x.id===id
-    );
+  const s=staff.find(
+    x=>x.id===id
+  );
 
   if(
     !s||
@@ -4126,21 +3209,15 @@ $('staffList').onclick=async e=>{
     return;
   }
 
-  const r=
-    await supabase
-      .from('employees')
-      .update({
-        active:!s.active
-      })
-      .eq(
-        'id',
-        id
-      );
+  const r=await supabase
+    .from('employees')
+    .update({
+      active:!s.active
+    })
+    .eq('id',id);
 
   if(r.error){
-    alert(
-      r.error.message
-    );
+    alert(r.error.message);
 
   }else{
     await refreshAdmin();
@@ -4166,55 +3243,36 @@ $('csv').onclick=()=>{
   const q=x=>
     '"'+
     String(x??'')
-      .replace(
-        /"/g,
-        '""'
-      )+
+      .replace(/"/g,'""')+
     '"';
 
   const content=[
     columns.join(';'),
-
     ...logs.map(
-      l=>
-        columns
-          .map(
-            k=>q(l[k])
-          )
-          .join(';')
+      l=>columns
+        .map(k=>q(l[k]))
+        .join(';')
     )
   ].join('\r\n');
 
-  const url=
-    URL.createObjectURL(
-      new Blob(
-        [
-          '\ufeff'+content
-        ],
-        {
-          type:
-            'text/csv;charset=utf-8'
-        }
-      )
-    );
+  const url=URL.createObjectURL(
+    new Blob(
+      ['\ufeff'+content],
+      {
+        type:'text/csv;charset=utf-8'
+      }
+    )
+  );
 
-  const a=
-    document.createElement(
-      'a'
-    );
+  const a=document.createElement('a');
 
   a.href=url;
-
-  a.download=
-    'loadguard-scans.csv';
+  a.download='loadguard-scans.csv';
 
   a.click();
 
   setTimeout(
-    ()=>
-      URL.revokeObjectURL(
-        url
-      ),
+    ()=>URL.revokeObjectURL(url),
     1000
   );
 };
@@ -4223,10 +3281,10 @@ $('csv').onclick=()=>{
    EINSTELLUNGEN
 ========================================== */
 
-for(
-  const id
-  of ['sound','blink']
-){
+for(const id of [
+  'sound',
+  'blink'
+]){
   try{
     $(id).checked=
       localStorage.getItem(
@@ -4239,7 +3297,6 @@ for(
     try{
       localStorage.setItem(
         'lg_'+id,
-
         String(
           $(id).checked
         )
@@ -4255,10 +3312,9 @@ for(
 
 async function startLoadGuard(){
   try{
-    const sm=
-      await import(
-        './supabase.js'
-      );
+    const sm=await import(
+      './supabase.js'
+    );
 
     if(!sm.supabase){
       throw new Error(
@@ -4266,17 +3322,13 @@ async function startLoadGuard(){
       );
     }
 
-    supabase=
-      sm.supabase;
+    supabase=sm.supabase;
 
-    const zm=
-      await import(
-        '@zxing/browser'
-      );
+    const zm=await import(
+      '@zxing/browser'
+    );
 
-    if(
-      !zm.BrowserMultiFormatReader
-    ){
+    if(!zm.BrowserMultiFormatReader){
       throw new Error(
         'Barcode-Scanner fehlt.'
       );
@@ -4302,11 +3354,9 @@ async function startLoadGuard(){
 
     notice(
       'loginMessage',
-
       'LoadGuard konnte nicht '+
       'gestartet werden:\n'+
       e.message,
-
       'bad'
     );
   }
@@ -4315,6 +3365,5 @@ async function startLoadGuard(){
 startLoadGuard();
 
 </script>
-
 </body>
 </html>
