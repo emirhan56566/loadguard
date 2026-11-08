@@ -43,7 +43,7 @@ th{color:var(--green)}
 .hint{border-left:3px solid orange;padding:12px;background:#392d1b}
 .mini{font-size:12px}
 
-/* CARRIER-SPEZIFISCHE SCANNER-LINSEN */
+/* VIER SCANNER-LINSEN */
 
 .scanner{
 position:relative;
@@ -55,10 +55,7 @@ background:#000;
 --rx:3%;--ry:73%;--rw:94%;--rh:24%
 }
 .scanner video{
-display:block;
-width:100%;
-height:100%;
-object-fit:cover
+display:block;width:100%;height:100%;object-fit:cover
 }
 .scanner.ready,.scanner.ok{border-color:var(--green)}
 .scanner.bad{border-color:var(--red)}
@@ -73,10 +70,8 @@ object-fit:cover
 .scanner.lens-ups{
 --rx:3%;--ry:43%;--rw:94%;--rh:20%
 }
-
 .lens{position:absolute;inset:0;pointer-events:none;display:none}
 .scanner.lens-active .lens{display:block}
-
 .lens-mask{
 position:absolute;
 background:repeating-linear-gradient(
@@ -87,14 +82,10 @@ rgba(0,0,0,.9) 12px 24px
 }
 .lens-top{left:0;top:0;width:100%;height:var(--ry)}
 .lens-bottom{
-left:0;
-top:calc(var(--ry) + var(--rh));
-width:100%;
-bottom:0
+left:0;top:calc(var(--ry) + var(--rh));width:100%;bottom:0
 }
 .lens-left{
-left:0;top:var(--ry);
-width:var(--rx);height:var(--rh)
+left:0;top:var(--ry);width:var(--rx);height:var(--rh)
 }
 .lens-right{
 left:calc(var(--rx) + var(--rw));
@@ -111,23 +102,16 @@ background:transparent
 }
 .lens-name{
 position:absolute;left:8px;top:8px;
-padding:5px 9px;
-background:#000c;
-border-radius:6px;
-font-weight:900
+padding:5px 9px;background:#000c;
+border-radius:6px;font-weight:900
 }
 .scan-overlay{
-position:absolute;
-left:0;right:0;bottom:3px;
-text-align:center;
-pointer-events:none
+position:absolute;left:0;right:0;bottom:3px;
+text-align:center;pointer-events:none
 }
 .scan-overlay span{
-display:inline-block;
-background:#000c;
-padding:5px 9px;
-border-radius:6px;
-font-size:12px
+display:inline-block;background:#000c;
+padding:5px 9px;border-radius:6px;font-size:12px
 }
 @media(min-width:720px){
 .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -164,10 +148,12 @@ font-size:12px
 <h1>Verladung prüfen</h1>
 <p id="workerName"></p>
 <p class="hint">
-Testbetrieb: Bisher werden nur bestimmte DHL-
-und UPS-Sendungsnummern erkannt.
-DPD, GLS und unbekannte Formate bleiben gesperrt.
-Die Prüfung ist digital, keine physische Verriegelung.
+Automatische Paketdienst-Erkennung anhand von
+Präfix, Länge und Zeichenformat.
+Nur eindeutige, freigegebene Formate werden zugeordnet.
+Mehrdeutige Formate bleiben gesperrt.
+Eine Formatübereinstimmung bestätigt keine echte Sendung.
+Die digitale Sperre ist keine physische Verriegelung.
 </p>
 </div>
 
@@ -204,7 +190,7 @@ Verladung beenden / LKW wechseln
 
 <div class="card">
 <h2>02 · Pakete scannen</h2>
-<p>Barcode in das violette Fenster halten.</p>
+<p>Barcode in das violette Fenster halten oder TC-Hardware-Scanner verwenden.</p>
 
 <label>Paketbarcode</label>
 <input id="parcel" placeholder="Paketbarcode">
@@ -450,14 +436,73 @@ o.stop(t+duration);
 }catch(e){console.warn(e);}
 }
 
-function detectCarrier(raw){
+/*
+AUTOMATISCHE CARRIER-ERKENNUNG
+
+Die Erkennung ist unabhängig vom aktiven LKW.
+Mehrdeutige Formate werden nicht freigegeben.
+*/
+
+function classifyBarcode(raw){
 const code=normalize(raw);
-if(/^1Z[A-Z0-9]{16}$/.test(code))return 'UPS';
-if(/^0034\d{16}$/.test(code))return 'DHL';
-return null;
+const candidates=[];
+const reasons=[];
+
+const add=(carrier,reason)=>{
+if(!candidates.includes(carrier)){
+candidates.push(carrier);
+}
+reasons.push(reason);
+};
+
+if(/^1Z[A-Z0-9]{16}$/.test(code)){
+add('UPS','UPS 1Z / 18 Zeichen');
 }
 
-/* SCANFENSTER-KOORDINATEN */
+if(/^0034\d{16}$/.test(code)){
+add('DHL','DHL 0034 / 20 Ziffern');
+}
+
+if(/^\d{14}$/.test(code)){
+add('DPD','DPD 14 Ziffern – nicht eindeutig');
+}
+
+if(/^\d{11,12}$/.test(code)){
+add('GLS','GLS 11–12 Ziffern – nicht eindeutig');
+}
+
+if(/^[A-Z0-9]{8}$/.test(code)){
+add('GLS','GLS 8 Zeichen – nicht eindeutig');
+}
+
+if(/^\d{10}$/.test(code)){
+add('DHL','DHL Express 10 Ziffern – nicht eindeutig');
+}
+
+if(/^T[A-Z0-9]{10}$/.test(code)){
+add('UPS','UPS T + 10 Zeichen – nicht eindeutig');
+}
+
+if(/^\d{9}$/.test(code)||/^\d{12}$/.test(code)){
+add('UPS','UPS numerisches Alternativformat – nicht eindeutig');
+}
+
+const unambiguous=
+/^1Z[A-Z0-9]{16}$/.test(code)||
+/^0034\d{16}$/.test(code);
+
+const carrier=
+unambiguous&&candidates.length===1
+?candidates[0]:null;
+
+return {
+code,
+carrier,
+candidates,
+reasons,
+ambiguous:!carrier&&candidates.length>0
+};
+}
 
 function getRegion(carrier){
 switch(carrier){
@@ -472,12 +517,6 @@ default:
 return {x:0,y:0,w:1,h:1};
 }
 }
-
-/*
-Das Video nutzt object-fit:cover.
-Daher muss der sichtbare Kameraausschnitt
-auf die echten Videopixel umgerechnet werden.
-*/
 
 function cropVideoToCanvas(video,carrier){
 const vw=video.videoWidth;
@@ -721,7 +760,8 @@ busy=true;
 $('parcelAccept').disabled=true;
 
 try{
-const carrier=detectCarrier(code);
+const classification=classifyBarcode(code);
+const carrier=classification.carrier;
 const duplicate=seen.has(code);
 
 const status=duplicate?'rejected'
@@ -730,7 +770,10 @@ const status=duplicate?'rejected'
 :'success';
 
 const reason=duplicate?'Doppelter Scan'
-:!carrier?'Paketdienst unbekannt'
+:!carrier
+?(classification.ambiguous
+?'Mehrdeutig: '+classification.candidates.join(', ')
+:'Paketdienst unbekannt')
 :carrier!==truck.carrier?'Falscher Paketdienst'
 :'Passender Paketdienst';
 
@@ -832,10 +875,6 @@ frame('','Kamera startet …');
 $('stopCamera').classList.remove('hidden');
 
 if(mode==='parcel'){
-/*
-Live-Kamera selbst öffnen.
-ZXing erhält nur ausgeschnittene Frames.
-*/
 
 const stream=await navigator.mediaDevices.getUserMedia({
 audio:false,
@@ -882,7 +921,6 @@ await processParcel(code);
 }
 }catch(e){
 // Kein Barcode im aktiven Fenster.
-// Nächsten Frame versuchen.
 }finally{
 scanBusy=false;
 }
@@ -1062,7 +1100,7 @@ await new Promise(resolve=>setTimeout(resolve,0));
 }
 
 const recognized=[...candidates];
-const supported=recognized.filter(code=>detectCarrier(code));
+const supported=recognized.filter(code=>classifyBarcode(code).carrier);
 
 if(supported.length>1){
 throw new Error(
@@ -1073,7 +1111,7 @@ throw new Error(
 
 if(supported.length===1){
 const code=supported[0];
-const carrier=detectCarrier(code);
+const carrier=classifyBarcode(code).carrier;
 
 if(mode==='sample'){
 $('sampleCode').value=code;
@@ -1319,7 +1357,7 @@ const display_name=$('staffName').value.trim();
 const auth_user_id=$('staffUid').value.trim();
 
 if(!employee_code||!display_name||
-!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auth_user_id)){
+!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auth_user_id)){
 alert('Bitte gültige Mitarbeiterdaten eingeben.');
 return;
 }
