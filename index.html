@@ -718,6 +718,12 @@ $('loadingView').classList.remove('hidden');
 notice('result','LKW aktiv. Kamera wird gestartet.');
 await startCamera('parcel');
 
+setTimeout(() => {
+  const feld = document.getElementById('parcel');
+
+  feld.focus({ preventScroll: true });
+}, 300);
+
 }catch(e){
 notice('truckMessage',e.message,'bad');
 tone('bad');
