@@ -3,7 +3,8 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport"
+ content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101713">
 <title>LoadGuard</title>
 
@@ -15,7 +16,6 @@
   --green:#a3f36b;
   --red:#ff5252;
   --magenta:#ff00f5;
-  --text:#f4f7f4;
 }
 
 *{box-sizing:border-box}
@@ -23,40 +23,38 @@
 body{
   margin:0;
   background:var(--bg);
-  color:var(--text);
+  color:#f4f7f4;
   font-family:system-ui,Arial,sans-serif;
 }
 
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
   padding:15px;
   border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
 
 header strong{font-size:24px}
 header strong span{color:var(--green)}
 
 main{
-  max-width:950px;
+  max-width:900px;
   margin:auto;
   padding:14px;
 }
 
 .card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
   padding:16px;
   margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--card);
 }
 
-h1{font-size:25px}
-h2{font-size:20px}
-h3{font-size:17px}
-
+h1{font-size:24px}
+h2{font-size:19px}
 p,small{color:#b7c6b8}
 
 label{
@@ -64,27 +62,27 @@ label{
   margin:12px 0 6px;
 }
 
-input,select,button{
-  font:inherit;
+input,button{
   width:100%;
   min-height:46px;
   padding:12px;
   border-radius:9px;
+  font:inherit;
 }
 
-input,select{
+input{
   background:#101713;
-  border:1px solid var(--line);
   color:white;
+  border:1px solid var(--line);
 }
 
 button{
+  margin:5px 0;
+  border:0;
   background:var(--green);
   color:#14200d;
-  border:0;
   font-weight:750;
   cursor:pointer;
-  margin:5px 0;
 }
 
 button:disabled{opacity:.5}
@@ -109,21 +107,20 @@ button:disabled{opacity:.5}
 
 .row{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
-  flex-wrap:wrap;
 }
 
 .row button{width:auto}
 
 .notice{
   padding:13px;
+  margin-top:12px;
   border-radius:10px;
   background:#2a392d;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
-  margin-top:12px;
   font-weight:700;
 }
 
@@ -134,21 +131,21 @@ button:disabled{opacity:.5}
   border:2px solid var(--red);
 }
 
-.metric{
-  background:#29372c;
+.hint{
   padding:12px;
+  border-left:3px solid orange;
+  background:#392d1b;
+}
+
+.metric{
+  padding:12px;
+  background:#29372c;
   border-radius:10px;
 }
 
 .metric strong{
   display:block;
   font-size:27px;
-}
-
-.hint{
-  border-left:3px solid orange;
-  background:#392d1b;
-  padding:12px;
 }
 
 .mini{font-size:12px}
@@ -163,321 +160,179 @@ table{
 
 td,th{
   padding:9px;
-  text-align:left;
   border-bottom:1px solid var(--line);
+  text-align:left;
   overflow-wrap:anywhere;
 }
 
 th{color:var(--green)}
 
-/* ======================================
-   SCANNER MIT CARRIER-LINSEN
-====================================== */
+/* =====================================
+   KOMPLETTES MUSTERLABEL ALS LINSE
+===================================== */
+
+/*
+  Die vier Musterbilder sind hochkant.
+  Die Kamera verwendet dasselbe Format,
+  damit das Muster nicht verzerrt wird.
+*/
 
 .scanner{
   position:relative;
-  height:420px;
+  width:min(100%,420px);
+  aspect-ratio:2/3;
+  margin:12px auto;
   overflow:hidden;
-  background:#000;
   border:3px solid #48534c;
   border-radius:16px;
-
-  --rx:5%;
-  --ry:72%;
-  --rw:90%;
-  --rh:23%;
+  background:#000;
 }
 
 .scanner video{
+  position:absolute;
+  inset:0;
   display:block;
   width:100%;
   height:100%;
   object-fit:cover;
 }
 
-.scanner.ready,
-.scanner.ok{
-  border-color:var(--green);
-}
+.scanner.ready{border-color:var(--green)}
+.scanner.ok{border-color:var(--green)}
+.scanner.bad{border-color:var(--red)}
 
-.scanner.bad{
-  border-color:var(--red);
-}
+/*
+  Das SVG liegt über dem ganzen Kamerabild.
 
-/* GLS: oberer Tracking-Barcode */
+  Es zeigt das vollständige Musterlabel.
+  Ein SVG-Maskenausschnitt entfernt genau
+  den Bereich des Tracking-Barcodes.
 
-.scanner.lens-gls{
-  --rx:25%;
-  --ry:23%;
-  --rw:50%;
-  --rh:19%;
-}
+  Dadurch ist die Kamera im Scanfenster
+  vollständig sichtbar.
+*/
 
-/* DHL: unterer Sendungsbarcode */
-
-.scanner.lens-dhl{
-  --rx:5%;
-  --ry:73%;
-  --rw:90%;
-  --rh:22%;
-}
-
-/* DPD: unterer Tracking-Barcode */
-
-.scanner.lens-dpd{
-  --rx:5%;
-  --ry:73%;
-  --rw:90%;
-  --rh:22%;
-}
-
-/* UPS: unterer Tracking-Barcode */
-
-.scanner.lens-ups{
-  --rx:5%;
-  --ry:72%;
-  --rw:90%;
-  --rh:23%;
-}
-
-.lens{
+#templateOverlay{
   position:absolute;
   inset:0;
-  display:none;
+  width:100%;
+  height:100%;
   pointer-events:none;
+  display:none;
 }
 
-.scanner.lens-active .lens{
+.scanner.template-active #templateOverlay{
   display:block;
 }
 
-.lens-mask{
+/*
+  Der Rahmen wird separat gezeichnet.
+  Er sitzt exakt auf den Koordinaten,
+  die auch der Kamera-Decoder verwendet.
+*/
+
+#activeScanWindow{
   position:absolute;
-  background:rgba(0,0,0,.38);
-}
-
-.lens-top{
-  top:0;
-  left:0;
-  width:100%;
-  height:var(--ry);
-}
-
-.lens-bottom{
-  left:0;
-  top:calc(var(--ry) + var(--rh));
-  bottom:0;
-  width:100%;
-}
-
-.lens-left{
-  left:0;
-  top:var(--ry);
-  width:var(--rx);
-  height:var(--rh);
-}
-
-.lens-right{
-  left:calc(var(--rx) + var(--rw));
-  right:0;
-  top:var(--ry);
-  height:var(--rh);
-}
-
-.lens-window{
-  position:absolute;
-  left:var(--rx);
-  top:var(--ry);
-  width:var(--rw);
-  height:var(--rh);
+  display:none;
   border:3px solid var(--magenta);
-  border-radius:14px;
-  background:transparent;
+  border-radius:13px;
   box-shadow:
     0 0 0 1px rgba(255,255,255,.7),
-    0 0 15px rgba(255,0,245,.85),
-    inset 0 0 10px rgba(255,0,245,.2);
+    0 0 17px rgba(255,0,245,.9),
+    inset 0 0 10px rgba(255,0,245,.15);
+  pointer-events:none;
 }
 
-.lens-name{
-  position:absolute;
-  top:10px;
-  left:10px;
-  z-index:4;
-  padding:6px 10px;
-  background:rgba(0,0,0,.82);
-  border-radius:8px;
-  font-weight:800;
+.scanner.template-active #activeScanWindow{
+  display:block;
 }
 
-.scan-overlay{
+#cameraCarrier{
   position:absolute;
-  left:0;
-  right:0;
-  bottom:5px;
+  top:9px;
+  left:9px;
   z-index:5;
-  text-align:center;
-  pointer-events:none;
-}
-
-.scan-overlay span{
-  display:inline-block;
-  padding:6px 10px;
+  padding:7px 10px;
   background:rgba(0,0,0,.85);
+  color:white;
   border-radius:8px;
-  font-size:12px;
-}
-
-/* ======================================
-   MUSTERVERSANDLABEL IM LIVEBILD
-====================================== */
-
-.label-reference{
-  position:absolute;
-  top:48px;
-  right:9px;
-  z-index:8;
-  width:105px;
-  padding:5px;
-  display:none;
+  font-weight:800;
   pointer-events:none;
-  border:1px solid rgba(255,255,255,.45);
-  border-radius:10px;
-  background:rgba(10,10,10,.48);
 }
 
-.scanner.lens-active .label-reference{
-  display:block;
-}
-
-.label-reference img{
-  display:block;
-  width:100%;
-  max-height:145px;
-  object-fit:contain;
-  border-radius:6px;
-  opacity:.72;
-  filter:brightness(.78);
-}
-
-.label-reference-title{
-  font-size:10px;
-  font-weight:800;
-  text-align:center;
-  margin-bottom:4px;
-}
-
-.label-reference-caption{
-  font-size:9px;
-  text-align:center;
-  color:#f6d7ff;
-  margin-top:4px;
-}
-
-.label-reference-missing{
-  padding:15px 5px;
-  color:#ffcc88;
-  text-align:center;
-  font-size:10px;
-  line-height:1.4;
-}
-
-/* ======================================
-   BARCODE-AUSWAHL
-====================================== */
-
-.barcode-picker{
-  margin-top:15px;
-  padding:14px;
-  background:#241c35;
-  border:2px solid #8d64df;
-  border-radius:13px;
-}
-
-.barcode-picker h3{
-  margin:0 0 8px;
-  color:#e1c9ff;
-}
-
-.barcode-option{
-  display:flex;
-  align-items:flex-start;
-  gap:12px;
-  padding:13px;
-  margin:8px 0;
-  border:1px solid #655579;
-  border-radius:10px;
-  background:#191525;
-  cursor:pointer;
-}
-
-.barcode-option.selected{
-  border:2px solid #d99aff;
-  background:#38254c;
-}
-
-.barcode-option input{
-  width:22px;
-  min-height:22px;
-  height:22px;
-  margin:2px 0 0;
-  accent-color:#c889ff;
-  flex-shrink:0;
-}
-
-.barcode-option-content{
-  min-width:0;
-  flex:1;
-}
-
-.barcode-value{
-  font-family:ui-monospace,monospace;
-  font-size:15px;
-  font-weight:800;
-  overflow-wrap:anywhere;
-}
-
-.barcode-meta{
-  display:block;
-  margin-top:5px;
+#cameraStatus{
+  position:absolute;
+  left:5%;
+  right:5%;
+  bottom:8px;
+  z-index:5;
+  padding:8px;
+  border-radius:8px;
+  background:rgba(0,0,0,.82);
+  color:white;
   font-size:12px;
-  color:#d4c6e0;
+  text-align:center;
+  pointer-events:none;
 }
 
-.barcode-tag{
-  display:inline-block;
-  margin-top:7px;
-  padding:4px 8px;
-  border-radius:5px;
-  background:#4b3a61;
-  font-size:11px;
+#templateWarning{
+  position:absolute;
+  top:43%;
+  left:7%;
+  right:7%;
+  z-index:7;
+  padding:15px;
+  border-radius:10px;
+  background:rgba(70,15,15,.95);
+  color:white;
+  text-align:center;
   font-weight:700;
 }
 
-.picker-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
+.barcode-picker{
+  margin-top:14px;
+  padding:13px;
+  border:2px solid #8d64df;
+  border-radius:12px;
+  background:#241c35;
 }
 
-.preview-photo{
+.barcode-choice{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:12px;
+  margin:8px 0;
+  border:1px solid #655579;
+  border-radius:9px;
+  background:#191525;
+}
+
+.barcode-choice input{
+  width:20px;
+  min-height:20px;
+  margin:2px 0;
+  flex-shrink:0;
+}
+
+.barcode-choice span{
+  overflow-wrap:anywhere;
+  font-family:monospace;
+  font-weight:700;
+}
+
+#photoPreview{
   display:block;
   max-width:100%;
   max-height:220px;
-  object-fit:contain;
   margin:10px auto;
-  border:1px solid #655579;
-  border-radius:9px;
+  object-fit:contain;
 }
 
-@media(min-width:720px){
+@media(min-width:700px){
   .grid{
     grid-template-columns:repeat(4,minmax(0,1fr));
   }
-
-  .label-reference{width:130px}
-
-  .label-reference img{max-height:180px}
 }
 </style>
 </head>
@@ -492,8 +347,7 @@ th{color:var(--green)}
     <button
       id="logout"
       class="secondary hidden"
-      type="button"
-    >
+      type="button">
       Abmelden
     </button>
   </div>
@@ -505,21 +359,19 @@ th{color:var(--green)}
   <h1>Anmelden</h1>
 
   <form id="loginForm">
-    <label for="email">E-Mail</label>
+    <label>E-Mail</label>
     <input
       id="email"
       type="email"
       autocomplete="username"
-      required
-    >
+      required>
 
-    <label for="password">Passwort</label>
+    <label>Passwort</label>
     <input
       id="password"
       type="password"
       autocomplete="current-password"
-      required
-    >
+      required>
 
     <button id="loginButton" disabled>
       Anwendung lädt …
@@ -538,12 +390,11 @@ th{color:var(--green)}
     <p id="workerName"></p>
 
     <p class="hint">
-      Automatische Carrier-Erkennung:
-      Mehrdeutige oder unbekannte Formate
-      werden nicht automatisch freigegeben.
-
-      LoadGuard ist keine physische
-      Sicherheitsverriegelung.
+      Unbekannte und mehrdeutige
+      Paketnummern bleiben gesperrt.
+      Eine Formatprüfung bestätigt
+      nicht die tatsächliche Zustellung
+      oder Echtheit einer Sendung.
     </p>
   </div>
 
@@ -551,30 +402,26 @@ th{color:var(--green)}
     <h2>01 · LKW scannen</h2>
 
     <p>
-      LKW-Tür-Barcode:
-      DHL, DPD, GLS oder UPS.
+      LKW-Barcode: DHL, DPD, GLS oder UPS.
     </p>
 
     <input
       id="truckCode"
       placeholder="LKW-Barcode"
       autocomplete="off"
-      autocapitalize="characters"
-    >
+      autocapitalize="characters">
 
     <div class="grid">
       <button
         id="truckCamera"
         class="secondary"
-        type="button"
-      >
-        📷 LKW scannen
+        type="button">
+        📷 LKW-Kamera
       </button>
 
       <button
         id="truckAccept"
-        type="button"
-      >
+        type="button">
         LKW übernehmen
       </button>
     </div>
@@ -597,21 +444,20 @@ th{color:var(--green)}
       <div class="grid">
         <div class="metric">
           <small>Freigegeben</small>
-          <strong id="sessionOk">0</strong>
+          <strong id="okCount">0</strong>
         </div>
 
         <div class="metric">
           <small>Blockiert</small>
-          <strong id="sessionBlocked">0</strong>
+          <strong id="blockedCount">0</strong>
         </div>
       </div>
 
       <button
         id="endSession"
         class="secondary"
-        type="button"
-      >
-        Verladung beenden / LKW wechseln
+        type="button">
+        LKW wechseln / Verladung beenden
       </button>
     </div>
 
@@ -619,43 +465,37 @@ th{color:var(--green)}
       <h2>02 · Pakete scannen</h2>
 
       <p>
-        Kamera, Galerie oder roten
-        TC-Hardware-Scanner verwenden.
+        Kamera, TC-Hardware-Scanner
+        oder Paketfoto verwenden.
       </p>
 
-      <label for="parcel">
-        Paketbarcode
-      </label>
+      <label>Paketbarcode</label>
 
       <input
         id="parcel"
         placeholder="Paketbarcode"
         autocomplete="off"
-        autocapitalize="characters"
-      >
+        autocapitalize="characters">
 
       <div class="grid">
         <button
           id="parcelAccept"
-          type="button"
-        >
+          type="button">
           Paket prüfen
         </button>
 
         <button
           id="parcelCamera"
           class="secondary"
-          type="button"
-        >
+          type="button">
           📷 Kamera starten
         </button>
 
         <button
           id="parcelGallery"
           class="secondary"
-          type="button"
-        >
-          🖼️ Paketfoto scannen
+          type="button">
+          🖼️ Paketfoto
         </button>
       </div>
 
@@ -663,57 +503,48 @@ th{color:var(--green)}
         id="parcelFile"
         class="hidden"
         type="file"
-        accept="image/*"
-      >
+        accept="image/*">
 
       <div id="result" class="notice">
         Bereit.
       </div>
 
       <div
-        id="parcelPicker"
-        class="barcode-picker hidden"
-      >
-        <h3>🔎 Erkannte Barcodes auswählen</h3>
+        id="barcodePicker"
+        class="barcode-picker hidden">
+
+        <h3>Erkannte Barcodes</h3>
 
         <p>
-          Wähle den Barcode aus,
-          der geprüft werden soll.
+          Wähle den gewünschten Barcode.
+          Er wird anschließend geprüft.
         </p>
 
         <img
-          id="parcelPreview"
-          class="preview-photo hidden"
-          alt="Paketfoto"
-        >
+          id="photoPreview"
+          class="hidden"
+          alt="Paketfoto">
 
-        <div id="parcelCandidates"></div>
+        <div id="barcodeChoices"></div>
 
-        <div class="picker-actions">
-          <button id="parcelChoose" type="button">
-            ✓ Barcode übernehmen
-          </button>
+        <button
+          id="chooseBarcode"
+          type="button">
+          Ausgewählten Barcode prüfen
+        </button>
 
-          <button
-            id="parcelCancel"
-            class="secondary"
-            type="button"
-          >
-            Abbrechen
-          </button>
-        </div>
-
-        <p class="mini">
-          Eine Auswahl ersetzt keine
-          Carrier- oder Formatprüfung.
-        </p>
+        <button
+          id="cancelPicker"
+          class="secondary"
+          type="button">
+          Abbrechen
+        </button>
       </div>
 
       <button
         id="ack"
         class="danger hidden"
-        type="button"
-      >
+        type="button">
         ⛔ STOPP verstanden – weiterscannen
       </button>
     </div>
@@ -721,58 +552,100 @@ th{color:var(--green)}
   </section>
 
   <div class="card">
-    <h2>Kamera / Scanner</h2>
+    <h2>Live-Kamera</h2>
 
     <div id="scannerFrame" class="scanner">
 
       <video
         id="video"
+        autoplay
         playsinline
-        muted
-      ></video>
+        muted>
+      </video>
 
-      <div class="lens" aria-hidden="true">
-        <div class="lens-mask lens-top"></div>
-        <div class="lens-mask lens-bottom"></div>
-        <div class="lens-mask lens-left"></div>
-        <div class="lens-mask lens-right"></div>
-        <div class="lens-window"></div>
-        <div id="lensName" class="lens-name"></div>
+      <!--
+        DIE GANZE MUSTERLABEL-SCHABLONE
+
+        SVG-Bild = vollständiges Musterlabel
+        SVG-Maske = transparenter Scanbereich
+
+        Die Koordinaten werden von JavaScript
+        passend zum Paketdienst gesetzt.
+      -->
+
+      <svg
+        id="templateOverlay"
+        viewBox="0 0 1000 1500"
+        preserveAspectRatio="none"
+        aria-hidden="true">
+
+        <defs>
+          <mask
+            id="trackingHole"
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width="1000"
+            height="1500">
+
+            <rect
+              x="0"
+              y="0"
+              width="1000"
+              height="1500"
+              fill="white">
+            </rect>
+
+            <rect
+              id="holeRect"
+              x="50"
+              y="1050"
+              width="900"
+              height="300"
+              rx="12"
+              fill="black">
+            </rect>
+
+          </mask>
+        </defs>
+
+        <!-- Leichte Abdunkelung -->
+        <rect
+          x="0"
+          y="0"
+          width="1000"
+          height="1500"
+          fill="#000"
+          opacity=".16"
+          mask="url(#trackingHole)">
+        </rect>
+
+        <!-- Das vollständige Musterlabel -->
+        <image
+          id="templateImage"
+          x="0"
+          y="0"
+          width="1000"
+          height="1500"
+          preserveAspectRatio="none"
+          opacity=".48"
+          mask="url(#trackingHole)">
+        </image>
+
+      </svg>
+
+      <!-- Exakter aktiver Scanbereich -->
+      <div id="activeScanWindow"></div>
+
+      <div id="cameraCarrier"></div>
+
+      <div id="cameraStatus">
+        Kamera aus
       </div>
 
       <div
-        id="labelReference"
-        class="label-reference"
-        aria-hidden="true"
-      >
-        <div
-          id="labelReferenceTitle"
-          class="label-reference-title"
-        >
-          Musteretikett
-        </div>
-
-        <img
-          id="labelReferenceImage"
-          alt=""
-        >
-
-        <div
-          id="labelReferenceMissing"
-          class="label-reference-missing hidden"
-        >
-          Musterbild fehlt.
-        </div>
-
-        <div class="label-reference-caption">
-          Magenta = Trackingbarcode
-        </div>
-      </div>
-
-      <div class="scan-overlay">
-        <span id="scannerLabel">
-          Kamera aus
-        </span>
+        id="templateWarning"
+        class="hidden">
       </div>
 
     </div>
@@ -780,35 +653,28 @@ th{color:var(--green)}
     <button
       id="stopCamera"
       class="secondary hidden"
-      type="button"
-    >
+      type="button">
       Kamera pausieren
     </button>
 
     <p class="mini">
-      Das kleine Musteretikett zeigt,
-      welcher Barcode gesucht wird.
-      Das echte Paket bleibt sichtbar.
-      Nur das große magentafarbene
-      Scanfenster wird von der Kamera
-      ausgewertet.
+      Das gesamte Musterlabel wird
+      halbtransparent über dem Livebild
+      angezeigt. Nur der transparente,
+      magentafarbene Ausschnitt wird
+      von der Kamera gescannt.
     </p>
   </div>
 
   <section id="adminView" class="hidden">
-
     <div class="card">
-      <h2>Administration</h2>
-      <p>
-        Angemeldet als Administrator.
-      </p>
+      <h2>Scan-Protokoll</h2>
 
       <button
         id="refreshLogs"
         class="secondary"
-        type="button"
-      >
-        Scan-Protokoll aktualisieren
+        type="button">
+        Aktualisieren
       </button>
 
       <div class="scroll">
@@ -821,69 +687,131 @@ th{color:var(--green)}
               <th>Status</th>
             </tr>
           </thead>
+
           <tbody id="logsBody"></tbody>
         </table>
       </div>
     </div>
-
   </section>
 
 </section>
-
 </main>
 
 <script type="module">
 
-import { supabase } from "./supabase.js";
-import { BrowserMultiFormatReader } from "@zxing/browser";
+import {supabase} from "./supabase.js";
+import {
+  BrowserMultiFormatReader
+} from "@zxing/browser";
 
-/* ======================================
+/* =====================================
    GRUNDLAGEN
-====================================== */
+===================================== */
 
 const $ = id => document.getElementById(id);
 
-const CARRIERS = ["DHL","DPD","GLS","UPS"];
+const CARRIERS = [
+  "DHL","DPD","GLS","UPS"
+];
 
 const LABEL_IMAGES = {
+  GLS:"./gls-muster.jpg",
   DHL:"./dhl-muster.jpg",
   DPD:"./dpd-muster.jpg",
-  GLS:"./gls-muster.jpg",
   UPS:"./ups-muster.jpg"
+};
+
+/*
+  Koordinaten innerhalb des GESAMTEN
+  Musterbildes.
+
+  x/y = linke obere Ecke
+  w/h = Breite und Höhe
+
+  Alle Werte sind Anteile von 0 bis 1.
+
+  Diese Werte gelten gleichzeitig für:
+  1. Das Loch in der Muster-Schablone
+  2. Den magentafarbenen Rahmen
+  3. Den tatsächlichen Kamera-Ausschnitt
+
+  Die Werte sind anhand deiner vier
+  Beispielbilder angenähert und sollten
+  auf den TC-Geräten feinjustiert werden.
+*/
+
+const REGIONS = {
+
+  GLS:{
+    x:.29,
+    y:.22,
+    w:.43,
+    h:.17
+  },
+
+  DHL:{
+    x:.08,
+    y:.72,
+    w:.84,
+    h:.15
+  },
+
+  DPD:{
+    x:.07,
+    y:.705,
+    w:.86,
+    h:.18
+  },
+
+  UPS:{
+    x:.08,
+    y:.655,
+    w:.84,
+    h:.20
+  }
+
 };
 
 let user = null;
 let employee = null;
+
 let activeCarrier = null;
 let startedAt = null;
 
-let okCount = 0;
-let blockedCount = 0;
+let successCount = 0;
+let rejectedCount = 0;
 
 let blocked = false;
 let processing = false;
 
-let cameraMode = null;
 let stream = null;
-let scanTimer = null;
+let cameraMode = null;
 let cameraToken = 0;
-let scanInProgress = false;
+let scanTimer = null;
+let scanningFrame = false;
 
-let lastScanValue = "";
-let lastScanTime = 0;
+let lastCode = "";
+let lastCodeTime = 0;
 
-let selectedCandidate = "";
-let currentCandidates = [];
+let selectedBarcode = "";
 
 let audioContext = null;
 
-const reader = new BrowserMultiFormatReader();
+const reader =
+  new BrowserMultiFormatReader();
 
-const canvas = document.createElement("canvas");
-const context = canvas.getContext(
-  "2d",
-  {willReadFrequently:true}
-);
+const scanCanvas =
+  document.createElement("canvas");
+
+const scanContext =
+  scanCanvas.getContext(
+    "2d",
+    {willReadFrequently:true}
+  );
+
+/* =====================================
+   HILFSFUNKTIONEN
+===================================== */
 
 function normalize(value){
   return String(value || "")
@@ -892,25 +820,23 @@ function normalize(value){
     .replace(/\s+/g,"");
 }
 
-function digits(value){
-  return normalize(value).replace(/\D/g,"");
+function notice(id,text,type=""){
+  const element = $(id);
+
+  element.textContent = text;
+  element.className =
+    "notice" + (type ? " " + type : "");
 }
 
-function setNotice(id,message,type=""){
-  const el = $(id);
-  el.textContent = message;
-  el.className = "notice" + (type ? " " + type : "");
-}
-
-function focusScanner(){
+function focusParcel(){
   if(!activeCarrier || blocked) return;
 
-  const input = $("parcel");
-
-  input.focus({preventScroll:true});
+  $("parcel").focus({
+    preventScroll:true
+  });
 }
 
-function beep(frequency=880,duration=.12){
+function beep(frequency=850,duration=.12){
   try{
     audioContext ||= new (
       window.AudioContext ||
@@ -921,93 +847,63 @@ function beep(frequency=880,duration=.12){
       audioContext.resume().catch(()=>{});
     }
 
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
+    const oscillator =
+      audioContext.createOscillator();
 
-    osc.frequency.value = frequency;
+    const gain =
+      audioContext.createGain();
+
+    oscillator.frequency.value =
+      frequency;
+
     gain.gain.value = .09;
 
-    osc.connect(gain);
+    oscillator.connect(gain);
     gain.connect(audioContext.destination);
 
-    osc.start();
-    osc.stop(audioContext.currentTime + duration);
+    oscillator.start();
+
+    oscillator.stop(
+      audioContext.currentTime +
+      duration
+    );
+
   }catch(error){
-    console.warn("Ton nicht verfügbar",error);
+    console.warn(error);
   }
-}
-
-function successSound(){
-  beep(1000,.10);
-}
-
-function errorSound(){
-  beep(280,.35);
 }
 
 function updateCounters(){
-  $("sessionOk").textContent = okCount;
-  $("sessionBlocked").textContent = blockedCount;
+  $("okCount").textContent =
+    successCount;
+
+  $("blockedCount").textContent =
+    rejectedCount;
 }
 
-/* ======================================
+/* =====================================
    CARRIER-ERKENNUNG
-====================================== */
+===================================== */
 
-function carrierCandidates(raw){
-  const code = normalize(raw);
-  const matches = [];
+/*
+  Diese Erkennung ist bewusst
+  konservativ.
 
-  // UPS: eindeutiges 1Z-Format
-  if(/^1Z[A-Z0-9]{16}$/.test(code)){
-    matches.push("UPS");
-  }
+  Eine rein numerische Paketnummer
+  kann mehreren Paketdiensten
+  zugeordnet werden.
 
-  // DHL: unterstütztes 20-stelliges Format
-  if(/^0034\d{16}$/.test(code)){
-    matches.push("DHL");
-  }
-
-  // DPD: 14-stellige numerische Nummer
-  if(/^\d{14}$/.test(code)){
-    matches.push("DPD");
-  }
-
-  // GLS: 11- oder 12-stellige Paketnummer
-  if(/^\d{11,12}$/.test(code)){
-    matches.push("GLS");
-  }
-
-  // GLS: 8-stellige alphanumerische Track-ID.
-  // Wegen Überschneidungen nicht automatisch
-  // als sicherer Carrier-Nachweis verwenden.
-  if(/^[A-Z0-9]{8}$/.test(code)){
-    matches.push("GLS");
-  }
-
-  return [...new Set(matches)];
-}
+  Deshalb erfolgt dafür keine
+  automatische Freigabe.
+*/
 
 function classifyBarcode(raw){
   const code = normalize(raw);
 
-  if(!code){
-    return {
-      code,
-      carrier:null,
-      matches:[],
-      reason:"Leerer Barcode"
-    };
-  }
-
-  const matches = carrierCandidates(code);
-
-  // Starke, spezifische Formate
   if(/^1Z[A-Z0-9]{16}$/.test(code)){
     return {
       code,
       carrier:"UPS",
-      matches:["UPS"],
       reason:"UPS 1Z-Format"
     };
   }
@@ -1016,27 +912,54 @@ function classifyBarcode(raw){
     return {
       code,
       carrier:"DHL",
-      matches:["DHL"],
       reason:"DHL 0034-Format"
     };
   }
 
-  // Numerische und kurze Formate können
-  // sich zwischen Paketdiensten überschneiden.
-  // Deshalb KEINE automatische Freigabe.
+  if(/^\d{14}$/.test(code)){
+    return {
+      code,
+      carrier:null,
+      reason:
+        "14-stellige Nummer: " +
+        "DPD möglich, aber nicht " +
+        "eindeutig bestätigt."
+    };
+  }
+
+  if(/^\d{11,12}$/.test(code)){
+    return {
+      code,
+      carrier:null,
+      reason:
+        "Numerisches Format: " +
+        "GLS möglich, aber nicht " +
+        "eindeutig bestätigt."
+    };
+  }
+
+  if(/^[A-Z0-9]{8}$/.test(code)){
+    return {
+      code,
+      carrier:null,
+      reason:
+        "8-stellige Track-ID: " +
+        "Carrier nicht eindeutig."
+    };
+  }
+
   return {
     code,
     carrier:null,
-    matches,
-    reason:matches.length
-      ? "Format möglich, aber Carrier nicht eindeutig bestätigt"
-      : "Unbekanntes Trackingformat"
+    reason:
+      "Kein eindeutig unterstütztes " +
+      "Trackingformat erkannt."
   };
 }
 
-/* ======================================
-   SUPABASE / LOGIN
-====================================== */
+/* =====================================
+   LOGIN
+===================================== */
 
 async function loadEmployee(){
   const {data,error} = await supabase
@@ -1046,7 +969,7 @@ async function loadEmployee(){
     .maybeSingle();
 
   if(error){
-    console.warn("Mitarbeiterabfrage",error);
+    console.warn(error);
   }
 
   employee = data || null;
@@ -1056,10 +979,18 @@ function isAdmin(){
   return employee?.role === "admin";
 }
 
-async function showAuthenticated(){
-  $("loginView").classList.add("hidden");
-  $("appView").classList.remove("hidden");
-  $("logout").classList.remove("hidden");
+async function showApp(){
+  $("loginView").classList.add(
+    "hidden"
+  );
+
+  $("appView").classList.remove(
+    "hidden"
+  );
+
+  $("logout").classList.remove(
+    "hidden"
+  );
 
   const name =
     employee?.name ||
@@ -1068,6 +999,7 @@ async function showAuthenticated(){
     "Mitarbeiter";
 
   $("who").textContent = name;
+
   $("workerName").textContent =
     "Angemeldet: " + name;
 
@@ -1083,7 +1015,7 @@ async function showAuthenticated(){
   $("truckCode").focus();
 }
 
-async function initializeAuth(){
+async function initAuth(){
   try{
     const {data,error} =
       await supabase.auth.getUser();
@@ -1094,19 +1026,22 @@ async function initializeAuth(){
 
     if(user){
       await loadEmployee();
-      await showAuthenticated();
+      await showApp();
     }else{
       $("loginButton").disabled = false;
-      setNotice(
+
+      notice(
         "loginMessage",
         "Bitte anmelden."
       );
     }
+
   }catch(error){
     $("loginButton").disabled = false;
-    setNotice(
+
+    notice(
       "loginMessage",
-      "Startfehler: " + error.message,
+      error.message,
       "bad"
     );
   }
@@ -1121,24 +1056,27 @@ $("loginForm").addEventListener(
 
     try{
       const {data,error} =
-        await supabase.auth.signInWithPassword({
-          email:$("email").value.trim(),
-          password:$("password").value
-        });
+        await supabase.auth
+          .signInWithPassword({
+            email:$("email").value.trim(),
+            password:$("password").value
+          });
 
       if(error) throw error;
 
       user = data.user;
+
       await loadEmployee();
-      await showAuthenticated();
+      await showApp();
 
     }catch(error){
-      setNotice(
+      notice(
         "loginMessage",
         "Anmeldung fehlgeschlagen: " +
         error.message,
         "bad"
       );
+
     }finally{
       $("loginButton").disabled = false;
     }
@@ -1151,92 +1089,133 @@ $("logout").addEventListener(
     stopCamera();
 
     await supabase.auth.signOut();
+
     location.reload();
   }
 );
 
-/* ======================================
-   MUSTERLABEL UND SCAN-LINSEN
-====================================== */
+/* =====================================
+   DIE NEUE MUSTERLABEL-SCHABLONE
+===================================== */
 
-function getRegion(carrier){
-  switch(carrier){
-    case "DHL":
-      return {x:.05,y:.73,w:.90,h:.22};
-
-    case "DPD":
-      return {x:.05,y:.73,w:.90,h:.22};
-
-    case "GLS":
-      return {x:.25,y:.23,w:.50,h:.19};
-
-    case "UPS":
-      return {x:.05,y:.72,w:.90,h:.23};
-
-    default:
-      return {x:0,y:0,w:1,h:1};
-  }
-}
-
-function updateReferenceImage(carrier){
-  const image = $("labelReferenceImage");
-  const missing = $("labelReferenceMissing");
-
-  image.classList.remove("hidden");
-  missing.classList.add("hidden");
-
-  image.onerror = ()=>{
-    image.classList.add("hidden");
-    missing.classList.remove("hidden");
-
-    missing.textContent =
-      carrier +
-      "-Musterbild fehlt.\n" +
-      "Datei: " +
-      LABEL_IMAGES[carrier];
-  };
-
-  image.onload = ()=>{
-    image.classList.remove("hidden");
-    missing.classList.add("hidden");
-  };
-
-  image.src = LABEL_IMAGES[carrier];
-}
-
-function updateLens(carrier){
-  const frame = $("scannerFrame");
-
-  frame.classList.remove(
-    "lens-dhl",
-    "lens-dpd",
-    "lens-gls",
-    "lens-ups",
-    "lens-active"
+function clearTemplate(){
+  $("scannerFrame").classList.remove(
+    "template-active"
   );
 
-  if(!carrier){
-    $("lensName").textContent = "";
+  $("cameraCarrier").textContent = "";
+
+  $("templateWarning").classList.add(
+    "hidden"
+  );
+}
+
+function showTemplate(carrier){
+  const region = REGIONS[carrier];
+
+  if(!region){
+    clearTemplate();
     return;
   }
 
-  frame.classList.add(
-    "lens-" + carrier.toLowerCase(),
-    "lens-active"
+  const image = $("templateImage");
+  const hole = $("holeRect");
+  const windowElement =
+    $("activeScanWindow");
+
+  /*
+    SVG verwendet 1000 x 1500.
+    Deshalb werden Prozentwerte
+    entsprechend umgerechnet.
+  */
+
+  hole.setAttribute(
+    "x",
+    region.x * 1000
   );
 
-  $("lensName").textContent =
+  hole.setAttribute(
+    "y",
+    region.y * 1500
+  );
+
+  hole.setAttribute(
+    "width",
+    region.w * 1000
+  );
+
+  hole.setAttribute(
+    "height",
+    region.h * 1500
+  );
+
+  /*
+    Das Magenta-Fenster liegt
+    exakt auf demselben Ausschnitt.
+  */
+
+  windowElement.style.left =
+    (region.x * 100) + "%";
+
+  windowElement.style.top =
+    (region.y * 100) + "%";
+
+  windowElement.style.width =
+    (region.w * 100) + "%";
+
+  windowElement.style.height =
+    (region.h * 100) + "%";
+
+  $("cameraCarrier").textContent =
     carrier + " · Tracking-Scan";
 
-  $("labelReferenceTitle").textContent =
-    carrier + " · Musterlabel";
+  /*
+    Das vollständige Musterlabel
+    wird als EIN großes Bild geladen.
 
-  updateReferenceImage(carrier);
+    Kein kleines Vorschaubild.
+  */
+
+  const path = LABEL_IMAGES[carrier];
+
+  image.setAttribute("href",path);
+
+  $("scannerFrame").classList.add(
+    "template-active"
+  );
+
+  /*
+    Prüfen, ob die Bilddatei
+    tatsächlich vorhanden ist.
+  */
+
+  const checkImage = new Image();
+
+  checkImage.onload = ()=>{
+    $("templateWarning").classList.add(
+      "hidden"
+    );
+  };
+
+  checkImage.onerror = ()=>{
+    const warning =
+      $("templateWarning");
+
+    warning.textContent =
+      "Musterlabel fehlt: " + path +
+      ". Bitte Bilddatei in GitHub hochladen.";
+
+    warning.classList.remove(
+      "hidden"
+    );
+  };
+
+  checkImage.src = path;
 }
 
-/* ======================================
-   KAMERA: NUR MAGENTA-BEREICH
-====================================== */
+/* =====================================
+   KAMERA: EXAKTER MAGENTA-AUSSCHNITT
+===================================== */
 
 function cropVideoToCanvas(region){
   const video = $("video");
@@ -1249,96 +1228,139 @@ function cropVideoToCanvas(region){
     return false;
   }
 
-  const videoW = video.videoWidth;
-  const videoH = video.videoHeight;
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
 
-  const displayW = frame.clientWidth;
-  const displayH = frame.clientHeight;
+  /*
+    clientWidth/clientHeight enthalten
+    den Innenbereich des Rahmens.
 
-  if(!displayW || !displayH){
+    Die Berechnung entspricht
+    CSS object-fit:cover.
+  */
+
+  const displayWidth = frame.clientWidth;
+  const displayHeight = frame.clientHeight;
+
+  if(!displayWidth || !displayHeight){
     return false;
   }
 
-  // Gleiche Berechnung wie object-fit:cover.
-  // Dadurch entsprechen die Pixelkoordinaten
-  // dem sichtbaren magentafarbenen Fenster.
-
   const scale = Math.max(
-    displayW / videoW,
-    displayH / videoH
+    displayWidth / videoWidth,
+    displayHeight / videoHeight
   );
 
-  const visibleW = displayW / scale;
-  const visibleH = displayH / scale;
+  const visibleWidth =
+    displayWidth / scale;
 
-  const offsetX = (videoW - visibleW) / 2;
-  const offsetY = (videoH - visibleH) / 2;
+  const visibleHeight =
+    displayHeight / scale;
 
-  const sx = offsetX + region.x * visibleW;
-  const sy = offsetY + region.y * visibleH;
+  const offsetX =
+    (videoWidth - visibleWidth) / 2;
 
-  const sw = region.w * visibleW;
-  const sh = region.h * visibleH;
+  const offsetY =
+    (videoHeight - visibleHeight) / 2;
 
-  canvas.width = Math.max(
-    1,
-    Math.round(sw)
-  );
+  /*
+    NUR das Loch der Schablone
+    wird aus dem Kamerabild
+    herausgeschnitten.
+  */
 
-  canvas.height = Math.max(
-    1,
-    Math.round(sh)
-  );
+  const sx =
+    offsetX +
+    region.x * visibleWidth;
 
-  context.drawImage(
+  const sy =
+    offsetY +
+    region.y * visibleHeight;
+
+  const sw =
+    region.w * visibleWidth;
+
+  const sh =
+    region.h * visibleHeight;
+
+  scanCanvas.width =
+    Math.max(1,Math.round(sw));
+
+  scanCanvas.height =
+    Math.max(1,Math.round(sh));
+
+  scanContext.drawImage(
     video,
     sx,sy,sw,sh,
-    0,0,canvas.width,canvas.height
+    0,0,
+    scanCanvas.width,
+    scanCanvas.height
   );
 
   return true;
 }
 
 function canvasToImage(){
-  return new Promise((resolve,reject)=>{
-    const image = new Image();
+  return new Promise(
+    (resolve,reject)=>{
+      const image = new Image();
 
-    image.onload = ()=>resolve(image);
-    image.onerror = reject;
+      image.onload = ()=>resolve(image);
+      image.onerror = reject;
 
-    image.src = canvas.toDataURL(
-      "image/png"
-    );
-  });
+      image.src =
+        scanCanvas.toDataURL(
+          "image/png"
+        );
+    }
+  );
 }
 
 async function decodeCanvas(){
   const image = await canvasToImage();
 
   const result =
-    await reader.decodeFromImageElement(image);
+    await reader.decodeFromImageElement(
+      image
+    );
 
   return result?.getText?.() || "";
 }
 
-async function scanCameraFrame(token){
+async function scanFrame(token){
   if(
     token !== cameraToken ||
     !stream ||
     blocked ||
     processing ||
-    scanInProgress
+    scanningFrame
   ){
     return;
   }
 
-  scanInProgress = true;
+  scanningFrame = true;
 
   try{
-    const region =
-      cameraMode === "parcel"
-        ? getRegion(activeCarrier)
-        : {x:0,y:0,w:1,h:1};
+    let region;
+
+    if(cameraMode === "parcel"){
+      region = REGIONS[activeCarrier];
+
+      if(!region) return;
+
+    }else{
+      /*
+        Beim LKW-Scan wird noch
+        das gesamte Kamerabild gelesen.
+      */
+
+      region = {
+        x:0,
+        y:0,
+        w:1,
+        h:1
+      };
+    }
 
     if(!cropVideoToCanvas(region)){
       return;
@@ -1350,19 +1372,21 @@ async function scanCameraFrame(token){
 
     if(!code) return;
 
-    if(token !== cameraToken) return;
+    if(token !== cameraToken){
+      return;
+    }
 
     const now = Date.now();
 
     if(
-      code === lastScanValue &&
-      now - lastScanTime < 1800
+      code === lastCode &&
+      now - lastCodeTime < 1800
     ){
       return;
     }
 
-    lastScanValue = code;
-    lastScanTime = now;
+    lastCode = code;
+    lastCodeTime = now;
 
     if(cameraMode === "truck"){
       $("truckCode").value = code;
@@ -1372,28 +1396,34 @@ async function scanCameraFrame(token){
 
     if(cameraMode === "parcel"){
       $("parcel").value = code;
-      await processParcel(code,"camera");
+
+      await processParcel(
+        code,
+        "camera"
+      );
     }
 
   }catch(error){
-    // "Kein Barcode erkannt" ist bei
-    // laufendem Kamerabild normal.
-    const message = String(
-      error?.message || ""
-    );
+    /*
+      Kein Barcode gefunden ist beim
+      laufenden Kamerabild normal.
+    */
+
+    const message =
+      String(error?.message || "");
 
     if(
       !/not found|no multiformat|no code/i
         .test(message)
     ){
       console.debug(
-        "Kamera-Decoder:",
+        "Decoder:",
         message
       );
     }
 
   }finally{
-    scanInProgress = false;
+    scanningFrame = false;
   }
 }
 
@@ -1404,13 +1434,15 @@ async function startCamera(mode){
     !navigator.mediaDevices ||
     !navigator.mediaDevices.getUserMedia
   ){
-    setNotice(
+    notice(
       mode === "truck"
         ? "truckMessage"
         : "result",
-      "Kamera nicht verfügbar. HTTPS und Kameraberechtigung prüfen.",
+      "Kamera nicht verfügbar. " +
+      "HTTPS und Berechtigungen prüfen.",
       "bad"
     );
+
     return;
   }
 
@@ -1418,31 +1450,40 @@ async function startCamera(mode){
 
   const token = cameraToken;
 
+  let newStream = null;
+
   try{
-    stream =
-      await navigator.mediaDevices.getUserMedia({
-        audio:false,
-        video:{
-          facingMode:{
-            ideal:"environment"
-          },
-          width:{ideal:1280},
-          height:{ideal:720}
-        }
-      });
+    newStream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          audio:false,
+          video:{
+            facingMode:{
+              ideal:"environment"
+            },
+            width:{ideal:1280},
+            height:{ideal:720}
+          }
+        });
 
     if(token !== cameraToken){
-      stream.getTracks().forEach(
+      newStream.getTracks().forEach(
         track=>track.stop()
       );
-      stream = null;
       return;
     }
+
+    stream = newStream;
 
     const video = $("video");
 
     video.srcObject = stream;
+
     await video.play();
+
+    if(token !== cameraToken){
+      return;
+    }
 
     $("stopCamera").classList.remove(
       "hidden"
@@ -1453,28 +1494,40 @@ async function startCamera(mode){
     );
 
     if(mode === "parcel"){
-      updateLens(activeCarrier);
-      $("scannerLabel").textContent =
-        "Nur Magenta-Bereich scannen";
+      /*
+        HIER WIRD DAS GROSSE
+        MUSTERVERSANDLABEL ANGEZEIGT.
+      */
 
-      // TC-Scanner bleibt zusätzlich nutzbar.
-      focusScanner();
+      showTemplate(activeCarrier);
+
+      $("cameraStatus").textContent =
+        "Nur Magenta-Feld aktiv";
+
+      focusParcel();
 
     }else{
-      updateLens(null);
-      $("scannerLabel").textContent =
+      clearTemplate();
+
+      $("cameraStatus").textContent =
         "LKW-Barcode scannen";
     }
 
     scanTimer = setInterval(
-      ()=>scanCameraFrame(token),
+      ()=>scanFrame(token),
       450
     );
 
   }catch(error){
+    if(newStream){
+      newStream.getTracks().forEach(
+        track=>track.stop()
+      );
+    }
+
     stopCamera();
 
-    setNotice(
+    notice(
       mode === "truck"
         ? "truckMessage"
         : "result",
@@ -1497,6 +1550,7 @@ function stopCamera(){
     stream.getTracks().forEach(
       track=>track.stop()
     );
+
     stream = null;
   }
 
@@ -1506,7 +1560,6 @@ function stopCamera(){
   video.srcObject = null;
 
   cameraMode = null;
-  scanInProgress = false;
 
   $("stopCamera").classList.add(
     "hidden"
@@ -1516,45 +1569,49 @@ function stopCamera(){
     "ready","ok","bad"
   );
 
-  updateLens(null);
+  clearTemplate();
 
-  $("scannerLabel").textContent =
+  $("cameraStatus").textContent =
     "Kamera aus";
 }
 
-/* ======================================
-   LKW / VERLADUNG
-====================================== */
+/* =====================================
+   LKW STARTEN
+===================================== */
 
 async function acceptTruck(){
-  const code = normalize(
+  const carrier = normalize(
     $("truckCode").value
   );
 
-  if(!CARRIERS.includes(code)){
-    setNotice(
+  if(!CARRIERS.includes(carrier)){
+    notice(
       "truckMessage",
       "⛔ Unbekannter LKW-Barcode. " +
       "Erlaubt: DHL, DPD, GLS, UPS.",
       "bad"
     );
-    errorSound();
+
+    beep(280,.3);
     return;
   }
 
   stopCamera();
 
-  activeCarrier = code;
+  activeCarrier = carrier;
   startedAt = new Date();
 
-  okCount = 0;
-  blockedCount = 0;
+  successCount = 0;
+  rejectedCount = 0;
   blocked = false;
+
+  lastCode = "";
+  lastCodeTime = 0;
 
   updateCounters();
 
   $("activeTruck").textContent =
-    activeCarrier;
+    carrier;
 
   $("sessionStart").textContent =
     "Beginn: " +
@@ -1568,19 +1625,27 @@ async function acceptTruck(){
     "hidden"
   );
 
-  $("ack").classList.add("hidden");
-
-  setNotice(
-    "result",
-    "LKW " + code +
-    " aktiv. Pakete können gescannt werden."
+  $("ack").classList.add(
+    "hidden"
   );
 
   $("parcel").value = "";
 
+  notice(
+    "result",
+    carrier +
+    "-LKW aktiv. Kamera wird gestartet."
+  );
+
+  /*
+    Kamera öffnet sich automatisch.
+    Die richtige Musterversandlabel-
+    Schablone erscheint direkt.
+  */
+
   await startCamera("parcel");
 
-  focusScanner();
+  focusParcel();
 }
 
 function endSession(){
@@ -1588,6 +1653,7 @@ function endSession(){
 
   activeCarrier = null;
   startedAt = null;
+
   blocked = false;
   processing = false;
 
@@ -1602,11 +1668,13 @@ function endSession(){
     "hidden"
   );
 
-  $("ack").classList.add("hidden");
+  $("ack").classList.add(
+    "hidden"
+  );
 
   hidePicker();
 
-  setNotice(
+  notice(
     "truckMessage",
     "Noch kein LKW aktiv."
   );
@@ -1614,49 +1682,52 @@ function endSession(){
   $("truckCode").focus();
 }
 
-/* ======================================
+/* =====================================
    SCAN-PROTOKOLL
-====================================== */
+===================================== */
 
-async function saveScan(code,carrier,status){
+async function saveScan(
+  code,
+  carrier,
+  status
+){
   if(!user) return;
 
   try{
-    const payload = {
-      barcode:code,
-      carrier:carrier,
-      status:status,
-      user_id:user.id
-    };
-
     const {error} = await supabase
       .from("scan_logs")
-      .insert(payload);
+      .insert({
+        barcode:code,
+        carrier:carrier,
+        status:status,
+        user_id:user.id
+      });
 
     if(error){
       console.warn(
-        "Scan-Protokoll:",
+        "Protokoll:",
         error.message
       );
     }
 
   }catch(error){
-    console.warn(
-      "Scan-Protokoll:",
-      error
-    );
+    console.warn(error);
   }
 }
 
-/* ======================================
+/* =====================================
    PAKETPRÜFUNG
-====================================== */
+===================================== */
 
 async function processParcel(
   raw,
   source="manual"
 ){
-  if(!activeCarrier || blocked || processing){
+  if(
+    !activeCarrier ||
+    blocked ||
+    processing
+  ){
     return;
   }
 
@@ -1667,34 +1738,33 @@ async function processParcel(
   processing = true;
 
   try{
-    const classification =
+    const result =
       classifyBarcode(code);
 
-    let status = "unknown_carrier";
-    let message = "";
+    let status;
+    let message;
 
     if(
-      classification.carrier &&
-      classification.carrier === activeCarrier
+      result.carrier &&
+      result.carrier === activeCarrier
     ){
       status = "success";
 
       message =
         "✓ FREIGABE\n" +
         "Paket: " + code + "\n" +
-        "Carrier: " +
-        classification.carrier;
+        "Carrier: " + result.carrier;
 
     }else if(
-      classification.carrier &&
-      classification.carrier !== activeCarrier
+      result.carrier &&
+      result.carrier !== activeCarrier
     ){
       status = "wrong_dock";
 
       message =
         "⛔ STOPP – FALSCHER LKW\n" +
         "Erkannt: " +
-        classification.carrier + "\n" +
+        result.carrier + "\n" +
         "Aktiver LKW: " +
         activeCarrier + "\n" +
         "Barcode: " + code;
@@ -1705,14 +1775,13 @@ async function processParcel(
       message =
         "⛔ KEINE FREIGABE\n" +
         "Barcode: " + code + "\n" +
-        classification.reason + "\n" +
-        "Bitte Barcode und Carrier prüfen.";
+        result.reason;
     }
 
     if(status === "success"){
-      okCount++;
+      successCount++;
 
-      setNotice(
+      notice(
         "result",
         message,
         "ok"
@@ -1722,13 +1791,13 @@ async function processParcel(
         "ok"
       );
 
-      successSound();
+      beep(1000,.1);
 
     }else{
-      blockedCount++;
+      rejectedCount++;
       blocked = true;
 
-      setNotice(
+      notice(
         "result",
         message,
         "bad"
@@ -1742,26 +1811,25 @@ async function processParcel(
         "hidden"
       );
 
-      errorSound();
+      beep(280,.35);
     }
 
     updateCounters();
 
     await saveScan(
       code,
-      classification.carrier,
+      result.carrier,
       status
     );
 
     $("parcel").value = "";
 
     if(status === "success"){
-      setTimeout(()=>{
-        $("scannerFrame").classList.remove(
-          "ok"
-        );
-        focusScanner();
-      },450);
+      $("scannerFrame").classList.remove(
+        "ok"
+      );
+
+      focusParcel();
     }
 
   }finally{
@@ -1780,229 +1848,183 @@ function acknowledgeStop(){
     "bad"
   );
 
-  setNotice(
+  lastCode = "";
+  lastCodeTime = 0;
+
+  notice(
     "result",
     "STOPP bestätigt. " +
     "Bereit für nächsten Scan."
   );
 
-  lastScanValue = "";
-  lastScanTime = 0;
-
-  focusScanner();
+  focusParcel();
 }
 
-/* ======================================
-   GALERIE / BARCODE-AUSWAHL
-====================================== */
+/* =====================================
+   PAKETFOTO UND BARCODE-AUSWAHL
+===================================== */
 
 function hidePicker(){
-  $("parcelPicker").classList.add(
+  $("barcodePicker").classList.add(
     "hidden"
   );
 
-  $("parcelCandidates").innerHTML = "";
+  $("barcodeChoices").innerHTML = "";
 
-  $("parcelPreview").classList.add(
+  $("photoPreview").classList.add(
     "hidden"
   );
 
-  currentCandidates = [];
-  selectedCandidate = "";
+  selectedBarcode = "";
 }
 
-function addCandidate(list,value){
-  const code = normalize(value);
+function loadImage(file){
+  return new Promise(
+    (resolve,reject)=>{
+      const url =
+        URL.createObjectURL(file);
 
-  if(
-    code &&
-    code.length >= 4 &&
-    !list.includes(code)
-  ){
-    list.push(code);
-  }
+      const image = new Image();
+
+      image.onload = ()=>{
+        URL.revokeObjectURL(url);
+        resolve(image);
+      };
+
+      image.onerror = ()=>{
+        URL.revokeObjectURL(url);
+        reject(
+          new Error(
+            "Bild konnte nicht geladen werden."
+          )
+        );
+      };
+
+      image.src = url;
+    }
+  );
 }
 
-async function loadImage(file){
-  return new Promise((resolve,reject)=>{
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-
-    image.onload = ()=>{
-      URL.revokeObjectURL(url);
-      resolve(image);
-    };
-
-    image.onerror = ()=>{
-      URL.revokeObjectURL(url);
-      reject(
-        new Error("Bild konnte nicht geladen werden.")
-      );
-    };
-
-    image.src = url;
-  });
-}
-
-async function decodeImageCrop(
+async function decodeImageRegion(
   image,
   region
 ){
-  const maxWidth = 1400;
+  const sx =
+    region.x * image.naturalWidth;
 
-  const sx = region.x * image.naturalWidth;
-  const sy = region.y * image.naturalHeight;
+  const sy =
+    region.y * image.naturalHeight;
 
-  const sw = region.w * image.naturalWidth;
-  const sh = region.h * image.naturalHeight;
+  const sw =
+    region.w * image.naturalWidth;
+
+  const sh =
+    region.h * image.naturalHeight;
 
   const scale = Math.min(
     1,
-    maxWidth / sw
+    1400 / sw
   );
 
-  canvas.width = Math.max(
+  scanCanvas.width = Math.max(
     1,
     Math.round(sw * scale)
   );
 
-  canvas.height = Math.max(
+  scanCanvas.height = Math.max(
     1,
     Math.round(sh * scale)
   );
 
-  context.drawImage(
+  scanContext.drawImage(
     image,
     sx,sy,sw,sh,
-    0,0,canvas.width,canvas.height
+    0,0,
+    scanCanvas.width,
+    scanCanvas.height
   );
 
   try{
     return normalize(
       await decodeCanvas()
     );
+
   }catch{
     return "";
   }
 }
 
-async function analyzePackagePhoto(file){
+async function analyzePhoto(file){
   const image = await loadImage(file);
-  const found = [];
-
-  // Mehrere Bereiche werden untersucht.
-  // Ein Bild kann mehrere Barcodes enthalten.
-  // Jeder Treffer bleibt zunächst nur Kandidat.
 
   const regions = [
     {x:0,y:0,w:1,h:1},
-    {x:0,y:.45,w:1,h:.55},
-    {x:0,y:0,w:1,h:.55},
+    {x:0,y:.5,w:1,h:.5},
+    {x:0,y:0,w:1,h:.5},
     {x:0,y:.7,w:1,h:.3},
-    {x:0,y:.2,w:1,h:.35},
+    {x:0,y:.2,w:1,h:.4},
     {x:.1,y:.1,w:.8,h:.8},
     {x:0,y:0,w:.5,h:1},
-    {x:.5,y:0,w:.5,h:1},
-    {x:0,y:.55,w:1,h:.3},
-    {x:0,y:.1,w:1,h:.3}
+    {x:.5,y:0,w:.5,h:1}
   ];
 
-  for(const region of regions){
-    const result = await decodeImageCrop(
-      image,
-      region
-    );
+  const results = [];
 
-    addCandidate(found,result);
+  for(const region of regions){
+    const code =
+      await decodeImageRegion(
+        image,
+        region
+      );
+
+    if(
+      code &&
+      code.length >= 4 &&
+      !results.includes(code)
+    ){
+      results.push(code);
+    }
   }
 
-  return found;
+  return results;
 }
 
-function renderCandidates(candidates){
-  const container = $("parcelCandidates");
+function renderChoices(codes){
+  const container =
+    $("barcodeChoices");
+
   container.innerHTML = "";
+  selectedBarcode = "";
 
-  currentCandidates = candidates;
-  selectedCandidate = "";
-
-  candidates.forEach((code,index)=>{
-    const classification =
-      classifyBarcode(code);
-
+  codes.forEach((code,index)=>{
     const label =
       document.createElement("label");
 
-    label.className = "barcode-option";
+    label.className = "barcode-choice";
 
     const radio =
       document.createElement("input");
 
     radio.type = "radio";
-    radio.name = "candidate";
+    radio.name = "barcodeChoice";
     radio.value = code;
 
-    const content =
-      document.createElement("div");
-
-    content.className =
-      "barcode-option-content";
-
-    const value =
-      document.createElement("div");
-
-    value.className = "barcode-value";
-    value.textContent = code;
-
-    const meta =
+    const text =
       document.createElement("span");
 
-    meta.className = "barcode-meta";
+    const classification =
+      classifyBarcode(code);
 
-    meta.textContent =
-      "Zeichen: " + code.length +
-      " · " + classification.reason;
+    text.textContent =
+      code + " · " +
+      classification.reason;
 
-    const tag =
-      document.createElement("span");
-
-    tag.className = "barcode-tag";
-
-    tag.textContent =
-      classification.carrier
-        ? "Erkannt: " +
-          classification.carrier
-        : "Keine eindeutige Freigabe";
-
-    content.append(
-      value,
-      meta,
-      tag
-    );
-
-    label.append(
-      radio,
-      content
-    );
+    label.append(radio,text);
 
     radio.addEventListener(
       "change",
       ()=>{
-        selectedCandidate = code;
-
-        document
-          .querySelectorAll(
-            ".barcode-option"
-          )
-          .forEach(el=>{
-            el.classList.remove(
-              "selected"
-            );
-          });
-
-        label.classList.add(
-          "selected"
-        );
+        selectedBarcode = code;
       }
     );
 
@@ -2010,19 +2032,16 @@ function renderCandidates(candidates){
 
     if(index === 0){
       radio.checked = true;
-      selectedCandidate = code;
-      label.classList.add(
-        "selected"
-      );
+      selectedBarcode = code;
     }
   });
 
-  $("parcelPicker").classList.remove(
+  $("barcodePicker").classList.remove(
     "hidden"
   );
 }
 
-async function handleGallery(file){
+async function handlePhoto(file){
   if(
     !file ||
     !activeCarrier ||
@@ -2033,88 +2052,84 @@ async function handleGallery(file){
 
   hidePicker();
 
-  setNotice(
+  notice(
     "result",
     "Paketfoto wird untersucht …"
   );
 
-  const preview = $("parcelPreview");
+  const preview =
+    $("photoPreview");
 
-  const previewURL =
+  const url =
     URL.createObjectURL(file);
 
-  preview.src = previewURL;
+  preview.src = url;
   preview.classList.remove(
     "hidden"
   );
 
   preview.onload = ()=>{
-    URL.revokeObjectURL(
-      previewURL
-    );
+    URL.revokeObjectURL(url);
   };
 
   try{
-    const found =
-      await analyzePackagePhoto(file);
+    const codes =
+      await analyzePhoto(file);
 
-    if(found.length === 0){
-      setNotice(
+    if(codes.length === 0){
+      notice(
         "result",
         "⛔ Keine Freigabe.\n" +
         "Kein Barcode erkannt. " +
-        "Bitte Foto schärfer aufnehmen " +
+        "Bitte schärfer fotografieren " +
         "oder TC-Scanner verwenden.",
         "bad"
-      );
-
-      $("parcelPicker").classList.remove(
-        "hidden"
       );
 
       return;
     }
 
-    renderCandidates(found);
+    renderChoices(codes);
 
-    setNotice(
+    notice(
       "result",
-      found.length +
-      " Barcode(s) gelesen. " +
-      "Bitte den richtigen auswählen."
+      codes.length +
+      " Barcode(s) erkannt. " +
+      "Bitte einen auswählen."
     );
 
   }catch(error){
-    setNotice(
+    notice(
       "result",
-      "Foto konnte nicht ausgewertet werden: " +
       error.message,
       "bad"
     );
   }
 }
 
-/* ======================================
+/* =====================================
    TC-HARDWARE-SCANNER
-====================================== */
+===================================== */
 
-// TC-Geräte können einen Barcode häufig
-// als Tastatureingabe (Keyboard Wedge)
-// an ein fokussiertes Eingabefeld senden.
-//
-// Enter am Ende löst die Prüfung aus.
+/*
+  TC-Geräte im Keyboard-Wedge-Modus
+  senden Barcodes als Tastatureingabe.
+
+  Wenn das Gerät Enter anhängt,
+  wird der Barcode sofort geprüft.
+*/
 
 $("parcel").addEventListener(
   "keydown",
   async event=>{
-    if(event.key !== "Enter") return;
+    if(event.key !== "Enter"){
+      return;
+    }
 
     event.preventDefault();
 
-    const value = $("parcel").value;
-
     await processParcel(
-      value,
+      $("parcel").value,
       "tc-scanner"
     );
   }
@@ -2123,20 +2138,19 @@ $("parcel").addEventListener(
 $("truckCode").addEventListener(
   "keydown",
   async event=>{
-    if(event.key !== "Enter") return;
+    if(event.key !== "Enter"){
+      return;
+    }
 
     event.preventDefault();
+
     await acceptTruck();
   }
 );
 
-// Nach einem erfolgreichen Scan wird
-// das Paket-Eingabefeld wieder fokussiert.
-// Während eines STOPPs wird nicht geprüft.
-
-/* ======================================
+/* =====================================
    ADMIN-PROTOKOLL
-====================================== */
+===================================== */
 
 async function refreshLogs(){
   if(!isAdmin()) return;
@@ -2160,12 +2174,11 @@ async function refreshLogs(){
       document.createElement("td");
 
     cell.colSpan = 4;
-    cell.textContent =
-      "Protokoll nicht verfügbar: " +
-      error.message;
+    cell.textContent = error.message;
 
     row.append(cell);
     body.append(row);
+
     return;
   }
 
@@ -2179,6 +2192,7 @@ async function refreshLogs(){
             item.created_at
           ).toLocaleString("de-DE")
         : "–",
+
       item.barcode || "–",
       item.carrier || "–",
       item.status || "–"
@@ -2196,9 +2210,9 @@ async function refreshLogs(){
   }
 }
 
-/* ======================================
-   BUTTONS / EREIGNISSE
-====================================== */
+/* =====================================
+   BUTTONS
+===================================== */
 
 $("truckCamera").addEventListener(
   "click",
@@ -2224,7 +2238,7 @@ $("stopCamera").addEventListener(
   "click",
   ()=>{
     stopCamera();
-    focusScanner();
+    focusParcel();
   }
 );
 
@@ -2256,24 +2270,24 @@ $("parcelFile").addEventListener(
       event.target.files?.[0];
 
     if(file){
-      await handleGallery(file);
+      await handlePhoto(file);
     }
   }
 );
 
-$("parcelChoose").addEventListener(
+$("chooseBarcode").addEventListener(
   "click",
   async()=>{
-    if(!selectedCandidate){
-      setNotice(
+    if(!selectedBarcode){
+      notice(
         "result",
-        "Bitte zuerst einen Barcode auswählen.",
+        "Bitte Barcode auswählen.",
         "bad"
       );
       return;
     }
 
-    const code = selectedCandidate;
+    const code = selectedBarcode;
 
     hidePicker();
 
@@ -2281,16 +2295,16 @@ $("parcelChoose").addEventListener(
 
     await processParcel(
       code,
-      "gallery-selection"
+      "gallery"
     );
   }
 );
 
-$("parcelCancel").addEventListener(
+$("cancelPicker").addEventListener(
   "click",
   ()=>{
     hidePicker();
-    focusScanner();
+    focusParcel();
   }
 );
 
@@ -2299,11 +2313,11 @@ $("refreshLogs").addEventListener(
   refreshLogs
 );
 
-/* ======================================
+/* =====================================
    START
-====================================== */
+===================================== */
 
-initializeAuth();
+initAuth();
 
 </script>
 </body>
