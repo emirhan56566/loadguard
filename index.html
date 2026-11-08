@@ -121,123 +121,164 @@ th{color:var(--green)}
 .mini{font-size:12px}
 .section-title{margin-bottom:5px}
 
-/* SCANNER-LINSEN */
+
+/* SCANNER-LINSEN – NEUES DESIGN */
 
 .scanner{
   position:relative;
-  height:330px;
-  border:4px solid var(--line);
+  height:390px;
+  border:3px solid #48534c;
   border-radius:16px;
   overflow:hidden;
   background:#000;
-  --rx:3%;
-  --ry:73%;
-  --rw:94%;
-  --rh:24%;
+
+  --rx:5%;
+  --ry:72%;
+  --rw:90%;
+  --rh:23%;
 }
+
 .scanner video{
   display:block;
   width:100%;
   height:100%;
   object-fit:cover;
 }
-.scanner.ready,
-.scanner.ok{border-color:var(--green)}
-.scanner.bad{border-color:var(--red)}
 
-.scanner.lens-dhl,
-.scanner.lens-dpd{
-  --rx:3%;
-  --ry:73%;
-  --rw:94%;
-  --rh:24%;
+.scanner.ready,
+.scanner.ok{
+  border-color:#a3f36b;
 }
-.scanner.lens-gls{
-  --rx:17%;
-  --ry:13%;
-  --rw:66%;
+
+.scanner.bad{
+  border-color:#ff5252;
+}
+
+/* DHL: Sendungsnummer unten */
+.scanner.lens-dhl{
+  --rx:5%;
+  --ry:73%;
+  --rw:90%;
   --rh:22%;
 }
-.scanner.lens-ups{
-  --rx:3%;
-  --ry:43%;
-  --rw:94%;
-  --rh:20%;
+
+/* DPD: Trackingbarcode unten */
+.scanner.lens-dpd{
+  --rx:5%;
+  --ry:73%;
+  --rw:90%;
+  --rh:22%;
 }
+
+/* GLS: Paketnummer im oberen Bereich */
+.scanner.lens-gls{
+  --rx:25%;
+  --ry:23%;
+  --rw:50%;
+  --rh:19%;
+}
+
+/* UPS: Trackingnummer unten */
+.scanner.lens-ups{
+  --rx:5%;
+  --ry:72%;
+  --rw:90%;
+  --rh:23%;
+}
+
 .lens{
   position:absolute;
   inset:0;
   pointer-events:none;
   display:none;
 }
-.scanner.lens-active .lens{display:block}
+
+.scanner.lens-active .lens{
+  display:block;
+}
+
+/* Außerhalb nur leicht abdunkeln */
 .lens-mask{
   position:absolute;
-  background:repeating-linear-gradient(
-    135deg,
-    rgba(255,0,0,.82) 0 12px,
-    rgba(0,0,0,.9) 12px 24px
-  );
+  background:rgba(0,0,0,.40);
 }
+
 .lens-top{
   left:0;
   top:0;
   width:100%;
   height:var(--ry);
 }
+
 .lens-bottom{
   left:0;
   top:calc(var(--ry) + var(--rh));
   width:100%;
   bottom:0;
 }
+
 .lens-left{
   left:0;
   top:var(--ry);
   width:var(--rx);
   height:var(--rh);
 }
+
 .lens-right{
   left:calc(var(--rx) + var(--rw));
   right:0;
   top:var(--ry);
   height:var(--rh);
 }
+
+/* Nur hier ist die Kamera voll sichtbar */
 .lens-window{
   position:absolute;
   left:var(--rx);
   top:var(--ry);
   width:var(--rw);
   height:var(--rh);
-  border:3px solid #f020ff;
-  border-radius:8px;
-  box-shadow:0 0 0 1px white,0 0 18px #e800ff;
+
+  border:3px solid #ff00f5;
+  border-radius:14px;
+
   background:transparent;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.7),
+    0 0 14px rgba(255,0,245,.8),
+    inset 0 0 10px rgba(255,0,245,.2);
 }
+
 .lens-name{
   position:absolute;
-  left:8px;
-  top:8px;
-  padding:5px 9px;
-  background:#000c;
-  border-radius:6px;
-  font-weight:900;
+  left:10px;
+  top:10px;
+  padding:6px 10px;
+  background:rgba(0,0,0,.75);
+  border-radius:8px;
+  color:white;
+  font-weight:800;
 }
+
 .scan-overlay{
   position:absolute;
   left:0;
   right:0;
-  bottom:3px;
+  bottom:5px;
   text-align:center;
   pointer-events:none;
 }
+
 .scan-overlay span{
   display:inline-block;
-  background:#000c;
-  padding:5px 9px;
-  border-radius:6px;
+  background:rgba(0,0,0,.8);
+  color:white;
+  padding:6px 10px;
+  border-radius:8px;
   font-size:12px;
 }
+
 
 /* NEU: BARCODE-AUSWAHL */
 
@@ -1361,31 +1402,40 @@ $('sampleCancel').onclick=()=>{
    KAMERA-SCANBEREICHE
 ========================================== */
 
+
 function getRegion(carrier){
   switch(carrier){
+
     case 'DHL':
+      return {
+        x:.05,
+        y:.73,
+        w:.90,
+        h:.22
+      };
+
     case 'DPD':
       return {
-        x:.03,
+        x:.05,
         y:.73,
-        w:.94,
-        h:.24
+        w:.90,
+        h:.22
       };
 
     case 'GLS':
       return {
-        x:.17,
-        y:.13,
-        w:.66,
-        h:.22
+        x:.25,
+        y:.23,
+        w:.50,
+        h:.19
       };
 
     case 'UPS':
       return {
-        x:.03,
-        y:.43,
-        w:.94,
-        h:.20
+        x:.05,
+        y:.72,
+        w:.90,
+        h:.23
       };
 
     default:
@@ -1397,6 +1447,7 @@ function getRegion(carrier){
       };
   }
 }
+
 
 function cropVideoToCanvas(video,carrier){
   const vw=video.videoWidth;
