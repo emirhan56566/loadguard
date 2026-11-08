@@ -8,1471 +8,3363 @@
 <title>LoadGuard</title>
 <style>
 :root{
---bg:#101713;--card:#1b271e;--line:#35473a;
---green:#a3f36b;--red:#ff5252;--text:#f4f7f4
+  --bg:#101713;
+  --card:#1b271e;
+  --line:#35473a;
+  --green:#a3f36b;
+  --red:#ff5252;
+  --text:#f4f7f4;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial}
-header{padding:16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,Arial,sans-serif;
+}
+header{
+  padding:16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
 header strong{font-size:23px}
 header strong span{color:var(--green)}
 main{max-width:950px;margin:auto;padding:15px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px;margin-bottom:15px}
-h1{font-size:25px}h2{font-size:20px}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px;
+  margin-bottom:15px;
+}
+h1{font-size:25px}
+h2{font-size:20px}
 p,small{color:#b7c6b8}
 label{display:block;margin:12px 0 5px}
-input,select,button{font:inherit;padding:12px;border-radius:9px;width:100%;min-height:45px}
-input,select{background:#101713;color:white;border:1px solid var(--line)}
-button{background:var(--green);color:#14200d;border:0;font-weight:750;cursor:pointer;margin:5px 0}
+input,select,button{
+  font:inherit;
+  padding:12px;
+  border-radius:9px;
+  width:100%;
+  min-height:45px;
+}
+input,select{
+  background:#101713;
+  color:white;
+  border:1px solid var(--line);
+}
+button{
+  background:var(--green);
+  color:#14200d;
+  border:0;
+  font-weight:750;
+  cursor:pointer;
+  margin:5px 0;
+}
 button:disabled{opacity:.5}
 .secondary{background:#2a392d;color:white}
 .danger{background:var(--red);color:white}
 .hidden{display:none!important}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .row button{width:auto}
-.notice{padding:14px;border-radius:10px;background:#2a392d;white-space:pre-wrap;margin-top:12px;font-weight:700;overflow-wrap:anywhere}
+.notice{
+  padding:14px;
+  border-radius:10px;
+  background:#2a392d;
+  white-space:pre-wrap;
+  margin-top:12px;
+  font-weight:700;
+  overflow-wrap:anywhere;
+}
 .ok{background:#18522a!important}
-.bad{background:#762027!important;border:2px solid var(--red)}
-.metric{background:#29372c;padding:12px;border-radius:10px}
+.bad{
+  background:#762027!important;
+  border:2px solid var(--red);
+}
+.metric{
+  background:#29372c;
+  padding:12px;
+  border-radius:10px;
+}
 .metric strong{display:block;font-size:26px}
 .scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left;overflow-wrap:anywhere}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+td,th{
+  padding:9px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  overflow-wrap:anywhere;
+}
 th{color:var(--green)}
-.hint{border-left:3px solid orange;padding:12px;background:#392d1b}
+.hint{
+  border-left:3px solid orange;
+  padding:12px;
+  background:#392d1b;
+}
 .mini{font-size:12px}
+.section-title{margin-bottom:5px}
 
-/* VIER SCANNER-LINSEN */
+/* SCANNER-LINSEN */
 
 .scanner{
-position:relative;
-height:330px;
-border:4px solid var(--line);
-border-radius:16px;
-overflow:hidden;
-background:#000;
---rx:3%;--ry:73%;--rw:94%;--rh:24%
+  position:relative;
+  height:330px;
+  border:4px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:#000;
+  --rx:3%;
+  --ry:73%;
+  --rw:94%;
+  --rh:24%;
 }
 .scanner video{
-display:block;width:100%;height:100%;object-fit:cover
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
-.scanner.ready,.scanner.ok{border-color:var(--green)}
+.scanner.ready,
+.scanner.ok{border-color:var(--green)}
 .scanner.bad{border-color:var(--red)}
 
 .scanner.lens-dhl,
 .scanner.lens-dpd{
---rx:3%;--ry:73%;--rw:94%;--rh:24%
+  --rx:3%;
+  --ry:73%;
+  --rw:94%;
+  --rh:24%;
 }
 .scanner.lens-gls{
---rx:17%;--ry:13%;--rw:66%;--rh:22%
+  --rx:17%;
+  --ry:13%;
+  --rw:66%;
+  --rh:22%;
 }
 .scanner.lens-ups{
---rx:3%;--ry:43%;--rw:94%;--rh:20%
+  --rx:3%;
+  --ry:43%;
+  --rw:94%;
+  --rh:20%;
 }
-.lens{position:absolute;inset:0;pointer-events:none;display:none}
+.lens{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  display:none;
+}
 .scanner.lens-active .lens{display:block}
 .lens-mask{
-position:absolute;
-background:repeating-linear-gradient(
-135deg,
-rgba(255,0,0,.82) 0 12px,
-rgba(0,0,0,.9) 12px 24px
-)
+  position:absolute;
+  background:repeating-linear-gradient(
+    135deg,
+    rgba(255,0,0,.82) 0 12px,
+    rgba(0,0,0,.9) 12px 24px
+  );
 }
-.lens-top{left:0;top:0;width:100%;height:var(--ry)}
+.lens-top{
+  left:0;
+  top:0;
+  width:100%;
+  height:var(--ry);
+}
 .lens-bottom{
-left:0;top:calc(var(--ry) + var(--rh));width:100%;bottom:0
+  left:0;
+  top:calc(var(--ry) + var(--rh));
+  width:100%;
+  bottom:0;
 }
 .lens-left{
-left:0;top:var(--ry);width:var(--rx);height:var(--rh)
+  left:0;
+  top:var(--ry);
+  width:var(--rx);
+  height:var(--rh);
 }
 .lens-right{
-left:calc(var(--rx) + var(--rw));
-right:0;top:var(--ry);height:var(--rh)
+  left:calc(var(--rx) + var(--rw));
+  right:0;
+  top:var(--ry);
+  height:var(--rh);
 }
 .lens-window{
-position:absolute;
-left:var(--rx);top:var(--ry);
-width:var(--rw);height:var(--rh);
-border:3px solid #f020ff;
-border-radius:8px;
-box-shadow:0 0 0 1px white,0 0 18px #e800ff;
-background:transparent
+  position:absolute;
+  left:var(--rx);
+  top:var(--ry);
+  width:var(--rw);
+  height:var(--rh);
+  border:3px solid #f020ff;
+  border-radius:8px;
+  box-shadow:0 0 0 1px white,0 0 18px #e800ff;
+  background:transparent;
 }
 .lens-name{
-position:absolute;left:8px;top:8px;
-padding:5px 9px;background:#000c;
-border-radius:6px;font-weight:900
+  position:absolute;
+  left:8px;
+  top:8px;
+  padding:5px 9px;
+  background:#000c;
+  border-radius:6px;
+  font-weight:900;
 }
 .scan-overlay{
-position:absolute;left:0;right:0;bottom:3px;
-text-align:center;pointer-events:none
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:3px;
+  text-align:center;
+  pointer-events:none;
 }
 .scan-overlay span{
-display:inline-block;background:#000c;
-padding:5px 9px;border-radius:6px;font-size:12px
+  display:inline-block;
+  background:#000c;
+  padding:5px 9px;
+  border-radius:6px;
+  font-size:12px;
+}
+
+/* NEU: BARCODE-AUSWAHL */
+
+.barcode-picker{
+  margin-top:15px;
+  padding:14px;
+  border:2px solid #8d64df;
+  border-radius:13px;
+  background:#241c35;
+}
+.barcode-picker h3{
+  margin:0 0 8px;
+  color:#e1c9ff;
+}
+.barcode-picker p{
+  margin:7px 0 12px;
+}
+.barcode-option{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:13px;
+  margin:8px 0;
+  border:1px solid #655579;
+  border-radius:10px;
+  background:#191525;
+  cursor:pointer;
+}
+.barcode-option:has(input:checked){
+  border:2px solid #d99aff;
+  background:#38254c;
+}
+.barcode-option input{
+  width:22px;
+  min-height:22px;
+  height:22px;
+  margin:2px 0 0;
+  accent-color:#c889ff;
+  flex-shrink:0;
+}
+.barcode-option-content{
+  min-width:0;
+  flex:1;
+}
+.barcode-value{
+  font-family:ui-monospace,monospace;
+  font-size:15px;
+  font-weight:800;
+  overflow-wrap:anywhere;
+}
+.barcode-meta{
+  display:block;
+  margin-top:5px;
+  font-size:12px;
+  color:#d4c6e0;
+}
+.barcode-tag{
+  display:inline-block;
+  margin-top:7px;
+  padding:4px 8px;
+  border-radius:5px;
+  background:#4b3a61;
+  font-size:11px;
+  font-weight:700;
+}
+.picker-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.picker-actions button{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.preview-photo{
+  display:block;
+  max-width:100%;
+  max-height:220px;
+  object-fit:contain;
+  margin:10px auto;
+  border-radius:9px;
+  border:1px solid #655579;
+}
+.status-small{
+  font-size:12px;
+  color:#cfcfcf;
 }
 @media(min-width:720px){
-.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
 }
 </style>
 </head>
 <body>
 
 <header>
-<strong>LOAD<span>GUARD</span></strong>
-<div class="row">
-<small id="who"></small>
-<button id="logout" class="secondary hidden" type="button">Abmelden</button>
-</div>
+  <strong>LOAD<span>GUARD</span></strong>
+  <div class="row">
+    <small id="who"></small>
+    <button
+      id="logout"
+      class="secondary hidden"
+      type="button"
+    >Abmelden</button>
+  </div>
 </header>
 
 <main>
 
 <section id="loginView" class="card">
-<h1>Anmelden</h1>
-<form id="loginForm">
-<label>E-Mail</label>
-<input id="email" type="email" autocomplete="username" required>
-<label>Passwort</label>
-<input id="password" type="password" autocomplete="current-password" required>
-<button id="loginButton" disabled>Anwendung lädt …</button>
-</form>
-<div id="loginMessage" class="notice">LoadGuard startet …</div>
+  <h1>Anmelden</h1>
+
+  <form id="loginForm">
+    <label for="email">E-Mail</label>
+    <input
+      id="email"
+      type="email"
+      autocomplete="username"
+      required
+    >
+
+    <label for="password">Passwort</label>
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button id="loginButton" disabled>
+      Anwendung lädt …
+    </button>
+  </form>
+
+  <div id="loginMessage" class="notice">
+    LoadGuard startet …
+  </div>
 </section>
 
 <section id="appView" class="hidden">
 
-<div class="card">
-<h1>Verladung prüfen</h1>
-<p id="workerName"></p>
-<p class="hint">
-Automatische Paketdienst-Erkennung anhand von
-Präfix, Länge und Zeichenformat.
-Nur eindeutige, freigegebene Formate werden zugeordnet.
-Mehrdeutige Formate bleiben gesperrt.
-Eine Formatübereinstimmung bestätigt keine echte Sendung.
-Die digitale Sperre ist keine physische Verriegelung.
-</p>
-</div>
+  <div class="card">
+    <h1>Verladung prüfen</h1>
+    <p id="workerName"></p>
 
-<section id="truckSetup" class="card">
-<h2>01 · LKW scannen</h2>
-<p>LKW-Tür-Barcode: DHL, DPD, GLS oder UPS.</p>
-<input id="truckCode" placeholder="LKW-Barcode">
-<div class="grid">
-<button id="truckCamera" class="secondary" type="button">📷 LKW scannen</button>
-<button id="truckAccept" type="button">LKW übernehmen</button>
-</div>
-<div id="truckMessage" class="notice">Noch kein LKW aktiv.</div>
-</section>
+    <p class="hint">
+      Automatische Paketdienst-Erkennung.
+      Mehrdeutige oder unbekannte Formate bleiben
+      gesperrt. Die Auswahl eines Barcodes ist
+      keine Freigabe des Pakets.
+      LoadGuard ist keine physische
+      Sicherheitsverriegelung.
+    </p>
+  </div>
 
-<section id="loadingView" class="hidden">
+  <section id="truckSetup" class="card">
+    <h2>01 · LKW scannen</h2>
 
-<div class="card">
-<h2>Aktiver LKW: <span id="activeTruck">–</span></h2>
-<small id="sessionStart"></small>
-<div class="grid">
-<div class="metric">
-<small>Freigegeben</small>
-<strong id="sessionOk">0</strong>
-</div>
-<div class="metric">
-<small>Blockiert</small>
-<strong id="sessionBlocked">0</strong>
-</div>
-</div>
-<button id="endSession" class="secondary" type="button">
-Verladung beenden / LKW wechseln
-</button>
-</div>
+    <p>
+      LKW-Tür-Barcode: DHL, DPD, GLS oder UPS.
+    </p>
 
-<div class="card">
-<h2>02 · Pakete scannen</h2>
-<p>Barcode in das violette Fenster halten oder TC-Hardware-Scanner verwenden.</p>
+    <input
+      id="truckCode"
+      placeholder="LKW-Barcode"
+      autocomplete="off"
+    >
 
-<label>Paketbarcode</label>
-<input id="parcel" placeholder="Paketbarcode">
+    <div class="grid">
+      <button
+        id="truckCamera"
+        class="secondary"
+        type="button"
+      >📷 LKW scannen</button>
 
-<div class="grid">
-<button id="parcelAccept" type="button">Paket prüfen</button>
-<button id="parcelCamera" class="secondary" type="button">📷 Kamera starten</button>
-<button id="parcelGallery" class="secondary" type="button">🖼️ Paketfoto scannen</button>
-</div>
+      <button
+        id="truckAccept"
+        type="button"
+      >LKW übernehmen</button>
+    </div>
 
-<input id="parcelFile" class="hidden" type="file" accept="image/*">
+    <div id="truckMessage" class="notice">
+      Noch kein LKW aktiv.
+    </div>
+  </section>
 
-<div id="result" class="notice">Bereit.</div>
+  <section id="loadingView" class="hidden">
 
-<button id="ack" class="danger hidden" type="button">
-⛔ STOPP verstanden – weiterscannen
-</button>
-</div>
+    <div class="card">
+      <h2>
+        Aktiver LKW:
+        <span id="activeTruck">–</span>
+      </h2>
 
-</section>
+      <small id="sessionStart"></small>
 
-<div class="card">
-<h2>Kamera / Scanner</h2>
+      <div class="grid">
+        <div class="metric">
+          <small>Freigegeben</small>
+          <strong id="sessionOk">0</strong>
+        </div>
 
-<div id="scannerFrame" class="scanner">
-<video id="video" playsinline muted></video>
+        <div class="metric">
+          <small>Blockiert</small>
+          <strong id="sessionBlocked">0</strong>
+        </div>
+      </div>
 
-<div class="lens" aria-hidden="true">
-<div class="lens-mask lens-top"></div>
-<div class="lens-mask lens-bottom"></div>
-<div class="lens-mask lens-left"></div>
-<div class="lens-mask lens-right"></div>
-<div class="lens-window"></div>
-<div id="lensName" class="lens-name"></div>
-</div>
+      <button
+        id="endSession"
+        class="secondary"
+        type="button"
+      >
+        Verladung beenden / LKW wechseln
+      </button>
+    </div>
 
-<div class="scan-overlay">
-<span id="scannerLabel">Kamera aus</span>
-</div>
-</div>
+    <div class="card">
+      <h2>02 · Pakete scannen</h2>
 
-<button id="stopCamera" class="secondary hidden" type="button">
-Kamera pausieren
-</button>
+      <p>
+        Kamera, Galerie oder roten
+        TC-Hardware-Scanner verwenden.
+      </p>
 
-<p class="mini">
-Rot-schwarz = nicht scannen.
-Violettes Fenster = aktiver Scanbereich.
-</p>
-</div>
+      <label for="parcel">
+        Paketbarcode
+      </label>
 
-<section id="adminView" class="hidden">
+      <input
+        id="parcel"
+        placeholder="Paketbarcode"
+        autocomplete="off"
+        autocapitalize="characters"
+      >
 
-<div id="trainingCard" class="card">
-<h2>🖼️ Barcode-Beispiele erfassen</h2>
-<p>
-Echte Paketetiketten mit Kamera oder Galerie erfassen.
-Beispiele werden nicht automatisch zu Freigaberegeln.
-</p>
+      <div class="grid">
+        <button
+          id="parcelAccept"
+          type="button"
+        >Paket prüfen</button>
 
-<label>Paketdienst</label>
-<select id="sampleCarrier">
-<option>DHL</option>
-<option>DPD</option>
-<option>GLS</option>
-<option>UPS</option>
-</select>
+        <button
+          id="parcelCamera"
+          class="secondary"
+          type="button"
+        >📷 Kamera starten</button>
 
-<label>Barcode</label>
-<input id="sampleCode" placeholder="Barcode">
+        <button
+          id="parcelGallery"
+          class="secondary"
+          type="button"
+        >🖼️ Paketfoto scannen</button>
+      </div>
 
-<div class="grid">
-<button id="sampleCamera" class="secondary" type="button">📷 Kamera</button>
-<button id="sampleGallery" class="secondary" type="button">🖼️ Galerie</button>
-<button id="sampleSave" type="button">Beispiel speichern</button>
-</div>
+      <input
+        id="parcelFile"
+        class="hidden"
+        type="file"
+        accept="image/*"
+      >
 
-<input id="sampleFile" class="hidden" type="file" accept="image/*">
+      <div id="result" class="notice">
+        Bereit.
+      </div>
 
-<div id="sampleMessage" class="notice">Noch kein Beispiel erfasst.</div>
+      <!-- NEU: AUSWAHL FÜR PAKETFOTOS -->
+      <div
+        id="parcelPicker"
+        class="barcode-picker hidden"
+      >
+        <h3>🔎 Erkannte Barcodes auswählen</h3>
 
-<div class="row">
-<h3>Gespeicherte Beispiele</h3>
-<button id="sampleRefresh" class="secondary" type="button">Aktualisieren</button>
-</div>
+        <p>
+          Wähle die Sendungsnummer aus,
+          die geprüft werden soll.
+        </p>
 
-<div class="scroll">
-<table>
-<thead>
-<tr><th>Dienst</th><th>Barcode</th><th>Datum</th><th>Aktion</th></tr>
-</thead>
-<tbody id="sampleList"></tbody>
-</table>
-</div>
-</div>
+        <img
+          id="parcelPreview"
+          class="preview-photo hidden"
+          alt="Paketfoto"
+        >
 
-<div class="card">
-<div class="row">
-<h2>Admin-Dashboard</h2>
-<button id="refresh" class="secondary" type="button">Aktualisieren</button>
-</div>
-<div class="grid">
-<div class="metric"><small>Scans</small><strong id="total">0</strong></div>
-<div class="metric"><small>Erfolgreich</small><strong id="successful">0</strong></div>
-<div class="metric"><small>Blockiert</small><strong id="blocked">0</strong></div>
-<div class="metric"><small>Mitarbeiter</small><strong id="staffCount">0</strong></div>
-</div>
-</div>
+        <div id="parcelCandidates"></div>
 
-<div class="card">
-<h2>Scans je Mitarbeiter</h2>
-<div class="scroll">
-<table>
-<thead><tr><th>Mitarbeiter</th><th>Erfolgreich</th><th>Fehler</th></tr></thead>
-<tbody id="performance"></tbody>
-</table>
-</div>
-</div>
+        <div class="picker-actions">
+          <button
+            id="parcelChoose"
+            type="button"
+          >✓ Barcode übernehmen</button>
 
-<div class="card">
-<h2>LKW-Barcodes verwalten</h2>
-<input id="newDock" placeholder="Barcode">
-<select id="newCarrier">
-<option>DHL</option>
-<option>DPD</option>
-<option>GLS</option>
-<option>UPS</option>
-</select>
-<button id="saveDock" type="button">Barcode speichern</button>
-<div id="dockList"></div>
-</div>
+          <button
+            id="parcelCancel"
+            class="secondary"
+            type="button"
+          >Abbrechen</button>
+        </div>
 
-<div class="card">
-<h2>Mitarbeiter verwalten</h2>
-<input id="staffCode" placeholder="Mitarbeiter-ID">
-<input id="staffName" placeholder="Name">
-<input id="staffUid" placeholder="Supabase Auth User UID">
-<button id="saveStaff" type="button">Mitarbeiter hinzufügen</button>
-<div id="staffList"></div>
-</div>
+        <p class="status-small">
+          Der ausgewählte Barcode wird anschließend
+          ganz normal geprüft. Unbekannte oder
+          mehrdeutige Formate bleiben gesperrt.
+        </p>
+      </div>
 
-<div class="card">
-<h2>Warntöne</h2>
-<label>
-<input id="sound" type="checkbox" checked style="width:auto;min-height:auto">
-Töne aktivieren
-</label>
-<label>
-<input id="blink" type="checkbox" checked style="width:auto;min-height:auto">
-Rotes Blinken
-</label>
-</div>
+      <button
+        id="ack"
+        class="danger hidden"
+        type="button"
+      >
+        ⛔ STOPP verstanden – weiterscannen
+      </button>
+    </div>
 
-<div class="card">
-<div class="row">
-<h2>Scanprotokoll</h2>
-<button id="csv" class="secondary" type="button">CSV exportieren</button>
-</div>
-<div class="scroll">
-<table>
-<thead>
-<tr>
-<th>Zeit</th><th>Mitarbeiter</th><th>Paket</th>
-<th>Carrier</th><th>LKW</th><th>Ergebnis</th>
-</tr>
-</thead>
-<tbody id="logs"></tbody>
-</table>
-</div>
-</div>
+  </section>
 
-</section>
+  <div class="card">
+    <h2>Kamera / Scanner</h2>
+
+    <div id="scannerFrame" class="scanner">
+      <video
+        id="video"
+        playsinline
+        muted
+      ></video>
+
+      <div class="lens" aria-hidden="true">
+        <div class="lens-mask lens-top"></div>
+        <div class="lens-mask lens-bottom"></div>
+        <div class="lens-mask lens-left"></div>
+        <div class="lens-mask lens-right"></div>
+        <div class="lens-window"></div>
+        <div id="lensName" class="lens-name"></div>
+      </div>
+
+      <div class="scan-overlay">
+        <span id="scannerLabel">
+          Kamera aus
+        </span>
+      </div>
+    </div>
+
+    <button
+      id="stopCamera"
+      class="secondary hidden"
+      type="button"
+    >
+      Kamera pausieren
+    </button>
+
+    <p class="mini">
+      Rot-schwarz = kein Kamerascan.
+      Violettes Fenster = aktiver Scanbereich.
+      Der TC-Hardware-Scanner ist davon unabhängig.
+    </p>
+  </div>
+
+  <section id="adminView" class="hidden">
+
+    <div id="trainingCard" class="card">
+      <h2>🖼️ Barcode-Beispiele erfassen</h2>
+
+      <p>
+        Barcode-Beispiele aus Kamera oder Galerie
+        erfassen. Gespeicherte Beispiele werden
+        nicht automatisch zu Freigaberegeln.
+      </p>
+
+      <label for="sampleCarrier">
+        Paketdienst
+      </label>
+
+      <select id="sampleCarrier">
+        <option>DHL</option>
+        <option>DPD</option>
+        <option>GLS</option>
+        <option>UPS</option>
+      </select>
+
+      <label for="sampleCode">
+        Barcode
+      </label>
+
+      <input
+        id="sampleCode"
+        placeholder="Barcode"
+      >
+
+      <div class="grid">
+        <button
+          id="sampleCamera"
+          class="secondary"
+          type="button"
+        >📷 Kamera</button>
+
+        <button
+          id="sampleGallery"
+          class="secondary"
+          type="button"
+        >🖼️ Galerie</button>
+
+        <button
+          id="sampleSave"
+          type="button"
+        >Beispiel speichern</button>
+      </div>
+
+      <input
+        id="sampleFile"
+        class="hidden"
+        type="file"
+        accept="image/*"
+      >
+
+      <div id="sampleMessage" class="notice">
+        Noch kein Beispiel erfasst.
+      </div>
+
+      <!-- NEU: AUSWAHL FÜR ADMIN -->
+      <div
+        id="samplePicker"
+        class="barcode-picker hidden"
+      >
+        <h3>🔎 Erkannte Barcodes auswählen</h3>
+
+        <p>
+          Wähle den Barcode, der als Beispiel
+          erfasst werden soll.
+        </p>
+
+        <img
+          id="samplePreview"
+          class="preview-photo hidden"
+          alt="Paketetikett"
+        >
+
+        <div id="sampleCandidates"></div>
+
+        <div class="picker-actions">
+          <button
+            id="sampleChoose"
+            type="button"
+          >✓ Barcode übernehmen</button>
+
+          <button
+            id="sampleCancel"
+            class="secondary"
+            type="button"
+          >Abbrechen</button>
+        </div>
+
+        <p class="status-small">
+          Nach der Übernahme bitte den
+          Paketdienst kontrollieren und
+          das Beispiel separat speichern.
+        </p>
+      </div>
+
+      <div class="row">
+        <h3>Gespeicherte Beispiele</h3>
+
+        <button
+          id="sampleRefresh"
+          class="secondary"
+          type="button"
+        >Aktualisieren</button>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Dienst</th>
+              <th>Barcode</th>
+              <th>Datum</th>
+              <th>Aktion</th>
+            </tr>
+          </thead>
+          <tbody id="sampleList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2>Admin-Dashboard</h2>
+
+        <button
+          id="refresh"
+          class="secondary"
+          type="button"
+        >Aktualisieren</button>
+      </div>
+
+      <div class="grid">
+        <div class="metric">
+          <small>Scans</small>
+          <strong id="total">0</strong>
+        </div>
+
+        <div class="metric">
+          <small>Erfolgreich</small>
+          <strong id="successful">0</strong>
+        </div>
+
+        <div class="metric">
+          <small>Blockiert</small>
+          <strong id="blocked">0</strong>
+        </div>
+
+        <div class="metric">
+          <small>Mitarbeiter</small>
+          <strong id="staffCount">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Scans je Mitarbeiter</h2>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Mitarbeiter</th>
+              <th>Erfolgreich</th>
+              <th>Fehler</th>
+            </tr>
+          </thead>
+          <tbody id="performance"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>LKW-Barcodes verwalten</h2>
+
+      <input
+        id="newDock"
+        placeholder="Barcode"
+      >
+
+      <select id="newCarrier">
+        <option>DHL</option>
+        <option>DPD</option>
+        <option>GLS</option>
+        <option>UPS</option>
+      </select>
+
+      <button
+        id="saveDock"
+        type="button"
+      >Barcode speichern</button>
+
+      <div id="dockList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Mitarbeiter verwalten</h2>
+
+      <input
+        id="staffCode"
+        placeholder="Mitarbeiter-ID"
+      >
+
+      <input
+        id="staffName"
+        placeholder="Name"
+      >
+
+      <input
+        id="staffUid"
+        placeholder="Supabase Auth User UID"
+      >
+
+      <button
+        id="saveStaff"
+        type="button"
+      >Mitarbeiter hinzufügen</button>
+
+      <div id="staffList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Warntöne</h2>
+
+      <label>
+        <input
+          id="sound"
+          type="checkbox"
+          checked
+          style="width:auto;min-height:auto"
+        >
+        Töne aktivieren
+      </label>
+
+      <label>
+        <input
+          id="blink"
+          type="checkbox"
+          checked
+          style="width:auto;min-height:auto"
+        >
+        Rotes Blinken
+      </label>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h2>Scanprotokoll</h2>
+
+        <button
+          id="csv"
+          class="secondary"
+          type="button"
+        >CSV exportieren</button>
+      </div>
+
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Zeit</th>
+              <th>Mitarbeiter</th>
+              <th>Paket</th>
+              <th>Carrier</th>
+              <th>LKW</th>
+              <th>Ergebnis</th>
+            </tr>
+          </thead>
+          <tbody id="logs"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
 </section>
 </main>
 
 <script type="module">
-const $=id=>document.getElementById(id);
-const carriers=new Set(['DHL','DPD','GLS','UPS']);
 
-const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({
-'&':'&amp;','<':'&lt;','>':'&gt;',
-'"':'&quot;',"'":'&#39;'
-}[c]));
+/* ==========================================
+   LOADGUARD – GRUNDFUNKTIONEN
+========================================== */
+
+const $=id=>document.getElementById(id);
+
+const carriers=new Set([
+  'DHL','DPD','GLS','UPS'
+]);
+
+const esc=x=>String(x??'').replace(
+  /[&<>"']/g,
+  c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c])
+);
 
 const normalize=x=>
-String(x??'').toUpperCase().replace(/\s+/g,'');
+  String(x??'')
+    .toUpperCase()
+    .replace(/\s+/g,'');
 
-let supabase,Reader,profile;
-let staff=[],docks=[],logs=[],samples=[];
-let truck=null,session=null;
-let controls=null,reader=null,cameraMode=null;
-let cameraToken=0,busy=false,blocked=false;
-let seen=new Set(),lastCode='';
-let audioCtx=null,frameTimer=null;
-let scanLoop=null,scanBusy=false;
+let supabase;
+let Reader;
+let profile;
+
+let staff=[];
+let docks=[];
+let logs=[];
+let samples=[];
+
+let truck=null;
+let session=null;
+
+let controls=null;
+let reader=null;
+let cameraMode=null;
+
+let cameraToken=0;
+let busy=false;
+let blocked=false;
+
+let seen=new Set();
+let lastCode='';
+
+let audioCtx=null;
+let frameTimer=null;
+let scanLoop=null;
+let scanBusy=false;
+
 let scanCanvas=document.createElement('canvas');
 
+/* BARCODE-AUSWAHL-STATUS */
+
+const pickerState={
+  parcel:[],
+  sample:[]
+};
+
+const pickerPhotoUrls={
+  parcel:null,
+  sample:null
+};
+
+let photoAnalysisBusy=false;
+
 function notice(id,text,type=''){
-$(id).textContent=text;
-$(id).className='notice '+type;
+  $(id).textContent=text;
+  $(id).className='notice '+type;
+}
+
+function focusParcel(){
+  if(!truck||blocked)return;
+
+  try{
+    $('parcel').focus({
+      preventScroll:true
+    });
+  }catch(e){
+    $('parcel').focus();
+  }
 }
 
 function frame(type,text){
-const carrier=cameraMode==='parcel'&&truck
-?truck.carrier.toLowerCase():'';
+  const carrier=
+    cameraMode==='parcel'&&truck
+      ?truck.carrier.toLowerCase()
+      :'';
 
-$('scannerFrame').className=
-'scanner '+type+
-(carrier?' lens-active lens-'+carrier:'');
+  $('scannerFrame').className=
+    'scanner '+type+
+    (carrier
+      ?' lens-active lens-'+carrier
+      :'');
 
-$('lensName').textContent=carrier
-?truck.carrier+' – Scanner-Linse':'';
+  $('lensName').textContent=carrier
+    ?truck.carrier+' – Scanner-Linse'
+    :'';
 
-$('scannerLabel').textContent=text;
+  $('scannerLabel').textContent=text;
 }
 
 function tone(type){
-if(!$('sound').checked)return;
-try{
-const Audio=window.AudioContext||window.webkitAudioContext;
-if(!Audio)return;
-if(!audioCtx)audioCtx=new Audio();
-audioCtx.resume().catch(()=>{});
+  if(!$('sound').checked)return;
 
-const notes=type==='bad'
-?[[300,0,.3],[240,.35,.3],[300,.7,.3]]
-:type==='ok'
-?[[800,0,.1],[1100,.14,.12]]
-:[[700,0,.1]];
+  try{
+    const Audio=
+      window.AudioContext||
+      window.webkitAudioContext;
 
-for(const [hz,delay,duration] of notes){
-const o=audioCtx.createOscillator();
-const g=audioCtx.createGain();
-o.type=type==='bad'?'square':'sine';
-o.frequency.value=hz;
-g.gain.value=type==='bad'?.15:.08;
-o.connect(g);
-g.connect(audioCtx.destination);
-const t=audioCtx.currentTime+delay;
-o.start(t);
-o.stop(t+duration);
+    if(!Audio)return;
+
+    if(!audioCtx){
+      audioCtx=new Audio();
+    }
+
+    audioCtx.resume().catch(()=>{});
+
+    const notes=type==='bad'
+      ?[
+        [300,0,.3],
+        [240,.35,.3],
+        [300,.7,.3]
+      ]
+      :type==='ok'
+      ?[
+        [800,0,.1],
+        [1100,.14,.12]
+      ]
+      :[
+        [700,0,.1]
+      ];
+
+    for(const [hz,delay,duration] of notes){
+      const o=audioCtx.createOscillator();
+      const g=audioCtx.createGain();
+
+      o.type=type==='bad'
+        ?'square'
+        :'sine';
+
+      o.frequency.value=hz;
+      g.gain.value=type==='bad'
+        ?.15
+        :.08;
+
+      o.connect(g);
+      g.connect(audioCtx.destination);
+
+      const t=audioCtx.currentTime+delay;
+
+      o.start(t);
+      o.stop(t+duration);
+    }
+  }catch(e){
+    console.warn(e);
+  }
 }
-}catch(e){console.warn(e);}
-}
 
-/*
-AUTOMATISCHE CARRIER-ERKENNUNG
-
-Die Erkennung ist unabhängig vom aktiven LKW.
-Mehrdeutige Formate werden nicht freigegeben.
-*/
+/* ==========================================
+   AUTOMATISCHE CARRIER-ERKENNUNG
+========================================== */
 
 function classifyBarcode(raw){
-const code=normalize(raw);
-const candidates=[];
-const reasons=[];
+  const code=normalize(raw);
 
-const add=(carrier,reason)=>{
-if(!candidates.includes(carrier)){
-candidates.push(carrier);
+  const candidates=[];
+  const reasons=[];
+
+  const add=(carrier,reason)=>{
+    if(!candidates.includes(carrier)){
+      candidates.push(carrier);
+    }
+
+    reasons.push(reason);
+  };
+
+  if(/^1Z[A-Z0-9]{16}$/.test(code)){
+    add(
+      'UPS',
+      'UPS 1Z / 18 Zeichen'
+    );
+  }
+
+  if(/^0034\d{16}$/.test(code)){
+    add(
+      'DHL',
+      'DHL 0034 / 20 Ziffern'
+    );
+  }
+
+  if(/^\d{14}$/.test(code)){
+    add(
+      'DPD',
+      'DPD 14 Ziffern – nicht eindeutig'
+    );
+  }
+
+  if(/^\d{11,12}$/.test(code)){
+    add(
+      'GLS',
+      'GLS 11–12 Ziffern – nicht eindeutig'
+    );
+  }
+
+  if(/^[A-Z0-9]{8}$/.test(code)){
+    add(
+      'GLS',
+      'GLS 8 Zeichen – nicht eindeutig'
+    );
+  }
+
+  if(/^\d{10}$/.test(code)){
+    add(
+      'DHL',
+      'DHL Express 10 Ziffern – nicht eindeutig'
+    );
+  }
+
+  if(/^T[A-Z0-9]{10}$/.test(code)){
+    add(
+      'UPS',
+      'UPS T + 10 Zeichen – nicht eindeutig'
+    );
+  }
+
+  if(
+    /^\d{9}$/.test(code)||
+    /^\d{12}$/.test(code)
+  ){
+    add(
+      'UPS',
+      'UPS numerisches Alternativformat – nicht eindeutig'
+    );
+  }
+
+  const unambiguous=
+    /^1Z[A-Z0-9]{16}$/.test(code)||
+    /^0034\d{16}$/.test(code);
+
+  const carrier=
+    unambiguous&&candidates.length===1
+      ?candidates[0]
+      :null;
+
+  return {
+    code,
+    carrier,
+    candidates,
+    reasons,
+    ambiguous:
+      !carrier&&candidates.length>0
+  };
 }
-reasons.push(reason);
+
+/* ==========================================
+   NEU: BARCODE-AUSWAHL
+========================================== */
+
+function clearPicker(mode){
+  pickerState[mode]=[];
+
+  const box=$(mode+'Picker');
+  const list=$(mode+'Candidates');
+  const preview=$(mode+'Preview');
+
+  box.classList.add('hidden');
+  list.innerHTML='';
+
+  preview.classList.add('hidden');
+  preview.removeAttribute('src');
+
+  if(pickerPhotoUrls[mode]){
+    URL.revokeObjectURL(
+      pickerPhotoUrls[mode]
+    );
+
+    pickerPhotoUrls[mode]=null;
+  }
+}
+
+function clearAllPickers(){
+  clearPicker('parcel');
+  clearPicker('sample');
+}
+
+function candidateDescription(code){
+  const c=classifyBarcode(code);
+
+  if(c.carrier){
+    return {
+      title:c.carrier+' – Format erkannt',
+      detail:c.reasons.join(' · '),
+      tag:'Formatkandidat'
+    };
+  }
+
+  if(c.ambiguous){
+    return {
+      title:
+        'Mögliche Dienste: '+
+        c.candidates.join(', '),
+      detail:c.reasons.join(' · '),
+      tag:'Nicht eindeutig'
+    };
+  }
+
+  return {
+    title:'Paketdienst unbekannt',
+    detail:
+      'Kein unterstütztes Format erkannt',
+    tag:'Keine automatische Freigabe'
+  };
+}
+
+function showPicker(mode,codes,file){
+  clearPicker(mode);
+
+  const unique=[
+    ...new Set(
+      codes
+        .map(normalize)
+        .filter(Boolean)
+    )
+  ];
+
+  pickerState[mode]=unique;
+
+  const list=$(mode+'Candidates');
+
+  if(file){
+    const url=URL.createObjectURL(file);
+    pickerPhotoUrls[mode]=url;
+
+    const preview=$(mode+'Preview');
+    preview.src=url;
+    preview.classList.remove('hidden');
+  }
+
+  list.innerHTML=unique.map((code,i)=>{
+    const d=candidateDescription(code);
+
+    return `
+      <label class="barcode-option">
+        <input
+          type="radio"
+          name="${mode}BarcodeChoice"
+          value="${esc(code)}"
+          ${i===0?'checked':''}
+        >
+
+        <span class="barcode-option-content">
+          <span class="barcode-value">
+            ${esc(code)}
+          </span>
+
+          <span class="barcode-meta">
+            ${esc(d.title)}
+          </span>
+
+          <span class="barcode-meta">
+            ${esc(d.detail)}
+          </span>
+
+          <span class="barcode-tag">
+            ${esc(d.tag)}
+          </span>
+        </span>
+      </label>
+    `;
+  }).join('');
+
+  $(mode+'Picker').classList.remove('hidden');
+
+  notice(
+    mode==='parcel'?'result':'sampleMessage',
+    unique.length+
+      ' Barcode'+
+      (unique.length===1?'':'s')+
+      ' erkannt. Bitte auswählen.',
+    ''
+  );
+
+  $(mode+'Picker').scrollIntoView({
+    behavior:'smooth',
+    block:'nearest'
+  });
+}
+
+function selectedBarcode(mode){
+  const selected=document.querySelector(
+    `input[name="${mode}BarcodeChoice"]:checked`
+  );
+
+  return selected
+    ?normalize(selected.value)
+    :'';
+}
+
+$('parcelChoose').onclick=async()=>{
+  const code=selectedBarcode('parcel');
+
+  if(!code){
+    alert('Bitte Barcode auswählen.');
+    return;
+  }
+
+  if(blocked||busy||!truck){
+    return;
+  }
+
+  clearPicker('parcel');
+
+  $('parcel').value=code;
+
+  await processParcel(code);
+
+  if(!blocked){
+    focusParcel();
+  }
 };
 
-if(/^1Z[A-Z0-9]{16}$/.test(code)){
-add('UPS','UPS 1Z / 18 Zeichen');
-}
+$('sampleChoose').onclick=()=>{
+  const code=selectedBarcode('sample');
 
-if(/^0034\d{16}$/.test(code)){
-add('DHL','DHL 0034 / 20 Ziffern');
-}
+  if(!code){
+    alert('Bitte Barcode auswählen.');
+    return;
+  }
 
-if(/^\d{14}$/.test(code)){
-add('DPD','DPD 14 Ziffern – nicht eindeutig');
-}
+  clearPicker('sample');
 
-if(/^\d{11,12}$/.test(code)){
-add('GLS','GLS 11–12 Ziffern – nicht eindeutig');
-}
+  $('sampleCode').value=code;
 
-if(/^[A-Z0-9]{8}$/.test(code)){
-add('GLS','GLS 8 Zeichen – nicht eindeutig');
-}
+  const classification=classifyBarcode(code);
 
-if(/^\d{10}$/.test(code)){
-add('DHL','DHL Express 10 Ziffern – nicht eindeutig');
-}
+  if(classification.carrier){
+    $('sampleCarrier').value=
+      classification.carrier;
+  }
 
-if(/^T[A-Z0-9]{10}$/.test(code)){
-add('UPS','UPS T + 10 Zeichen – nicht eindeutig');
-}
+  notice(
+    'sampleMessage',
+    'Barcode übernommen:\n'+code+
+    '\n\nBitte Paketdienst prüfen '+
+    'und anschließend speichern.',
+    'ok'
+  );
 
-if(/^\d{9}$/.test(code)||/^\d{12}$/.test(code)){
-add('UPS','UPS numerisches Alternativformat – nicht eindeutig');
-}
-
-const unambiguous=
-/^1Z[A-Z0-9]{16}$/.test(code)||
-/^0034\d{16}$/.test(code);
-
-const carrier=
-unambiguous&&candidates.length===1
-?candidates[0]:null;
-
-return {
-code,
-carrier,
-candidates,
-reasons,
-ambiguous:!carrier&&candidates.length>0
+  $('sampleCode').focus();
 };
-}
+
+$('parcelCancel').onclick=()=>{
+  clearPicker('parcel');
+
+  notice(
+    'result',
+    'Barcode-Auswahl abgebrochen.'
+  );
+
+  focusParcel();
+};
+
+$('sampleCancel').onclick=()=>{
+  clearPicker('sample');
+
+  notice(
+    'sampleMessage',
+    'Barcode-Auswahl abgebrochen.'
+  );
+};
+
+/* ==========================================
+   KAMERA-SCANBEREICHE
+========================================== */
 
 function getRegion(carrier){
-switch(carrier){
-case 'DHL':
-case 'DPD':
-return {x:.03,y:.73,w:.94,h:.24};
-case 'GLS':
-return {x:.17,y:.13,w:.66,h:.22};
-case 'UPS':
-return {x:.03,y:.43,w:.94,h:.20};
-default:
-return {x:0,y:0,w:1,h:1};
-}
+  switch(carrier){
+    case 'DHL':
+    case 'DPD':
+      return {
+        x:.03,
+        y:.73,
+        w:.94,
+        h:.24
+      };
+
+    case 'GLS':
+      return {
+        x:.17,
+        y:.13,
+        w:.66,
+        h:.22
+      };
+
+    case 'UPS':
+      return {
+        x:.03,
+        y:.43,
+        w:.94,
+        h:.20
+      };
+
+    default:
+      return {
+        x:0,
+        y:0,
+        w:1,
+        h:1
+      };
+  }
 }
 
 function cropVideoToCanvas(video,carrier){
-const vw=video.videoWidth;
-const vh=video.videoHeight;
-const ew=video.clientWidth;
-const eh=video.clientHeight;
+  const vw=video.videoWidth;
+  const vh=video.videoHeight;
+  const ew=video.clientWidth;
+  const eh=video.clientHeight;
 
-if(!vw||!vh||!ew||!eh)return null;
+  if(!vw||!vh||!ew||!eh){
+    return null;
+  }
 
-const scale=Math.max(ew/vw,eh/vh);
-const visibleW=ew/scale;
-const visibleH=eh/scale;
-const offsetX=(vw-visibleW)/2;
-const offsetY=(vh-visibleH)/2;
+  const scale=Math.max(
+    ew/vw,
+    eh/vh
+  );
 
-const r=getRegion(carrier);
+  const visibleW=ew/scale;
+  const visibleH=eh/scale;
 
-const sx=offsetX+r.x*visibleW;
-const sy=offsetY+r.y*visibleH;
-const sw=r.w*visibleW;
-const sh=r.h*visibleH;
+  const offsetX=(vw-visibleW)/2;
+  const offsetY=(vh-visibleH)/2;
 
-scanCanvas.width=Math.max(1,Math.round(sw));
-scanCanvas.height=Math.max(1,Math.round(sh));
+  const r=getRegion(carrier);
 
-const ctx=scanCanvas.getContext('2d',{
-willReadFrequently:true
-});
+  const sx=offsetX+r.x*visibleW;
+  const sy=offsetY+r.y*visibleH;
+  const sw=r.w*visibleW;
+  const sh=r.h*visibleH;
 
-ctx.drawImage(
-video,
-sx,sy,sw,sh,
-0,0,scanCanvas.width,scanCanvas.height
-);
+  scanCanvas.width=Math.max(
+    1,
+    Math.round(sw)
+  );
 
-return scanCanvas;
+  scanCanvas.height=Math.max(
+    1,
+    Math.round(sh)
+  );
+
+  const ctx=scanCanvas.getContext(
+    '2d',
+    {willReadFrequently:true}
+  );
+
+  ctx.drawImage(
+    video,
+    sx,sy,sw,sh,
+    0,0,
+    scanCanvas.width,
+    scanCanvas.height
+  );
+
+  return scanCanvas;
 }
+
+/* ==========================================
+   KAMERA STOPPEN
+========================================== */
 
 function stopCamera(){
-cameraToken++;
+  cameraToken++;
 
-if(scanLoop){
-clearTimeout(scanLoop);
-scanLoop=null;
+  if(scanLoop){
+    clearTimeout(scanLoop);
+    scanLoop=null;
+  }
+
+  try{
+    controls?.stop();
+  }catch(e){}
+
+  controls=null;
+  reader=null;
+  cameraMode=null;
+
+  const video=$('video');
+
+  if(video.srcObject){
+    video.srcObject
+      .getTracks()
+      .forEach(t=>t.stop());
+
+    video.srcObject=null;
+  }
+
+  $('stopCamera').classList.add('hidden');
+
+  frame('','Kamera aus');
 }
 
-try{controls?.stop();}catch{}
-controls=null;
-reader=null;
-cameraMode=null;
-
-const video=$('video');
-
-if(video.srcObject){
-video.srcObject.getTracks().forEach(t=>t.stop());
-video.srcObject=null;
-}
-
-$('stopCamera').classList.add('hidden');
-frame('','Kamera aus');
-}
+/* ==========================================
+   SESSION
+========================================== */
 
 function resetSession(){
-stopCamera();
-clearTimeout(frameTimer);
+  stopCamera();
 
-truck=null;
-session=null;
-seen=new Set();
-busy=false;
-blocked=false;
-lastCode='';
+  clearTimeout(frameTimer);
+  clearAllPickers();
 
-$('truckSetup').classList.remove('hidden');
-$('loadingView').classList.add('hidden');
-$('ack').classList.add('hidden');
-$('truckCode').value='';
-$('parcel').value='';
-$('sessionOk').textContent='0';
-$('sessionBlocked').textContent='0';
+  truck=null;
+  session=null;
 
-notice('truckMessage','Noch kein LKW aktiv.');
+  seen=new Set();
+
+  busy=false;
+  blocked=false;
+  lastCode='';
+
+  $('truckSetup').classList.remove('hidden');
+  $('loadingView').classList.add('hidden');
+
+  $('ack').classList.add('hidden');
+
+  $('truckCode').value='';
+  $('parcel').value='';
+
+  $('sessionOk').textContent='0';
+  $('sessionBlocked').textContent='0';
+
+  notice(
+    'truckMessage',
+    'Noch kein LKW aktiv.'
+  );
 }
 
 function loginState(loggedIn){
-$('loginView').classList.toggle('hidden',loggedIn);
-$('appView').classList.toggle('hidden',!loggedIn);
-$('logout').classList.toggle('hidden',!loggedIn);
-$('adminView').classList.toggle(
-'hidden',!loggedIn||profile?.role!=='admin'
-);
+  $('loginView').classList.toggle(
+    'hidden',
+    loggedIn
+  );
 
-$('who').textContent=loggedIn?profile.display_name:'';
+  $('appView').classList.toggle(
+    'hidden',
+    !loggedIn
+  );
 
-$('workerName').textContent=loggedIn
-?profile.display_name+' · '+profile.employee_code:'';
+  $('logout').classList.toggle(
+    'hidden',
+    !loggedIn
+  );
+
+  $('adminView').classList.toggle(
+    'hidden',
+    !loggedIn||profile?.role!=='admin'
+  );
+
+  $('who').textContent=loggedIn
+    ?profile.display_name
+    :'';
+
+  $('workerName').textContent=loggedIn
+    ?profile.display_name+
+      ' · '+
+      profile.employee_code
+    :'';
 }
+
+/* ==========================================
+   LOGIN
+========================================== */
 
 async function init(){
-const {data:{user}}=await supabase.auth.getUser();
+  const {
+    data:{user}
+  }=await supabase.auth.getUser();
 
-if(!user){
-profile=null;
-resetSession();
-loginState(false);
-return;
-}
+  if(!user){
+    profile=null;
+    resetSession();
+    loginState(false);
+    return;
+  }
 
-const r=await supabase.from('employees')
-.select('id,employee_code,display_name,role,active')
-.eq('auth_user_id',user.id)
-.eq('active',true)
-.single();
+  const r=await supabase
+    .from('employees')
+    .select(
+      'id,employee_code,display_name,role,active'
+    )
+    .eq('auth_user_id',user.id)
+    .eq('active',true)
+    .single();
 
-if(r.error||!r.data){
-await supabase.auth.signOut();
-profile=null;
-resetSession();
-loginState(false);
-notice('loginMessage','Kein aktiver Mitarbeiter vorhanden.','bad');
-return;
-}
+  if(r.error||!r.data){
+    await supabase.auth.signOut();
 
-profile=r.data;
-resetSession();
-loginState(true);
+    profile=null;
+    resetSession();
+    loginState(false);
 
-if(profile.role==='admin')await refreshAdmin();
+    notice(
+      'loginMessage',
+      'Kein aktiver Mitarbeiter vorhanden.',
+      'bad'
+    );
+
+    return;
+  }
+
+  profile=r.data;
+
+  resetSession();
+  loginState(true);
+
+  if(profile.role==='admin'){
+    await refreshAdmin();
+  }
 }
 
 $('loginForm').onsubmit=async e=>{
-e.preventDefault();
-$('loginButton').disabled=true;
+  e.preventDefault();
 
-try{
-const r=await supabase.auth.signInWithPassword({
-email:$('email').value.trim(),
-password:$('password').value
-});
+  $('loginButton').disabled=true;
 
-if(r.error)throw r.error;
-await init();
-$('password').value='';
-}catch(e){
-notice('loginMessage',e.message,'bad');
-}finally{
-$('loginButton').disabled=false;
-}
+  try{
+    const r=await supabase.auth
+      .signInWithPassword({
+        email:$('email').value.trim(),
+        password:$('password').value
+      });
+
+    if(r.error){
+      throw r.error;
+    }
+
+    await init();
+
+    $('password').value='';
+  }catch(e){
+    notice(
+      'loginMessage',
+      e.message,
+      'bad'
+    );
+  }finally{
+    $('loginButton').disabled=false;
+  }
 };
 
 $('logout').onclick=async()=>{
-if(session&&!confirm('Verladung beenden und abmelden?'))return;
-resetSession();
-await supabase.auth.signOut();
-profile=null;
-loginState(false);
+  if(
+    session&&
+    !confirm(
+      'Verladung beenden und abmelden?'
+    )
+  ){
+    return;
+  }
+
+  resetSession();
+
+  await supabase.auth.signOut();
+
+  profile=null;
+  loginState(false);
 };
+
+/* ==========================================
+   LKW AKTIVIEREN
+========================================== */
 
 async function acceptTruck(value){
-if(!profile||truck||busy)return;
+  if(!profile||truck||busy){
+    return;
+  }
 
-const code=normalize(value??$('truckCode').value);
+  const code=normalize(
+    value??$('truckCode').value
+  );
 
-if(!carriers.has(code)){
-notice('truckMessage','Unbekannter LKW-Barcode.','bad');
-tone('bad');
-return;
+  if(!carriers.has(code)){
+    notice(
+      'truckMessage',
+      'Unbekannter LKW-Barcode.',
+      'bad'
+    );
+
+    tone('bad');
+    return;
+  }
+
+  busy=true;
+
+  try{
+    const r=await supabase
+      .from('docks')
+      .select('barcode,carrier,active')
+      .eq('barcode',code)
+      .eq('active',true)
+      .maybeSingle();
+
+    if(r.error){
+      throw r.error;
+    }
+
+    if(
+      !r.data||
+      r.data.carrier!==code
+    ){
+      throw new Error(
+        'LKW-Barcode nicht aktiv '+
+        'oder falsch zugeordnet.'
+      );
+    }
+
+    truck={
+      barcode:code,
+      carrier:code
+    };
+
+    session={
+      startedAt:new Date(),
+      ok:0,
+      blocked:0
+    };
+
+    seen=new Set();
+
+    $('activeTruck').textContent=code;
+
+    $('sessionStart').textContent=
+      'Beginn: '+
+      session.startedAt
+        .toLocaleString('de-DE');
+
+    $('sessionOk').textContent='0';
+    $('sessionBlocked').textContent='0';
+
+    $('truckSetup').classList.add(
+      'hidden'
+    );
+
+    $('loadingView').classList.remove(
+      'hidden'
+    );
+
+    notice(
+      'result',
+      'LKW aktiv. Kamera wird gestartet.'
+    );
+
+    await startCamera('parcel');
+
+  }catch(e){
+    notice(
+      'truckMessage',
+      e.message,
+      'bad'
+    );
+
+    tone('bad');
+
+  }finally{
+    busy=false;
+
+    if(truck){
+      setTimeout(
+        focusParcel,
+        300
+      );
+    }
+  }
 }
 
-busy=true;
-
-try{
-const r=await supabase.from('docks')
-.select('barcode,carrier,active')
-.eq('barcode',code)
-.eq('active',true)
-.maybeSingle();
-
-if(r.error)throw r.error;
-
-if(!r.data||r.data.carrier!==code){
-throw new Error('LKW-Barcode nicht aktiv oder falsch zugeordnet.');
-}
-
-truck={barcode:code,carrier:code};
-session={startedAt:new Date(),ok:0,blocked:0};
-seen=new Set();
-
-$('activeTruck').textContent=code;
-$('sessionStart').textContent=
-'Beginn: '+session.startedAt.toLocaleString('de-DE');
-
-$('sessionOk').textContent='0';
-$('sessionBlocked').textContent='0';
-
-$('truckSetup').classList.add('hidden');
-$('loadingView').classList.remove('hidden');
-
-notice('result','LKW aktiv. Kamera wird gestartet.');
-await startCamera('parcel');
-
-setTimeout(() => {
-  const feld = document.getElementById('parcel');
-
-  feld.focus({ preventScroll: true });
-}, 300);
-
-}catch(e){
-notice('truckMessage',e.message,'bad');
-tone('bad');
-}finally{
-busy=false;
-}
-}
-
-$('truckAccept').onclick=()=>acceptTruck();
-
-$('truckCode').onkeydown=e=>{
-if(e.key==='Enter'){
-e.preventDefault();
-acceptTruck();
-}
+$('truckAccept').onclick=()=>{
+  acceptTruck();
 };
 
-async function saveLog(status,code,carrier,message){
-const r=await supabase.from('scan_logs').insert({
-employee_id:profile.id,
-parcel_barcode:code,
-detected_carrier:carrier,
-dock_barcode:truck.barcode,
-dock_carrier:truck.carrier,
-status,
-message:'LKW-Verladung ab '+
-session.startedAt.toISOString()+' | '+message
-});
+$('truckCode').onkeydown=e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    acceptTruck();
+  }
+};
 
-if(r.error)throw r.error;
+/* ==========================================
+   PAKETPROTOKOLL
+========================================== */
+
+async function saveLog(
+  status,
+  code,
+  carrier,
+  message
+){
+  const r=await supabase
+    .from('scan_logs')
+    .insert({
+      employee_id:profile.id,
+      parcel_barcode:code,
+      detected_carrier:carrier,
+      dock_barcode:truck.barcode,
+      dock_carrier:truck.carrier,
+      status,
+      message:
+        'LKW-Verladung ab '+
+        session.startedAt.toISOString()+
+        ' | '+
+        message
+    });
+
+  if(r.error){
+    throw r.error;
+  }
 }
+
+/* ==========================================
+   PAKET PRÜFEN
+========================================== */
 
 async function processParcel(value){
-if(!truck||!session||blocked||busy)return;
+  if(
+    !truck||
+    !session||
+    blocked||
+    busy
+  ){
+    return;
+  }
 
-const code=normalize(value??$('parcel').value);
-if(!code)return;
+  const code=normalize(
+    value??$('parcel').value
+  );
 
-busy=true;
-$('parcelAccept').disabled=true;
+  if(!code)return;
 
-try{
-const classification=classifyBarcode(code);
-const carrier=classification.carrier;
-const duplicate=seen.has(code);
+  busy=true;
+  $('parcelAccept').disabled=true;
 
-const status=duplicate?'rejected'
-:!carrier?'unknown_carrier'
-:carrier!==truck.carrier?'wrong_dock'
-:'success';
+  try{
+    const classification=
+      classifyBarcode(code);
 
-const reason=duplicate?'Doppelter Scan'
-:!carrier
-?(classification.ambiguous
-?'Mehrdeutig: '+classification.candidates.join(', ')
-:'Paketdienst unbekannt')
-:carrier!==truck.carrier?'Falscher Paketdienst'
-:'Passender Paketdienst';
+    const carrier=
+      classification.carrier;
 
-await saveLog(status,code,carrier,reason);
+    const duplicate=
+      seen.has(code);
 
-if(status==='success'){
-seen.add(code);
-session.ok++;
-$('sessionOk').textContent=session.ok;
+    const status=duplicate
+      ?'rejected'
+      :!carrier
+      ?'unknown_carrier'
+      :carrier!==truck.carrier
+      ?'wrong_dock'
+      :'success';
 
-notice('result',
-'✓ FREIGEGEBEN\n'+
-carrier+' → '+truck.carrier+
-'\nPaket: '+code,'ok'
-);
+    const reason=duplicate
+      ?'Doppelter Scan'
+      :!carrier
+      ?(
+        classification.ambiguous
+          ?'Mehrdeutig: '+
+            classification.candidates.join(', ')
+          :'Paketdienst unbekannt'
+      )
+      :carrier!==truck.carrier
+      ?'Falscher Paketdienst'
+      :'Passender Paketdienst';
 
-frame('ok','✓ RICHTIG');
-tone('ok');
-$('parcel').value='';
+    await saveLog(
+      status,
+      code,
+      carrier,
+      reason
+    );
 
-clearTimeout(frameTimer);
-frameTimer=setTimeout(()=>{
-if(!blocked&&cameraMode==='parcel'){
-frame('ready','Nächstes Paket');
+    if(status==='success'){
+      seen.add(code);
+
+      session.ok++;
+
+      $('sessionOk').textContent=
+        session.ok;
+
+      notice(
+        'result',
+        '✓ FREIGEGEBEN\n'+
+        carrier+
+        ' → '+
+        truck.carrier+
+        '\nPaket: '+
+        code,
+        'ok'
+      );
+
+      frame(
+        'ok',
+        '✓ RICHTIG'
+      );
+
+      tone('ok');
+
+      $('parcel').value='';
+
+      clearTimeout(frameTimer);
+
+      frameTimer=setTimeout(()=>{
+        if(
+          !blocked&&
+          cameraMode==='parcel'
+        ){
+          frame(
+            'ready',
+            'Nächstes Paket'
+          );
+        }
+      },700);
+
+    }else{
+      blocked=true;
+
+      session.blocked++;
+
+      $('sessionBlocked').textContent=
+        session.blocked;
+
+      notice(
+        'result',
+        '⛔ STOPP – NICHT VERLADEN\n'+
+        reason+
+        '\nPaket: '+
+        code,
+        'bad'
+      );
+
+      frame(
+        'bad',
+        '⛔ STOPP'
+      );
+
+      $('ack').classList.remove(
+        'hidden'
+      );
+
+      tone('bad');
+    }
+
+  }catch(e){
+    blocked=true;
+
+    notice(
+      'result',
+      '⛔ KEINE FREIGABE\n'+
+      e.message,
+      'bad'
+    );
+
+    frame(
+      'bad',
+      '⛔ STOPP'
+    );
+
+    $('ack').classList.remove(
+      'hidden'
+    );
+
+    tone('bad');
+
+  }finally{
+    busy=false;
+
+    $('parcelAccept').disabled=false;
+
+    if(!blocked){
+      setTimeout(
+        focusParcel,
+        100
+      );
+    }
+  }
 }
-},700);
 
-}else{
-blocked=true;
-session.blocked++;
-$('sessionBlocked').textContent=session.blocked;
-
-notice('result',
-'⛔ STOPP – NICHT VERLADEN\n'+
-reason+'\nPaket: '+code,'bad'
-);
-
-frame('bad','⛔ STOPP');
-$('ack').classList.remove('hidden');
-tone('bad');
-}
-
-}catch(e){
-blocked=true;
-notice('result','⛔ KEINE FREIGABE\n'+e.message,'bad');
-frame('bad','⛔ STOPP');
-$('ack').classList.remove('hidden');
-tone('bad');
-
-}finally{
-busy=false;
-$('parcelAccept').disabled=false;
-}
-}
-
-$('parcelAccept').onclick=()=>processParcel();
+$('parcelAccept').onclick=()=>{
+  processParcel();
+};
 
 $('parcel').onkeydown=e=>{
-if(e.key==='Enter'){
-e.preventDefault();
-processParcel();
-}
+  if(e.key==='Enter'){
+    e.preventDefault();
+    processParcel();
+  }
 };
 
 $('ack').onclick=()=>{
-blocked=false;
-lastCode='';
-$('parcel').value='';
-$('ack').classList.add('hidden');
-notice('result','Warnung bestätigt. Nächstes Paket scannen.');
-frame(cameraMode?'ready':'','Bereit');
+  blocked=false;
+  lastCode='';
+
+  $('parcel').value='';
+
+  $('ack').classList.add(
+    'hidden'
+  );
+
+  notice(
+    'result',
+    'Warnung bestätigt. '+
+    'Nächstes Paket scannen.'
+  );
+
+  frame(
+    cameraMode?'ready':'',
+    'Bereit'
+  );
+
+  setTimeout(
+    focusParcel,
+    100
+  );
 };
 
 $('endSession').onclick=()=>{
-if(!truck)return;
-if(!confirm('Verladung beenden?'))return;
-resetSession();
+  if(!truck)return;
+
+  if(!confirm('Verladung beenden?')){
+    return;
+  }
+
+  resetSession();
 };
 
-/* LIVE-KAMERA MIT ECHTEM SCANBEREICH */
+/* ==========================================
+   LIVE-KAMERA
+========================================== */
 
 async function startCamera(mode){
-if(!Reader)return;
+  if(!Reader)return;
 
-if(mode==='sample'&&truck){
-notice('sampleMessage','Zuerst Verladung beenden.','bad');
-return;
+  if(mode==='sample'&&truck){
+    notice(
+      'sampleMessage',
+      'Zuerst Verladung beenden.',
+      'bad'
+    );
+
+    return;
+  }
+
+  stopCamera();
+
+  cameraMode=mode;
+  lastCode='';
+
+  const token=++cameraToken;
+
+  try{
+    reader=new Reader();
+
+    frame(
+      '',
+      'Kamera startet …'
+    );
+
+    $('stopCamera').classList.remove(
+      'hidden'
+    );
+
+    if(mode==='parcel'){
+      const stream=
+        await navigator.mediaDevices
+          .getUserMedia({
+            audio:false,
+            video:{
+              facingMode:{
+                ideal:'environment'
+              },
+              width:{
+                ideal:1920
+              },
+              height:{
+                ideal:1080
+              }
+            }
+          });
+
+      if(token!==cameraToken){
+        stream
+          .getTracks()
+          .forEach(t=>t.stop());
+
+        return;
+      }
+
+      const video=$('video');
+
+      video.srcObject=stream;
+
+      await video.play();
+
+      frame(
+        'ready',
+        'Barcode ins violette Fenster halten'
+      );
+
+      tone('ready');
+
+      focusParcel();
+
+      async function scanFrame(){
+        if(token!==cameraToken){
+          return;
+        }
+
+        if(
+          !blocked&&
+          !busy&&
+          !scanBusy
+        ){
+          scanBusy=true;
+
+          try{
+            const canvas=
+              cropVideoToCanvas(
+                video,
+                truck.carrier
+              );
+
+            if(canvas){
+              const img=new Image();
+
+              img.src=canvas.toDataURL(
+                'image/png'
+              );
+
+              await img.decode();
+
+              const result=
+                await reader
+                  .decodeFromImageElement(img);
+
+              const code=normalize(
+                result.getText()
+              );
+
+              if(
+                code&&
+                code!==lastCode
+              ){
+                lastCode=code;
+
+                await processParcel(code);
+              }
+            }
+
+          }catch(e){
+            // Kein lesbarer Barcode
+            // im aktiven Scanfenster.
+
+          }finally{
+            scanBusy=false;
+          }
+        }
+
+        if(token===cameraToken){
+          scanLoop=setTimeout(
+            scanFrame,
+            220
+          );
+        }
+      }
+
+      scanFrame();
+
+    }else{
+      const c=
+        await reader.decodeFromVideoDevice(
+          undefined,
+          $('video'),
+          result=>{
+            if(
+              token!==cameraToken||
+              !result||
+              blocked||
+              busy
+            ){
+              return;
+            }
+
+            const code=normalize(
+              result.getText()
+            );
+
+            if(
+              !code||
+              code===lastCode
+            ){
+              return;
+            }
+
+            lastCode=code;
+
+            if(mode==='truck'){
+              stopCamera();
+
+              $('truckCode').value=code;
+
+              acceptTruck(code);
+
+            }else{
+              stopCamera();
+
+              $('sampleCode').value=code;
+
+              notice(
+                'sampleMessage',
+                'Barcode erfasst. '+
+                'Paketdienst prüfen '+
+                'und speichern.',
+                'ok'
+              );
+
+              $('trainingCard')
+                .scrollIntoView();
+            }
+          }
+        );
+
+      if(token!==cameraToken){
+        c.stop();
+        return;
+      }
+
+      controls=c;
+
+      frame(
+        'ready',
+        'Barcode scannen'
+      );
+
+      tone('ready');
+    }
+
+  }catch(e){
+    if(token!==cameraToken){
+      return;
+    }
+
+    stopCamera();
+
+    const text=
+      'Kamerafehler: '+
+      e.message;
+
+    if(mode==='sample'){
+      notice(
+        'sampleMessage',
+        text,
+        'bad'
+      );
+
+    }else if(mode==='truck'){
+      notice(
+        'truckMessage',
+        text,
+        'bad'
+      );
+
+    }else{
+      notice(
+        'result',
+        text,
+        'bad'
+      );
+    }
+  }
 }
 
-stopCamera();
-cameraMode=mode;
-lastCode='';
+$('truckCamera').onclick=()=>{
+  startCamera('truck');
+};
 
-const token=++cameraToken;
+$('parcelCamera').onclick=()=>{
+  startCamera('parcel');
+};
 
-try{
-reader=new Reader();
-frame('','Kamera startet …');
-$('stopCamera').classList.remove('hidden');
+$('sampleCamera').onclick=()=>{
+  startCamera('sample');
+};
 
-if(mode==='parcel'){
+$('stopCamera').onclick=()=>{
+  stopCamera();
 
-const stream=await navigator.mediaDevices.getUserMedia({
-audio:false,
-video:{
-facingMode:{ideal:'environment'},
-width:{ideal:1920},
-height:{ideal:1080}
-}
-});
+  if(truck){
+    focusParcel();
+  }
+};
 
-if(token!==cameraToken){
-stream.getTracks().forEach(t=>t.stop());
-return;
-}
+/* ==========================================
+   NEU: MEHRERE BARCODES AUS FOTO LESEN
+========================================== */
 
-const video=$('video');
-video.srcObject=stream;
-await video.play();
+/*
+   Wir prüfen mehrere Bildbereiche.
 
-frame('ready','Barcode ins violette Fenster halten');
-tone('ready');
+   Jeder erfolgreich gelesene Barcode
+   wird gesammelt.
 
-async function scanFrame(){
-if(token!==cameraToken)return;
+   Anschließend wird die vollständige
+   Kandidatenliste angezeigt.
 
-if(!blocked&&!busy&&!scanBusy){
-scanBusy=true;
-
-try{
-const canvas=cropVideoToCanvas(video,truck.carrier);
-
-if(canvas){
-const img=new Image();
-img.src=canvas.toDataURL('image/png');
-await img.decode();
-
-const result=await reader.decodeFromImageElement(img);
-const code=normalize(result.getText());
-
-if(code&&code!==lastCode){
-lastCode=code;
-await processParcel(code);
-}
-}
-}catch(e){
-// Kein Barcode im aktiven Fenster.
-}finally{
-scanBusy=false;
-}
-}
-
-if(token===cameraToken){
-scanLoop=setTimeout(scanFrame,220);
-}
-}
-
-scanFrame();
-
-}else{
-const c=await reader.decodeFromVideoDevice(
-undefined,$('video'),result=>{
-if(token!==cameraToken||!result||blocked||busy)return;
-
-const code=normalize(result.getText());
-if(!code||code===lastCode)return;
-
-lastCode=code;
-
-if(mode==='truck'){
-stopCamera();
-$('truckCode').value=code;
-acceptTruck(code);
-}else{
-stopCamera();
-$('sampleCode').value=code;
-notice('sampleMessage',
-'Barcode erfasst. Paketdienst prüfen und speichern.','ok');
-$('trainingCard').scrollIntoView();
-}
-}
-);
-
-if(token!==cameraToken){
-c.stop();
-return;
-}
-
-controls=c;
-frame('ready','Barcode scannen');
-tone('ready');
-}
-
-}catch(e){
-if(token!==cameraToken)return;
-stopCamera();
-
-const text='Kamerafehler: '+e.message;
-
-if(mode==='sample')notice('sampleMessage',text,'bad');
-else if(mode==='truck')notice('truckMessage',text,'bad');
-else notice('result',text,'bad');
-}
-}
-
-$('truckCamera').onclick=()=>startCamera('truck');
-$('parcelCamera').onclick=()=>startCamera('parcel');
-$('sampleCamera').onclick=()=>startCamera('sample');
-$('stopCamera').onclick=stopCamera;
-
-/* GALERIE-SCANNER */
+   Kein Barcode wird allein wegen
+   seiner Position automatisch freigegeben.
+*/
 
 function imageRegions(){
-return [
-{x:0,y:0,w:1,h:1},
-{x:.15,y:.10,w:.70,h:.80},
-{x:.25,y:.15,w:.50,h:.65},
-{x:0,y:0,w:.5,h:.5},
-{x:.5,y:0,w:.5,h:.5},
-{x:0,y:.5,w:.5,h:.5},
-{x:.5,y:.5,w:.5,h:.5},
-{x:.20,y:.25,w:.60,h:.40},
-{x:.30,y:.30,w:.45,h:.25},
-{x:.20,y:.35,w:.60,h:.25},
-{x:.20,y:.40,w:.60,h:.25}
-];
+  return [
+    {x:0,y:0,w:1,h:1},
+
+    {x:.05,y:.05,w:.90,h:.90},
+    {x:.15,y:.10,w:.70,h:.80},
+    {x:.25,y:.15,w:.50,h:.65},
+
+    {x:0,y:0,w:.5,h:.5},
+    {x:.5,y:0,w:.5,h:.5},
+    {x:0,y:.5,w:.5,h:.5},
+    {x:.5,y:.5,w:.5,h:.5},
+
+    {x:0,y:0,w:1,h:.35},
+    {x:0,y:.30,w:1,h:.35},
+    {x:0,y:.65,w:1,h:.35},
+
+    {x:0,y:0,w:.35,h:1},
+    {x:.30,y:0,w:.40,h:1},
+    {x:.65,y:0,w:.35,h:1},
+
+    {x:.20,y:.25,w:.60,h:.40},
+    {x:.30,y:.30,w:.45,h:.25},
+    {x:.20,y:.35,w:.60,h:.25},
+    {x:.20,y:.40,w:.60,h:.25}
+  ];
 }
 
-function makeCanvas(image,r,contrast=false){
-const sx=Math.floor(r.x*image.naturalWidth);
-const sy=Math.floor(r.y*image.naturalHeight);
-const sw=Math.max(1,Math.floor(r.w*image.naturalWidth));
-const sh=Math.max(1,Math.floor(r.h*image.naturalHeight));
+function makeCanvas(
+  image,
+  region,
+  contrast=false
+){
+  const sx=Math.floor(
+    region.x*image.naturalWidth
+  );
 
-const scale=Math.min(3,1800/sw,2400/sh);
-const c=document.createElement('canvas');
-c.width=Math.max(1,Math.round(sw*scale));
-c.height=Math.max(1,Math.round(sh*scale));
+  const sy=Math.floor(
+    region.y*image.naturalHeight
+  );
 
-const ctx=c.getContext('2d',{willReadFrequently:true});
-ctx.drawImage(image,sx,sy,sw,sh,0,0,c.width,c.height);
+  const sw=Math.max(
+    1,
+    Math.floor(
+      region.w*image.naturalWidth
+    )
+  );
 
-if(contrast){
-const pixels=ctx.getImageData(0,0,c.width,c.height);
-const data=pixels.data;
+  const sh=Math.max(
+    1,
+    Math.floor(
+      region.h*image.naturalHeight
+    )
+  );
 
-for(let i=0;i<data.length;i+=4){
-const gray=.299*data[i]+.587*data[i+1]+.114*data[i+2];
-const v=Math.max(0,Math.min(255,(gray-128)*1.7+128));
-data[i]=v;
-data[i+1]=v;
-data[i+2]=v;
+  const scale=Math.min(
+    3,
+    1800/sw,
+    2400/sh
+  );
+
+  const c=document.createElement(
+    'canvas'
+  );
+
+  c.width=Math.max(
+    1,
+    Math.round(sw*scale)
+  );
+
+  c.height=Math.max(
+    1,
+    Math.round(sh*scale)
+  );
+
+  const ctx=c.getContext(
+    '2d',
+    {willReadFrequently:true}
+  );
+
+  ctx.drawImage(
+    image,
+    sx,sy,sw,sh,
+    0,0,
+    c.width,c.height
+  );
+
+  if(contrast){
+    const pixels=ctx.getImageData(
+      0,0,
+      c.width,
+      c.height
+    );
+
+    const data=pixels.data;
+
+    for(
+      let i=0;
+      i<data.length;
+      i+=4
+    ){
+      const gray=
+        .299*data[i]+
+        .587*data[i+1]+
+        .114*data[i+2];
+
+      const v=Math.max(
+        0,
+        Math.min(
+          255,
+          (gray-128)*1.7+128
+        )
+      );
+
+      data[i]=v;
+      data[i+1]=v;
+      data[i+2]=v;
+    }
+
+    ctx.putImageData(
+      pixels,
+      0,0
+    );
+  }
+
+  return c;
 }
 
-ctx.putImageData(pixels,0,0);
+async function decodeCanvas(
+  canvas,
+  decoder
+){
+  const img=new Image();
+
+  img.src=canvas.toDataURL(
+    'image/png'
+  );
+
+  await img.decode();
+
+  const result=
+    await decoder.decodeFromImageElement(
+      img
+    );
+
+  return normalize(
+    result.getText()
+  );
 }
 
-return c;
-}
-
-async function decodeCanvas(canvas,decoder){
-const img=new Image();
-img.src=canvas.toDataURL('image/png');
-await img.decode();
-const result=await decoder.decodeFromImageElement(img);
-return normalize(result.getText());
-}
+/* ==========================================
+   FOTO ANALYSIEREN UND AUSWAHL ANZEIGEN
+========================================== */
 
 async function analyzePhoto(file,mode){
-if(!file)return;
+  if(!file)return;
 
-if(!file.type.startsWith('image/')){
-alert('Bitte ein Bild auswählen.');
-return;
+  if(photoAnalysisBusy){
+    alert(
+      'Bitte warten, bis die aktuelle '+
+      'Bildanalyse beendet ist.'
+    );
+
+    return;
+  }
+
+  if(!file.type.startsWith('image/')){
+    alert(
+      'Bitte ein Bild auswählen.'
+    );
+
+    return;
+  }
+
+  if(file.size>20*1024*1024){
+    alert(
+      'Bild zu groß. Maximal 20 MB.'
+    );
+
+    return;
+  }
+
+  if(
+    mode==='parcel'&&
+    (
+      !truck||
+      blocked||
+      busy
+    )
+  ){
+    return;
+  }
+
+  if(
+    mode==='sample'&&
+    truck
+  ){
+    notice(
+      'sampleMessage',
+      'Zuerst Verladung beenden.',
+      'bad'
+    );
+
+    return;
+  }
+
+  photoAnalysisBusy=true;
+
+  stopCamera();
+  clearPicker(mode);
+
+  const messageId=
+    mode==='sample'
+      ?'sampleMessage'
+      :'result';
+
+  notice(
+    messageId,
+    '🖼️ Paketfoto wird analysiert …'
+  );
+
+  const url=URL.createObjectURL(file);
+
+  const image=new Image();
+
+  const candidates=new Set();
+
+  try{
+    image.src=url;
+
+    await image.decode();
+
+    const decoder=new Reader();
+
+    const regions=imageRegions();
+
+    let attempts=0;
+
+    const totalAttempts=
+      regions.length*2;
+
+    for(const region of regions){
+      for(const contrast of [
+        false,
+        true
+      ]){
+        attempts++;
+
+        notice(
+          messageId,
+          '🔎 Suche nach Barcodes …\n'+
+          'Versuch '+
+          attempts+
+          ' von '+
+          totalAttempts+
+          '\nBereits gefunden: '+
+          candidates.size
+        );
+
+        try{
+          const canvas=makeCanvas(
+            image,
+            region,
+            contrast
+          );
+
+          const code=await decodeCanvas(
+            canvas,
+            decoder
+          );
+
+          if(code){
+            candidates.add(code);
+          }
+
+        }catch(e){
+          // Kein lesbarer Barcode
+          // in diesem Bildbereich.
+        }
+
+        if(attempts%4===0){
+          await new Promise(
+            resolve=>setTimeout(
+              resolve,
+              0
+            )
+          );
+        }
+      }
+    }
+
+    const recognized=[
+      ...candidates
+    ];
+
+    if(recognized.length===0){
+      notice(
+        messageId,
+        '⛔ Kein Barcode aus dem Foto '+
+        'lesbar.\n\n'+
+        'Bitte das Etikett möglichst '+
+        'gerade und scharf fotografieren. '+
+        'Alternativ den Barcode mit dem '+
+        'TC-Hardware-Scanner erfassen.',
+        'bad'
+      );
+
+      return;
+    }
+
+    /*
+      NEU:
+      Keine automatische Auswahl
+      eines vermeintlich passenden
+      Barcodes mehr.
+
+      Alle gefundenen Nummern
+      werden angezeigt.
+    */
+
+    showPicker(
+      mode,
+      recognized,
+      file
+    );
+
+  }catch(e){
+    notice(
+      messageId,
+      '⛔ Foto konnte nicht '+
+      'analysiert werden.\n'+
+      e.message,
+      'bad'
+    );
+
+  }finally{
+    URL.revokeObjectURL(url);
+    photoAnalysisBusy=false;
+  }
 }
 
-if(file.size>20*1024*1024){
-alert('Bild zu groß. Maximal 20 MB.');
-return;
-}
-
-if(mode==='parcel'&&(!truck||blocked||busy))return;
-if(mode==='sample'&&truck){
-notice('sampleMessage','Zuerst Verladung beenden.','bad');
-return;
-}
-
-stopCamera();
-
-const messageId=mode==='sample'?'sampleMessage':'result';
-notice(messageId,'🖼️ Paketfoto wird analysiert …');
-
-const url=URL.createObjectURL(file);
-const image=new Image();
-const candidates=new Set();
-
-try{
-image.src=url;
-await image.decode();
-
-const decoder=new Reader();
-const regions=imageRegions();
-let attempts=0;
-
-for(const region of regions){
-for(const contrast of [false,true]){
-attempts++;
-
-notice(messageId,
-'🔎 Barcode-Suche: Versuch '+
-attempts+' von '+(regions.length*2)
-);
-
-try{
-const canvas=makeCanvas(image,region,contrast);
-const code=await decodeCanvas(canvas,decoder);
-if(code)candidates.add(code);
-}catch(e){}
-
-if(attempts%4===0){
-await new Promise(resolve=>setTimeout(resolve,0));
-}
-}
-}
-
-const recognized=[...candidates];
-const supported=recognized.filter(code=>classifyBarcode(code).carrier);
-
-if(supported.length>1){
-throw new Error(
-'Mehrere unterschiedliche Sendungsnummern erkannt. '+
-'Bitte Bild auf einen Barcode zuschneiden.'
-);
-}
-
-if(supported.length===1){
-const code=supported[0];
-const carrier=classifyBarcode(code).carrier;
-
-if(mode==='sample'){
-$('sampleCode').value=code;
-$('sampleCarrier').value=carrier;
-
-notice('sampleMessage',
-'✓ Barcode erkannt\n'+
-'Paketdienst: '+carrier+
-'\nBarcode: '+code+
-'\nBitte kontrollieren und speichern.','ok'
-);
-
-$('trainingCard').scrollIntoView();
-}else{
-$('parcel').value=code;
-await processParcel(code);
-}
-return;
-}
-
-if(mode==='sample'&&recognized.length===1){
-$('sampleCode').value=recognized[0];
-
-notice('sampleMessage',
-'Barcode erkannt, Paketdienst nicht sicher bestimmt.\n'+
-'Bitte Etikett prüfen.','bad'
-);
-return;
-}
-
-throw new Error(
-'Kein eindeutiger unterstützter Paketbarcode erkannt. '+
-'Bitte Barcode größer und schärfer fotografieren.'
-);
-
-}catch(e){
-notice(messageId,'⛔ Keine Freigabe\n'+e.message,'bad');
-if(mode==='parcel')tone('bad');
-}finally{
-URL.revokeObjectURL(url);
-}
-}
+/* ==========================================
+   GALERIE-BUTTONS
+========================================== */
 
 $('parcelGallery').onclick=()=>{
-if(truck&&!blocked&&!busy)$('parcelFile').click();
+  if(
+    truck&&
+    !blocked&&
+    !busy&&
+    !photoAnalysisBusy
+  ){
+    $('parcelFile').click();
+  }
 };
 
 $('sampleGallery').onclick=()=>{
-if(profile?.role==='admin')$('sampleFile').click();
+  if(
+    profile?.role==='admin'&&
+    !photoAnalysisBusy
+  ){
+    $('sampleFile').click();
+  }
 };
 
 $('parcelFile').onchange=async()=>{
-const file=$('parcelFile').files?.[0];
-$('parcelFile').value='';
-await analyzePhoto(file,'parcel');
+  const file=
+    $('parcelFile').files?.[0];
+
+  $('parcelFile').value='';
+
+  await analyzePhoto(
+    file,
+    'parcel'
+  );
 };
 
 $('sampleFile').onchange=async()=>{
-const file=$('sampleFile').files?.[0];
-$('sampleFile').value='';
-await analyzePhoto(file,'sample');
+  const file=
+    $('sampleFile').files?.[0];
+
+  $('sampleFile').value='';
+
+  await analyzePhoto(
+    file,
+    'sample'
+  );
 };
 
-/* BARCODE-BEISPIELE */
+/* ==========================================
+   ADMIN: BARCODE-BEISPIELE
+========================================== */
 
 async function refreshSamples(){
-if(profile?.role!=='admin')return;
+  if(profile?.role!=='admin'){
+    return;
+  }
 
-const r=await supabase.from('barcode_examples')
-.select('id,carrier,barcode,created_at')
-.order('created_at',{ascending:false})
-.limit(500);
+  const r=await supabase
+    .from('barcode_examples')
+    .select(
+      'id,carrier,barcode,created_at'
+    )
+    .order(
+      'created_at',
+      {ascending:false}
+    )
+    .limit(500);
 
-if(r.error){
-notice('sampleMessage',r.error.message,'bad');
-return;
-}
+  if(r.error){
+    notice(
+      'sampleMessage',
+      r.error.message,
+      'bad'
+    );
 
-samples=r.data||[];
+    return;
+  }
 
-$('sampleList').innerHTML=samples.length
-?samples.map(s=>
-'<tr><td>'+esc(s.carrier)+'</td><td>'+
-esc(s.barcode)+'</td><td>'+
-esc(new Date(s.created_at).toLocaleString('de-DE'))+
-'</td><td><button class="secondary" data-sample="'+
-esc(s.id)+'" type="button">Löschen</button></td></tr>'
-).join('')
-:'<tr><td colspan="4">Keine Beispiele vorhanden.</td></tr>';
+  samples=r.data||[];
+
+  $('sampleList').innerHTML=
+    samples.length
+      ?samples.map(s=>`
+        <tr>
+          <td>${esc(s.carrier)}</td>
+          <td>${esc(s.barcode)}</td>
+          <td>
+            ${esc(
+              new Date(
+                s.created_at
+              ).toLocaleString('de-DE')
+            )}
+          </td>
+          <td>
+            <button
+              class="secondary"
+              data-sample="${esc(s.id)}"
+              type="button"
+            >Löschen</button>
+          </td>
+        </tr>
+      `).join('')
+      :`
+        <tr>
+          <td colspan="4">
+            Keine Beispiele vorhanden.
+          </td>
+        </tr>
+      `;
 }
 
 $('sampleSave').onclick=async()=>{
-if(profile?.role!=='admin')return;
+  if(profile?.role!=='admin'){
+    return;
+  }
 
-const carrier=$('sampleCarrier').value;
-const barcode=normalize($('sampleCode').value);
+  const carrier=
+    $('sampleCarrier').value;
 
-if(!carriers.has(carrier)||!barcode||barcode.length>150){
-notice('sampleMessage','Ungültiger Barcode.','bad');
-return;
-}
+  const barcode=normalize(
+    $('sampleCode').value
+  );
 
-if(!confirm('Als '+carrier+'-Beispiel speichern?'))return;
+  if(
+    !carriers.has(carrier)||
+    !barcode||
+    barcode.length>150
+  ){
+    notice(
+      'sampleMessage',
+      'Ungültiger Barcode.',
+      'bad'
+    );
 
-const r=await supabase.from('barcode_examples')
-.insert({carrier,barcode});
+    return;
+  }
 
-if(r.error){
-notice('sampleMessage',r.error.message,'bad');
-}else{
-$('sampleCode').value='';
-notice('sampleMessage','Beispiel gespeichert.','ok');
-await refreshSamples();
-}
+  if(
+    !confirm(
+      'Als '+
+      carrier+
+      '-Beispiel speichern?'
+    )
+  ){
+    return;
+  }
+
+  const r=await supabase
+    .from('barcode_examples')
+    .insert({
+      carrier,
+      barcode
+    });
+
+  if(r.error){
+    notice(
+      'sampleMessage',
+      r.error.message,
+      'bad'
+    );
+
+  }else{
+    $('sampleCode').value='';
+
+    notice(
+      'sampleMessage',
+      'Beispiel gespeichert.',
+      'ok'
+    );
+
+    await refreshSamples();
+  }
 };
 
-$('sampleRefresh').onclick=refreshSamples;
+$('sampleRefresh').onclick=
+  refreshSamples;
 
 $('sampleList').onclick=async e=>{
-const id=e.target.dataset?.sample;
-if(!id||!confirm('Beispiel löschen?'))return;
+  const id=
+    e.target.dataset?.sample;
 
-const r=await supabase.from('barcode_examples')
-.delete().eq('id',id);
+  if(
+    !id||
+    !confirm('Beispiel löschen?')
+  ){
+    return;
+  }
 
-if(r.error)alert(r.error.message);
-else await refreshSamples();
+  const r=await supabase
+    .from('barcode_examples')
+    .delete()
+    .eq('id',id);
+
+  if(r.error){
+    alert(r.error.message);
+
+  }else{
+    await refreshSamples();
+  }
 };
 
-/* ADMIN */
+/* ==========================================
+   ADMIN-DASHBOARD
+========================================== */
 
 async function refreshAdmin(){
-if(profile?.role!=='admin')return;
+  if(profile?.role!=='admin'){
+    return;
+  }
 
-const [a,b,c]=await Promise.all([
-supabase.from('employees')
-.select('id,employee_code,display_name,role,active,auth_user_id')
-.order('employee_code'),
+  const [a,b,c]=await Promise.all([
+    supabase
+      .from('employees')
+      .select(
+        'id,employee_code,display_name,role,active,auth_user_id'
+      )
+      .order('employee_code'),
 
-supabase.from('docks')
-.select('id,barcode,carrier,active')
-.order('barcode'),
+    supabase
+      .from('docks')
+      .select(
+        'id,barcode,carrier,active'
+      )
+      .order('barcode'),
 
-supabase.from('scan_logs')
-.select('id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at')
-.order('created_at',{ascending:false})
-.limit(1000)
-]);
+    supabase
+      .from('scan_logs')
+      .select(
+        'id,employee_id,parcel_barcode,detected_carrier,dock_barcode,dock_carrier,status,message,created_at'
+      )
+      .order(
+        'created_at',
+        {ascending:false}
+      )
+      .limit(1000)
+  ]);
 
-if(a.error||b.error||c.error){
-alert((a.error||b.error||c.error).message);
-return;
-}
+  if(
+    a.error||
+    b.error||
+    c.error
+  ){
+    alert(
+      (
+        a.error||
+        b.error||
+        c.error
+      ).message
+    );
 
-staff=a.data||[];
-docks=b.data||[];
-logs=c.data||[];
+    return;
+  }
 
-renderAdmin();
-await refreshSamples();
+  staff=a.data||[];
+  docks=b.data||[];
+  logs=c.data||[];
+
+  renderAdmin();
+
+  await refreshSamples();
 }
 
 function renderAdmin(){
-$('total').textContent=logs.length;
-$('successful').textContent=
-logs.filter(x=>x.status==='success').length;
-$('blocked').textContent=
-logs.filter(x=>x.status!=='success').length;
-$('staffCount').textContent=staff.length;
+  $('total').textContent=
+    logs.length;
 
-const map=new Map(staff.map(x=>[x.id,x]));
+  $('successful').textContent=
+    logs.filter(
+      x=>x.status==='success'
+    ).length;
 
-$('performance').innerHTML=staff.map(s=>{
-const own=logs.filter(x=>x.employee_id===s.id);
+  $('blocked').textContent=
+    logs.filter(
+      x=>x.status!=='success'
+    ).length;
 
-return '<tr><td>'+esc(s.employee_code+' · '+s.display_name)+
-'</td><td>'+own.filter(x=>x.status==='success').length+
-'</td><td>'+own.filter(x=>x.status!=='success').length+
-'</td></tr>';
-}).join('');
+  $('staffCount').textContent=
+    staff.length;
 
-$('dockList').innerHTML=docks.map(d=>
-'<div class="row"><span>'+
-esc(d.barcode+' · '+d.carrier+' · '+(d.active?'aktiv':'inaktiv'))+
-'</span><button class="secondary" data-dock="'+esc(d.id)+'" type="button">'+
-(d.active?'Deaktivieren':'Aktivieren')+
-'</button></div>'
-).join('');
+  const map=new Map(
+    staff.map(
+      x=>[x.id,x]
+    )
+  );
 
-$('staffList').innerHTML=staff.map(s=>
-'<div class="row"><span>'+
-esc(s.employee_code+' · '+s.display_name+' · '+s.role)+
-'</span><button class="secondary" data-staff="'+esc(s.id)+'" '+
-(s.id===profile.id?'disabled':'')+' type="button">'+
-(s.active?'Deaktivieren':'Aktivieren')+
-'</button></div>'
-).join('');
+  $('performance').innerHTML=
+    staff.map(s=>{
+      const own=logs.filter(
+        x=>x.employee_id===s.id
+      );
 
-$('logs').innerHTML=logs.map(l=>
-'<tr><td>'+esc(new Date(l.created_at).toLocaleString('de-DE'))+
-'</td><td>'+esc(map.get(l.employee_id)?.employee_code||l.employee_id)+
-'</td><td>'+esc(l.parcel_barcode)+
-'</td><td>'+esc(l.detected_carrier||'?')+
-'</td><td>'+esc(l.dock_barcode)+
-'</td><td>'+esc(l.status)+'</td></tr>'
-).join('');
+      const ok=own.filter(
+        x=>x.status==='success'
+      ).length;
+
+      const bad=own.filter(
+        x=>x.status!=='success'
+      ).length;
+
+      return `
+        <tr>
+          <td>
+            ${esc(
+              s.employee_code+
+              ' · '+
+              s.display_name
+            )}
+          </td>
+          <td>${ok}</td>
+          <td>${bad}</td>
+        </tr>
+      `;
+    }).join('');
+
+  $('dockList').innerHTML=
+    docks.map(d=>`
+      <div class="row">
+        <span>
+          ${esc(
+            d.barcode+
+            ' · '+
+            d.carrier+
+            ' · '+
+            (
+              d.active
+                ?'aktiv'
+                :'inaktiv'
+            )
+          )}
+        </span>
+
+        <button
+          class="secondary"
+          data-dock="${esc(d.id)}"
+          type="button"
+        >
+          ${
+            d.active
+              ?'Deaktivieren'
+              :'Aktivieren'
+          }
+        </button>
+      </div>
+    `).join('');
+
+  $('staffList').innerHTML=
+    staff.map(s=>`
+      <div class="row">
+        <span>
+          ${esc(
+            s.employee_code+
+            ' · '+
+            s.display_name+
+            ' · '+
+            s.role
+          )}
+        </span>
+
+        <button
+          class="secondary"
+          data-staff="${esc(s.id)}"
+          ${
+            s.id===profile.id
+              ?'disabled'
+              :''
+          }
+          type="button"
+        >
+          ${
+            s.active
+              ?'Deaktivieren'
+              :'Aktivieren'
+          }
+        </button>
+      </div>
+    `).join('');
+
+  $('logs').innerHTML=
+    logs.map(l=>`
+      <tr>
+        <td>
+          ${esc(
+            new Date(
+              l.created_at
+            ).toLocaleString('de-DE')
+          )}
+        </td>
+
+        <td>
+          ${esc(
+            map.get(
+              l.employee_id
+            )?.employee_code||
+            l.employee_id
+          )}
+        </td>
+
+        <td>
+          ${esc(l.parcel_barcode)}
+        </td>
+
+        <td>
+          ${esc(
+            l.detected_carrier||'?'
+          )}
+        </td>
+
+        <td>
+          ${esc(l.dock_barcode)}
+        </td>
+
+        <td>
+          ${esc(l.status)}
+        </td>
+      </tr>
+    `).join('');
 }
 
-$('refresh').onclick=refreshAdmin;
+$('refresh').onclick=
+  refreshAdmin;
+
+/* ==========================================
+   LKW-VERWALTUNG
+========================================== */
 
 $('saveDock').onclick=async()=>{
-const barcode=normalize($('newDock').value);
-const carrier=$('newCarrier').value;
+  const barcode=normalize(
+    $('newDock').value
+  );
 
-if(!barcode)return alert('Barcode fehlt.');
+  const carrier=
+    $('newCarrier').value;
 
-const r=await supabase.from('docks')
-.upsert({barcode,carrier,active:true},{onConflict:'barcode'});
+  if(!barcode){
+    alert('Barcode fehlt.');
+    return;
+  }
 
-if(r.error)alert(r.error.message);
-else{
-$('newDock').value='';
-await refreshAdmin();
-}
+  const r=await supabase
+    .from('docks')
+    .upsert(
+      {
+        barcode,
+        carrier,
+        active:true
+      },
+      {
+        onConflict:'barcode'
+      }
+    );
+
+  if(r.error){
+    alert(r.error.message);
+
+  }else{
+    $('newDock').value='';
+
+    await refreshAdmin();
+  }
 };
 
 $('dockList').onclick=async e=>{
-const id=e.target.dataset?.dock;
-const d=docks.find(x=>x.id===id);
+  const id=
+    e.target.dataset?.dock;
 
-if(!d||!confirm('Status ändern?'))return;
+  const d=docks.find(
+    x=>x.id===id
+  );
 
-const r=await supabase.from('docks')
-.update({active:!d.active}).eq('id',id);
+  if(
+    !d||
+    !confirm('Status ändern?')
+  ){
+    return;
+  }
 
-if(r.error)alert(r.error.message);
-else await refreshAdmin();
+  const r=await supabase
+    .from('docks')
+    .update({
+      active:!d.active
+    })
+    .eq('id',id);
+
+  if(r.error){
+    alert(r.error.message);
+
+  }else{
+    await refreshAdmin();
+  }
 };
 
+/* ==========================================
+   MITARBEITER-VERWALTUNG
+========================================== */
+
 $('saveStaff').onclick=async()=>{
-const employee_code=$('staffCode').value.trim();
-const display_name=$('staffName').value.trim();
-const auth_user_id=$('staffUid').value.trim();
+  const employee_code=
+    $('staffCode').value.trim();
 
-if(!employee_code||!display_name||
-!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(auth_user_id)){
-alert('Bitte gültige Mitarbeiterdaten eingeben.');
-return;
-}
+  const display_name=
+    $('staffName').value.trim();
 
-const r=await supabase.from('employees').insert({
-employee_code,display_name,auth_user_id,
-role:'worker',active:true
-});
+  const auth_user_id=
+    $('staffUid').value.trim();
 
-if(r.error)alert(r.error.message);
-else{
-$('staffCode').value='';
-$('staffName').value='';
-$('staffUid').value='';
-await refreshAdmin();
-}
+  const validUuid=
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if(
+    !employee_code||
+    !display_name||
+    !validUuid.test(auth_user_id)
+  ){
+    alert(
+      'Bitte gültige '+
+      'Mitarbeiterdaten eingeben.'
+    );
+
+    return;
+  }
+
+  const r=await supabase
+    .from('employees')
+    .insert({
+      employee_code,
+      display_name,
+      auth_user_id,
+      role:'worker',
+      active:true
+    });
+
+  if(r.error){
+    alert(r.error.message);
+
+  }else{
+    $('staffCode').value='';
+    $('staffName').value='';
+    $('staffUid').value='';
+
+    await refreshAdmin();
+  }
 };
 
 $('staffList').onclick=async e=>{
-const id=e.target.dataset?.staff;
-if(!id||id===profile.id)return;
+  const id=
+    e.target.dataset?.staff;
 
-const s=staff.find(x=>x.id===id);
-if(!s||!confirm('Mitarbeiterstatus ändern?'))return;
+  if(
+    !id||
+    id===profile.id
+  ){
+    return;
+  }
 
-const r=await supabase.from('employees')
-.update({active:!s.active}).eq('id',id);
+  const s=staff.find(
+    x=>x.id===id
+  );
 
-if(r.error)alert(r.error.message);
-else await refreshAdmin();
+  if(
+    !s||
+    !confirm(
+      'Mitarbeiterstatus ändern?'
+    )
+  ){
+    return;
+  }
+
+  const r=await supabase
+    .from('employees')
+    .update({
+      active:!s.active
+    })
+    .eq('id',id);
+
+  if(r.error){
+    alert(r.error.message);
+
+  }else{
+    await refreshAdmin();
+  }
 };
+
+/* ==========================================
+   CSV-EXPORT
+========================================== */
 
 $('csv').onclick=()=>{
-const columns=[
-'created_at','employee_id','parcel_barcode',
-'detected_carrier','dock_barcode','dock_carrier',
-'status','message'
-];
+  const columns=[
+    'created_at',
+    'employee_id',
+    'parcel_barcode',
+    'detected_carrier',
+    'dock_barcode',
+    'dock_carrier',
+    'status',
+    'message'
+  ];
 
-const q=x=>'"'+String(x??'').replace(/"/g,'""')+'"';
+  const q=x=>
+    '"'+
+    String(x??'')
+      .replace(/"/g,'""')+
+    '"';
 
-const content=[
-columns.join(';'),
-...logs.map(l=>columns.map(k=>q(l[k])).join(';'))
-].join('\r\n');
+  const content=[
+    columns.join(';'),
+    ...logs.map(
+      l=>columns
+        .map(k=>q(l[k]))
+        .join(';')
+    )
+  ].join('\r\n');
 
-const url=URL.createObjectURL(
-new Blob(['\ufeff'+content],{type:'text/csv;charset=utf-8'})
-);
+  const url=URL.createObjectURL(
+    new Blob(
+      ['\ufeff'+content],
+      {
+        type:'text/csv;charset=utf-8'
+      }
+    )
+  );
 
-const a=document.createElement('a');
-a.href=url;
-a.download='loadguard-scans.csv';
-a.click();
+  const a=document.createElement('a');
 
-setTimeout(()=>URL.revokeObjectURL(url),1000);
+  a.href=url;
+  a.download='loadguard-scans.csv';
+
+  a.click();
+
+  setTimeout(
+    ()=>URL.revokeObjectURL(url),
+    1000
+  );
 };
 
-for(const id of ['sound','blink']){
-try{
-$(id).checked=localStorage.getItem('lg_'+id)!=='false';
-}catch{}
+/* ==========================================
+   EINSTELLUNGEN
+========================================== */
 
-$(id).onchange=()=>{
-try{
-localStorage.setItem('lg_'+id,String($(id).checked));
-}catch{}
-};
+for(const id of [
+  'sound',
+  'blink'
+]){
+  try{
+    $(id).checked=
+      localStorage.getItem(
+        'lg_'+id
+      )!=='false';
+
+  }catch(e){}
+
+  $(id).onchange=()=>{
+    try{
+      localStorage.setItem(
+        'lg_'+id,
+        String(
+          $(id).checked
+        )
+      );
+
+    }catch(e){}
+  };
 }
 
-/* START */
+/* ==========================================
+   START
+========================================== */
 
 async function startLoadGuard(){
-try{
-const sm=await import('./supabase.js');
+  try{
+    const sm=await import(
+      './supabase.js'
+    );
 
-if(!sm.supabase){
-throw new Error('Supabase-Client fehlt.');
-}
+    if(!sm.supabase){
+      throw new Error(
+        'Supabase-Client fehlt.'
+      );
+    }
 
-supabase=sm.supabase;
+    supabase=sm.supabase;
 
-const zm=await import('@zxing/browser');
+    const zm=await import(
+      '@zxing/browser'
+    );
 
-if(!zm.BrowserMultiFormatReader){
-throw new Error('Barcode-Scanner fehlt.');
-}
+    if(!zm.BrowserMultiFormatReader){
+      throw new Error(
+        'Barcode-Scanner fehlt.'
+      );
+    }
 
-Reader=zm.BrowserMultiFormatReader;
+    Reader=
+      zm.BrowserMultiFormatReader;
 
-$('loginButton').disabled=false;
-$('loginButton').textContent='Anmelden';
+    $('loginButton').disabled=false;
 
-notice('loginMessage','LoadGuard bereit.');
+    $('loginButton').textContent=
+      'Anmelden';
 
-await init();
+    notice(
+      'loginMessage',
+      'LoadGuard bereit.'
+    );
 
-}catch(e){
-console.error(e);
+    await init();
 
-notice(
-'loginMessage',
-'LoadGuard konnte nicht gestartet werden:\n'+e.message,
-'bad'
-);
-}
+  }catch(e){
+    console.error(e);
+
+    notice(
+      'loginMessage',
+      'LoadGuard konnte nicht '+
+      'gestartet werden:\n'+
+      e.message,
+      'bad'
+    );
+  }
 }
 
 startLoadGuard();
+
 </script>
 </body>
 </html>
